@@ -4,6 +4,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CloudAppRestService, CloudAppEventsService, Request, HttpMethod, 
   Entity, RestErrorResponse, AlertService } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
+import {CloudAppRest} from "@exlibris/exl-cloudapp-angular-lib/lib/rest";
 
 @Component({
   selector: 'app-main',
@@ -45,6 +46,28 @@ export class MainComponent implements OnInit, OnDestroy {
   clear() {
     this.apiResult = null;
     this.selectedEntity = null;
+  }
+
+  nextStep(value: any) {
+    console.log(this.selectedEntity.link + "?op=next_step");
+    let request: Request = {
+      url: this.selectedEntity.link + "?op=next_step",
+      method: HttpMethod.POST,
+    };
+    this.restService.call(request)
+        .pipe(finalize(()=>this.loading=false))
+        .subscribe({
+          next: result => {
+            this.apiResult = result;
+            this.eventsService.refreshPage().subscribe(
+                ()=>this.alert.success('Success!')
+            );
+          },
+          error: (e: RestErrorResponse) => {
+            this.alert.error('Failed to update data: ' + e.message);
+            console.error(e);
+          }
+        });
   }
 
   update(value: any) {

@@ -21,6 +21,9 @@
       <button mat-flat-button color="primary" (click)="update(apiResultArea.value)"
         [disabled]="!apiResult || loading">Update
       </button>
+      <button button mat-flat-button color="danger" (click)="nextStep(selectedEntity)" [disabled]="!apiResult || loading">
+        Next Step
+      </button>
     </div>
     <h1>Entities</h1>
     <mat-card [style.display]="apiResult ? '' : 'none'">
