@@ -1,0 +1,26 @@
+<div class="back-container">
+    <a routerLink="">
+        <button class="back" mat-raised-button>
+            <mat-icon>arrow_back</mat-icon>
+            Back
+        </button>
+    </a>
+</div>
+
+<div class="title">
+    <h1>Admin Configuration</h1>
+</div>
+
+<div *ngIf="config$ | async as configuration">
+    <h2 class="padding-top">API</h2>
+    <mat-form-field>
+        <mat-label>URL</mat-label>
+        <input matInput [(ngModel)]="configuration.api.url" (change)="saveConfig($event, 'API URL is updated.')">
+        <mat-hint></mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Key</mat-label>
+        <input matInput [(ngModel)]="configuration.api.key" (change)="saveConfig($event, 'API KEY is updated.')">
+        <mat-hint></mat-hint>
+    </mat-form-field>
+</div>

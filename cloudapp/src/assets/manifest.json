@@ -2,5 +2,8 @@
    "id": "digitization-addon",
    "title": "Digitization addon",
    "subtitle": "Hej Hej",
-   "author": "Kaptajn Kaper"
+   "author": "Kaptajn Kaper",
+   "pages": {
+      "config": "/#/config"
+   }
 }

@@ -9,11 +9,21 @@ import { MaterialModule, CloudAppTranslateModule, AlertModule } from '@exlibris/
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
+import {ConfigComponent} from "./config/config.component";
+import {ToastrModule} from "ngx-toastr";
+
+
+export function getToastrModule() {
+  return ToastrModule.forRoot({
+    positionClass: 'toast-top-right',
+  });
+}
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainComponent
+    MainComponent,
+    ConfigComponent
   ],
   imports: [
     MaterialModule,
@@ -25,6 +35,7 @@ import { MainComponent } from './main/main.component';
     FormsModule,
     ReactiveFormsModule,     
     CloudAppTranslateModule.forRoot(),
+    getToastrModule(),
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'standard' } },
