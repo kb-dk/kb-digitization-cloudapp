@@ -4,6 +4,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CloudAppRestService, CloudAppEventsService, Request, HttpMethod, 
   Entity, RestErrorResponse, AlertService } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
+import { DestinationService } from "../shared/destination.service";
 
 @Component({
   selector: 'app-main',
@@ -22,10 +23,12 @@ export class MainComponent implements OnInit, OnDestroy {
   constructor(
     private restService: CloudAppRestService,
     private eventsService: CloudAppEventsService,
-    private alert: AlertService 
+    private alert: AlertService,
+    private destination: DestinationService
   ) { }
 
   ngOnInit() {
+    this.sendToDestination();
   }
 
   ngOnDestroy(): void {
@@ -81,4 +84,9 @@ export class MainComponent implements OnInit, OnDestroy {
     }
     return undefined;
   }
+
+  sendToDestination(){
+    this.destination.send();
+  }
+
 }
