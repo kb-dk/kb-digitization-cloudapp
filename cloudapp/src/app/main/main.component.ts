@@ -1,9 +1,13 @@
 import { Observable  } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CloudAppRestService, CloudAppEventsService, Request, HttpMethod, 
-  Entity, RestErrorResponse, AlertService } from '@exlibris/exl-cloudapp-angular-lib';
+import {
+  CloudAppRestService, CloudAppEventsService, Request, HttpMethod,
+  Entity, RestErrorResponse, AlertService, PageInfo
+} from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
+import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
+import getPageMetadata = CloudAppOutgoingEvents.getPageMetadata;
 
 @Component({
   selector: 'app-main',
@@ -12,6 +16,8 @@ import { MatRadioChange } from '@angular/material/radio';
 })
 export class MainComponent implements OnInit, OnDestroy {
 
+  private currentlyAtLibCode: string;
+  private currentlyAtDept: string;
   loading = false;
   selectedEntity: Entity;
   apiResult: any;
@@ -25,8 +31,22 @@ export class MainComponent implements OnInit, OnDestroy {
     private alert: AlertService 
   ) { }
 
+
+
   ngOnInit() {
+    let pageMetadata = this.eventsService.getPageMetadata();
+    console.log('JJ: ' + JSON.stringify(pageMetadata));
+
+    this.eventsService.getInitData().subscribe(data=>{
+      this.currentlyAtLibCode = data.user.currentlyAtLibCode;
+      this.currentlyAtDept = data.user['currentlyAtDept'];
+      console.log("InitData: "  + JSON.stringify(data));
+    })
+
   }
+
+
+
 
   ngOnDestroy(): void {
   }

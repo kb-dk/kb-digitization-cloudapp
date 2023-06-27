@@ -1,3 +1,6 @@
+
+<h3><b>currentlyAtDept:</b> {{currentlyAtDept}} </h3>
+<h3><b>currentlyAtLibCode: </b> {{currentlyAtLibCode}} </h3>
 <div *ngIf="entities$ | async as entities">
   <ng-container 
     *ngIf="entities.length > 0; then entitylist; else noentities"
