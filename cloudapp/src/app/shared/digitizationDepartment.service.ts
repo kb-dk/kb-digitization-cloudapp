@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {CloudAppConfigService} from '@exlibris/exl-cloudapp-angular-lib';
 import {HttpClient} from '@angular/common/http';
-import {catchError, filter, tap} from "rxjs/operators";
+import {catchError, filter, map, tap} from "rxjs/operators";
 import {EMPTY, throwError} from "rxjs";
 
 @Injectable({
@@ -15,7 +15,10 @@ export class DigitizationDepartmentService {
         let config = this.getConfig();
         config.subscribe(
             (config) => {
-                this.sendToDigitization(`${config.api.url}?${config.api.key}${queryParams}`);
+                if(config.api.url){
+                    config.api.key = config.api.key ? config.api.key : '';
+                    this.sendToDigitization(`${config.api.url}?${config.api.key}${queryParams}`);
+                }
             }
         );
     }
@@ -32,12 +35,12 @@ export class DigitizationDepartmentService {
 
     private sendToDigitization(url: string) {
         console.log(url);
-        return this.http.post(url,
-            JSON.stringify({}),
+        return this.http.post(url,'',
             {
-                responseType: 'json',
+                responseType: 'text',
                 withCredentials: false,
             }).pipe(
+            map(data => JSON.parse(data)),
             tap(data => data.hasOwnProperty('error') ? this.handleMaestroError(data) : null),
             filter(data => !data.hasOwnProperty('error')),
             tap(data => console.log(data)),
@@ -52,13 +55,18 @@ export class DigitizationDepartmentService {
     };
 
     private handleMaestroError = (data: Object) => {
-        console.log(data);
         if (data.hasOwnProperty('error')){
-            if (data['error'].hasOwnProperty('barcode')){
-                let errorMessage = data['error']['barcode'][0];
-                console.log(errorMessage.substring(errorMessage.indexOf('"') + 1, errorMessage.lastIndexOf('"')))
+            this.barcodeIsAlreadyInUse(data);
+        }
+    };
+
+    private barcodeIsAlreadyInUse(data: Object) {
+        if (data['error'].hasOwnProperty('barcode')) {
+            let errorMessage = data['error']['barcode'][0];
+            let barcode = errorMessage.substring(errorMessage.indexOf('"') + 1, errorMessage.lastIndexOf('"'));
+            if (errorMessage.includes('has already been taken')) {
+                console.error('This barcode cannot be added, since it already exists in Digitization department system.');
             }
         }
-        console.error(data);
-    };
+    }
 }
