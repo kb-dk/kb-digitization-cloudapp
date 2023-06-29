@@ -5,5 +5,10 @@
    "author": "Kaptajn Kaper",
    "pages": {
       "config": "/#/config"
+   },
+   "contentSecurity": {
+      "connectSrc": [
+         "http://mae-api-test-01.kb.dk/"
+      ]
    }
 }

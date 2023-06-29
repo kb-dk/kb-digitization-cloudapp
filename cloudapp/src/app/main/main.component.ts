@@ -4,7 +4,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CloudAppRestService, CloudAppEventsService, Request, HttpMethod, 
   Entity, RestErrorResponse, AlertService } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
-import { DestinationService } from "../shared/destination.service";
+import { DigitizationDepartmentService } from "../shared/digitizationDepartment.service";
 
 @Component({
   selector: 'app-main',
@@ -24,11 +24,11 @@ export class MainComponent implements OnInit, OnDestroy {
     private restService: CloudAppRestService,
     private eventsService: CloudAppEventsService,
     private alert: AlertService,
-    private destination: DestinationService
+    private digitizationDepartmentService: DigitizationDepartmentService
   ) { }
 
   ngOnInit() {
-    this.sendToDestination();
+    this.sendToDigitizationDepartment();
   }
 
   ngOnDestroy(): void {
@@ -85,8 +85,8 @@ export class MainComponent implements OnInit, OnDestroy {
     return undefined;
   }
 
-  sendToDestination(){
-    this.destination.send();
+  sendToDigitizationDepartment(){
+    this.digitizationDepartmentService.send("&action=book_add&barcode=130024100481&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999");
   }
 
 }
