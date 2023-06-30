@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
 import {ConfigComponent} from "./config/config.component";
 import {ToastrModule} from "ngx-toastr";
+import {DigitizationDepartmentService} from "./shared/digitizationDepartment.service";
 
 
 export function getToastrModule() {
@@ -38,8 +39,9 @@ export function getToastrModule() {
     getToastrModule(),
   ],
   providers: [
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'standard' } },
+    {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'standard'}},
+      DigitizationDepartmentService
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule { }

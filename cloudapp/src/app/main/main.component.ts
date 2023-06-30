@@ -6,6 +6,7 @@ import {
   Entity, RestErrorResponse, AlertService, PageInfo
 } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
+import { DigitizationDepartmentService } from "../shared/digitizationDepartment.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import getPageMetadata = CloudAppOutgoingEvents.getPageMetadata;
 
@@ -28,12 +29,14 @@ export class MainComponent implements OnInit, OnDestroy {
   constructor(
     private restService: CloudAppRestService,
     private eventsService: CloudAppEventsService,
-    private alert: AlertService 
+    private alert: AlertService,
+    private digitizationDepartmentService: DigitizationDepartmentService
   ) { }
 
 
 
   ngOnInit() {
+    this.sendToDigitizationDepartment();
     let pageMetadata = this.eventsService.getPageMetadata();
     console.log('JJ: ' + JSON.stringify(pageMetadata));
 
@@ -42,7 +45,6 @@ export class MainComponent implements OnInit, OnDestroy {
       this.currentlyAtDept = data.user['currentlyAtDept'];
       console.log("InitData: "  + JSON.stringify(data));
     })
-
   }
 
 
@@ -101,4 +103,9 @@ export class MainComponent implements OnInit, OnDestroy {
     }
     return undefined;
   }
+
+  sendToDigitizationDepartment(){
+    this.digitizationDepartmentService.send("&action=book_add&barcode=130024100538&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999");
+  }
+
 }
