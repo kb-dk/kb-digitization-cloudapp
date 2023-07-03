@@ -1,14 +1,10 @@
-import { Observable  } from 'rxjs';
-import { finalize, tap } from 'rxjs/operators';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
 import {
-  CloudAppRestService, CloudAppEventsService, Request, HttpMethod,
-  Entity, RestErrorResponse, AlertService, PageInfo
+  CloudAppRestService, CloudAppEventsService, AlertService,
 } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
 import { DigitizationDepartmentService } from "../shared/digitizationDepartment.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
-import getPageMetadata = CloudAppOutgoingEvents.getPageMetadata;
 
 @Component({
   selector: 'app-main',
@@ -20,11 +16,7 @@ export class MainComponent implements OnInit, OnDestroy {
   private currentlyAtLibCode: string;
   private currentlyAtDept: string;
   loading = false;
-  selectedEntity: Entity;
-  apiResult: any;
-
-  entities$: Observable<Entity[]> = this.eventsService.entities$
-  .pipe(tap(() => this.clear()))
+  @ViewChild('barcode', {static: false}) barcode: ElementRef;
 
   constructor(
     private restService: CloudAppRestService,
@@ -45,6 +37,7 @@ export class MainComponent implements OnInit, OnDestroy {
       this.currentlyAtDept = data.user['currentlyAtDept'];
       console.log("InitData: "  + JSON.stringify(data));
     })
+
   }
 
 
@@ -53,47 +46,7 @@ export class MainComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
-  entitySelected(event: MatRadioChange) {
-    const value = event.value as Entity;
-    this.loading = true;
-    this.restService.call<any>(value.link)
-    .pipe(finalize(()=>this.loading=false))
-    .subscribe(
-      result => this.apiResult = result,
-      error => this.alert.error('Failed to retrieve entity: ' + error.message)
-    );
-  }
 
-  clear() {
-    this.apiResult = null;
-    this.selectedEntity = null;
-  }
-
-  update(value: any) {
-    const requestBody = this.tryParseJson(value)
-    if (!requestBody) return this.alert.error('Failed to parse json');
-
-    this.loading = true;
-    let request: Request = {
-      url: this.selectedEntity.link, 
-      method: HttpMethod.PUT,
-      requestBody
-    };
-    this.restService.call(request)
-    .pipe(finalize(()=>this.loading=false))
-    .subscribe({
-      next: result => {
-        this.apiResult = result;
-        this.eventsService.refreshPage().subscribe(
-          ()=>this.alert.success('Success!')
-        );
-      },
-      error: (e: RestErrorResponse) => {
-        this.alert.error('Failed to update data: ' + e.message);
-        console.error(e);
-      }
-    });    
-  }
 
   private tryParseJson(value: any) {
     try {
@@ -102,6 +55,11 @@ export class MainComponent implements OnInit, OnDestroy {
       console.error(e);
     }
     return undefined;
+  }
+
+  scanBarcode() {
+    console.log("bacode scanned "+this.barcode.nativeElement.value)
+    this.loading=true;
   }
 
   sendToDigitizationDepartment(){
