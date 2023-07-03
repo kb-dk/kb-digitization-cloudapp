@@ -66,7 +66,10 @@ export class MainComponent implements OnInit, OnDestroy {
     const barcode = this.barcode.nativeElement.value;
     const encodedBarcode = encodeURIComponent(barcode);  //URM-159774
     this.restService.call(`/items?item_barcode=${barcode.trim()}`)
-        .pipe(finalize(()=>this.loading=false))
+        .pipe(finalize(()=> {
+          this.loading=false;
+          this.barcode.nativeElement.value = "";
+        }))
         .subscribe(
             result => this.itemFromApi = result,
             error => this.alert.error('Failed to retrieve entity: ' + error.message)
