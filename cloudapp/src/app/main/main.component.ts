@@ -66,15 +66,28 @@ export class MainComponent implements OnInit, OnDestroy {
     const barcode = this.barcode.nativeElement.value;
     const encodedBarcode = encodeURIComponent(barcode);  //URM-159774
     this.restService.call(`/items?item_barcode=${barcode.trim()}`)
+        .subscribe(
+            result => {
+              this.itemFromApi = result;
+              this.getItemRequests(result.link);
+            },
+            error => this.alert.error('Failed to retrieve entity: ' + error.message)
+        );
+  }
+
+  getItemRequests(itemLink:string) {
+
+    this.restService.call<any>(itemLink+"/requests")
         .pipe(finalize(()=> {
           this.loading=false;
           this.barcode.nativeElement.value = "";
         }))
         .subscribe(
-            result => this.itemFromApi = result,
-            error => this.alert.error('Failed to retrieve entity: ' + error.message)
+            result => this.requests=result,
+            error => this.requests=error
         );
   }
+
 
   sendToDigitizationDepartment(){
     this.digitizationDepartmentService.send("&action=book_add&barcode=130024100538&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999");
