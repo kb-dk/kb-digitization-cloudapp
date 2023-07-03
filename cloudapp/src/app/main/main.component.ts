@@ -1,4 +1,5 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { finalize } from "rxjs/operators";
 import {
   CloudAppRestService, CloudAppEventsService, AlertService,
 } from '@exlibris/exl-cloudapp-angular-lib';
@@ -17,12 +18,14 @@ export class MainComponent implements OnInit, OnDestroy {
   private currentlyAtDept: string;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
+  itemFromApi: any;
+  requests: any;
 
   constructor(
-    private restService: CloudAppRestService,
-    private eventsService: CloudAppEventsService,
-    private alert: AlertService,
-    private digitizationDepartmentService: DigitizationDepartmentService
+      private restService: CloudAppRestService,
+      private eventsService: CloudAppEventsService,
+      private alert: AlertService,
+      private digitizationDepartmentService: DigitizationDepartmentService
   ) { }
 
 
@@ -60,6 +63,14 @@ export class MainComponent implements OnInit, OnDestroy {
   scanBarcode() {
     console.log("bacode scanned "+this.barcode.nativeElement.value)
     this.loading=true;
+    const barcode = this.barcode.nativeElement.value;
+    const encodedBarcode = encodeURIComponent(barcode);  //URM-159774
+    this.restService.call(`/items?item_barcode=${barcode.trim()}`)
+        .pipe(finalize(()=>this.loading=false))
+        .subscribe(
+            result => this.itemFromApi = result,
+            error => this.alert.error('Failed to retrieve entity: ' + error.message)
+        );
   }
 
   sendToDigitizationDepartment(){
