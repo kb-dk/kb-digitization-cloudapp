@@ -17,6 +17,7 @@ export class MainComponent implements OnInit, OnDestroy {
   private currentlyAtLibCode: string;
   private currentlyAtDept: string;
   loading = false;
+  itemLoaded: boolean = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
   itemFromApi: any;
   requests: any;
@@ -79,6 +80,7 @@ export class MainComponent implements OnInit, OnDestroy {
     this.restService.call<any>(itemLink+"/requests")
         .pipe(finalize(()=> {
           this.loading=false;
+          this.itemLoaded = true;
           this.barcode.nativeElement.value = "";
         }))
         .subscribe(
@@ -92,4 +94,12 @@ export class MainComponent implements OnInit, OnDestroy {
     this.digitizationDepartmentService.send("&action=book_add&barcode=130024100538&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999");
   }
 
+
+  sendToDigitization() {
+
+  }
+
+  receiveFromDigitization() {
+
+  }
 }

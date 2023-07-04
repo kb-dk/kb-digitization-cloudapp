@@ -5,6 +5,14 @@
   <mat-label translate>Main.ScanLabel</mat-label>
   <input matInput #barcode (keyup.enter)="scanBarcode()" autocomplete="off">
 </mat-form-field>
+<div class="eca-actions" *ngIf="itemLoaded">
+  <button mat-flat-button color="primary" (click)="sendToDigitization()" >
+    Send til Digi
+  </button>
+  <button mat-flat-button color="primary" (click)="receiveFromDigitization()" >
+    Modtag fra Digi
+  </button>
+</div>
 <mat-card [style.display]="itemFromApi ? '' : 'none'">
   <mat-card-header>
     <mat-card-title>Itemdata from API</mat-card-title>
