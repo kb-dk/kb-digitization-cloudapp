@@ -1,7 +1,7 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { finalize } from "rxjs/operators";
 import {
-  CloudAppRestService, CloudAppEventsService, AlertService,
+  CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
 } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
 import { DigitizationDepartmentService } from "../shared/digitizationDepartment.service";
@@ -89,11 +89,9 @@ export class MainComponent implements OnInit, OnDestroy {
         );
   }
 
-
   sendToDigitizationDepartment(){
     this.digitizationDepartmentService.send("&action=book_add&barcode=130024100538&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999");
   }
-
 
   sendToDigitization() {
 
@@ -101,5 +99,24 @@ export class MainComponent implements OnInit, OnDestroy {
 
   receiveFromDigitization() {
 
+  }
+
+  scanInItem(department:string,status:string,workOrderType:string) {
+    let request: Request = {
+      url: this.itemFromApi.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
+      method: HttpMethod.POST,
+    };
+    this.restService.call(request)
+        .subscribe({
+          next: result => {
+            this.eventsService.refreshPage().subscribe(
+                ()=>this.alert.success('Success!')
+            );
+          },
+          error: (e: RestErrorResponse) => {
+            this.alert.error('Failed to update data: ' + e.message);
+            console.error(e);
+          }
+        });
   }
 }
