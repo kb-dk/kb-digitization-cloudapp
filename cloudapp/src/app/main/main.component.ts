@@ -50,7 +50,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
 
-
   private tryParseJson(value: any) {
     try {
       return JSON.parse(value);
@@ -61,11 +60,11 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   scanBarcode() {
-    console.log("bacode scanned "+this.barcode.nativeElement.value)
+    console.log("barcode scanned "+this.barcode.nativeElement.value)
     this.loading=true;
     const barcode = this.barcode.nativeElement.value;
-    const encodedBarcode = encodeURIComponent(barcode);  //URM-159774
-    this.restService.call(`/items?item_barcode=${barcode.trim()}`)
+    const encodedBarcode = encodeURIComponent(barcode);
+    this.restService.call(`/items?item_barcode=${encodedBarcode.trim()}`)
         .subscribe(
             result => {
               this.itemFromApi = result;
