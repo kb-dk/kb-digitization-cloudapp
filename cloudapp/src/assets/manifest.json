@@ -2,13 +2,17 @@
    "id": "digitization-addon",
    "title": "Digitization addon",
    "subtitle": "Hej Hej",
-   "author": "Kaptajn Kaper",
+   "author": "Royal Danish library",
+   "icon": {
+      "type": "font",
+      "value": "fa fa-camera"
+   },
    "pages": {
       "config": "/#/config"
    },
    "contentSecurity": {
       "connectSrc": [
-         "http://mae-api-test-01.kb.dk/"
+         "*"
       ]
    }
 }
