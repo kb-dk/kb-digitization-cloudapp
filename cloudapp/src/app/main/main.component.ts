@@ -75,6 +75,14 @@ export class MainComponent implements OnInit, OnDestroy {
         );
   }
 
+  isDOD(): boolean {
+    return this.itemFromApi != null;
+  }
+
+  hasRequests(): boolean {
+    return this.requests != null && this.requests.total_record_count>0;
+  }
+
   getItemRequests(itemLink:string) {
 
     this.restService.call<any>(itemLink+"/requests")
