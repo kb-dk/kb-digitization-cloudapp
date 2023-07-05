@@ -1,3 +1,10 @@
+<app-topmenu>
+    <div buttons>
+        <button mat-flat-button type="button" color="primary" (click)="save()" [disabled]="!(baseForm?.dirty)">Save</button>
+<!--        <button mat-flat-button type="button" color="primary" (click)="save()" >Save</button>-->
+    </div>
+</app-topmenu>
+
 <div class="back-container">
     <a routerLink="">
         <button class="back" mat-raised-button>
@@ -8,19 +15,59 @@
 </div>
 
 <div class="title">
-    <h1>Admin Configuration</h1>
+    <h1>Configuration</h1>
 </div>
+<div class="loading-shade" *ngIf="saving">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+</div>
+<form [formGroup]="baseForm">
+    <section class="config-section" *ngIf="true">
+        <mat-form-field>
+            <mat-label class="example-margin">Url</mat-label>
+            <input matInput placeholder="Url" formControlName="serviceUrl" required>
+        </mat-form-field>
+        <br>
+        <mat-form-field>
+            <mat-label class="example-margin">Api key</mat-label>
+            <input matInput placeholder="Api key" formControlName="apiKey" required>
+        </mat-form-field>
 
-<div *ngIf="config$ | async as configuration">
-    <h2 class="padding-top">API</h2>
-    <mat-form-field>
-        <mat-label>URL</mat-label>
-        <input matInput [(ngModel)]="configuration.api.url" (change)="saveConfig($event, 'API URL is updated.')">
-        <mat-hint></mat-hint>
-    </mat-form-field>
-    <mat-form-field>
-        <mat-label>Key</mat-label>
-        <input matInput [(ngModel)]="configuration.api.key" (change)="saveConfig($event, 'API KEY is updated.')">
-        <mat-hint></mat-hint>
-    </mat-form-field>
-</div>
+        <div formArrayName="params">
+            <div *ngFor="let param of params().controls; let i = index" class="row">
+                <mat-form-field>
+                    <mat-label class="example-margin">{{ i === 0 ? 'Parameter' : 'Parameter ' + (i + 1) }}</mat-label>
+                    <input matInput placeholder="Param Name" formControlName="{{i}}" required>
+                </mat-form-field>
+<!--                <span>{{i}} {{params().length}} {{i+1 === params().length}}</span>-->
+                <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+                    <mat-button-toggle class="toggleButton" (click)="removeParam(i)"*ngIf="params().length !=1" disabled="disabled" value="italic"><mat-icon>remove_box</mat-icon></mat-button-toggle>
+                    <mat-button-toggle class="toggleButton" (click)="addNewParam()" *ngIf="i+1 === params().length" value="bold"><mat-icon>add_box</mat-icon></mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+        </div>
+    </section>
+    <section class="config-section">
+        <mat-form-field>
+            <mat-label class="example-margin">Desk code</mat-label>
+            <input matInput placeholder="Desk code" formControlName="deskCode" required>
+        </mat-form-field>
+        <br>
+        <div formArrayName="paramValues">
+            <div *ngFor="let paramValue of paramValues().controls; let j = index" class="row">
+                <mat-form-field>
+                    <mat-label class="example-margin">{{ j === 0 ? 'ParameterValue' : 'ParameterValue ' + (j + 1) }}</mat-label>
+                    <input matInput placeholder="Param value" formControlName="{{j}}" required>
+                </mat-form-field>
+            </div>
+        </div>
+    </section>
+
+</form>
+<!--
+</form>
+-->
+<pre>{{ baseForm.value | json }}</pre>
+
+<button mat-icon-button color="warn" (click)="removeAllConfigs()">
+    <mat-icon></mat-icon>Delete configs
+</button>
