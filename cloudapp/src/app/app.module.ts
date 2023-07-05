@@ -12,6 +12,8 @@ import { MainComponent } from './main/main.component';
 import {ConfigComponent} from "./config/config.component";
 import {ToastrModule} from "ngx-toastr";
 import {DigitizationDepartmentService} from "./shared/digitizationDepartment.service";
+import { SendMaterialComponent } from './send-material/send-material.component';
+import { ReceiveMaterialComponent } from './receive-material/receive-material.component';
 
 
 export function getToastrModule() {
@@ -24,7 +26,9 @@ export function getToastrModule() {
   declarations: [
     AppComponent,
     MainComponent,
-    ConfigComponent
+    ConfigComponent,
+    SendMaterialComponent,
+    ReceiveMaterialComponent
   ],
   imports: [
     MaterialModule,
