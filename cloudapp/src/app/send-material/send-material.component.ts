@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import {
+  CloudAppEventsService
+} from '@exlibris/exl-cloudapp-angular-lib'
 
 @Component({
   selector: 'app-send-material',
@@ -7,9 +10,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SendMaterialComponent implements OnInit {
 
-  constructor() { }
+  @Input() barcode: string = null;
+  department: string = null;
+  isFraktur: boolean;
+  isMultivolume: boolean;
+  constructor(private eventService: CloudAppEventsService) { }
 
   ngOnInit(): void {
-  }
+    let pageMetadata = this.eventService.getPageMetadata();
 
+    this.eventService.getInitData().subscribe(data=>{
+      console.log("InitData: "  + JSON.stringify(data));
+      this.department = data.user['currentlyAtDept'];
+      console.log(this.department)
+    });
+  }
 }

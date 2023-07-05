@@ -13,6 +13,11 @@
     Modtag fra Digi
   </button>
 </div>
+<app-send-material *ngIf="readyForDigitizationDept" [barcode]="'12341234'"></app-send-material>
+<app-receive-material *ngIf="returnFromDigitizationDept"></app-receive-material>
+
+
+
 <mat-card [style.display]="itemFromApi ? '' : 'none'">
   <mat-card-header>
     <mat-card-title>Itemdata from API</mat-card-title>
@@ -29,6 +34,7 @@
     <textarea #requestsArea [value]="requests | json"></textarea>
   </mat-card-content>
 </mat-card>
+
 <div class="loading-shade" *ngIf="loading">
   <mat-spinner diameter="50"></mat-spinner>
 </div>

@@ -17,8 +17,12 @@ export class MainComponent implements OnInit, OnDestroy {
   private currentlyAtLibCode: string;
   private currentlyAtDept: string;
   loading = false;
-  itemLoaded: boolean = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
+  readyForDigitizationDept: boolean = true;
+  returnFromDigitizationDept: boolean = false;
+
+  /* TODO delete */
+  itemLoaded: boolean = false;
   itemFromApi: any;
   requests: any;
 
