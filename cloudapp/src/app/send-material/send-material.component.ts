@@ -20,9 +20,9 @@ export class SendMaterialComponent implements OnInit {
     let pageMetadata = this.eventService.getPageMetadata();
 
     this.eventService.getInitData().subscribe(data=>{
-      console.log("InitData: "  + JSON.stringify(data));
+      // console.log("InitData: "  + JSON.stringify(data));
       this.department = data.user['currentlyAtDept'];
-      console.log(this.department)
+      // console.log(this.department)
     });
   }
 }

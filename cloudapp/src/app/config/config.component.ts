@@ -51,7 +51,7 @@ export class ConfigComponent implements OnInit {
 
 
     save() {
-        console.log("Dette gemmes: 0 " + JSON.stringify(this.baseForm.value))
+        //console.log("Dette gemmes: 0 " + JSON.stringify(this.baseForm.value))
         this.saving = true;
         this.configService.set(this.baseForm.value).subscribe(
             () => {
@@ -77,7 +77,7 @@ export class ConfigComponent implements OnInit {
 
     showAddButton(i: number) {
         let showAddButton = this.params().length-1>i;
-        console.log(this.params().length + '  ' + i + ' ' + showAddButton );
+        //console.log(this.params().length + '  ' + i + ' ' + showAddButton );
         return showAddButton;
         
     }
