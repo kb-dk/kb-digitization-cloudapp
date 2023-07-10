@@ -5,8 +5,9 @@ import {
 } from '@exlibris/exl-cloudapp-angular-lib'
 import {AlmaService} from "../shared/alma.service";
 import { DigitizationService } from "../shared/digitization.service";
+import {switchMap, tap} from "rxjs/operators";
+import {query} from "@angular/animations";
 import {Result} from "../models/Result";
-import {tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-send-material',
@@ -19,12 +20,13 @@ export class SendMaterialComponent implements OnInit {
   @Input() department: string = null;
   @Output() backToMainEvent = new EventEmitter();
   @Output() loading = new EventEmitter<boolean>();
-  isFraktur: boolean;
-  isMultivolume: boolean;
+  isFraktur: boolean = false;
+  isMultivolume: boolean = false;
 
   constructor(
       private eventService: CloudAppEventsService,
       private almaService: AlmaService,
+      private alert: AlertService,
       private digitizationService: DigitizationService
   )
   { }
@@ -38,31 +40,40 @@ export class SendMaterialComponent implements OnInit {
 
 
   sendToDigitization() {
-    console.log('itemFromAlma:',this.itemFromAlma);
-    const barcode = this.itemFromAlma.item_data.barcode;
-    // TODO: call maestro
-    this.digitizationService.send(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`)
+    let queryParams = this.getQueryParams();
+    console.log(queryParams);
+    this.digitizationService.send(queryParams)
         .pipe(
-            tap( data=> {console.log(data)}),
-            tap(() => this.backToMain(`${barcode} is sent to Digitization successfully.`))
+            tap(data => console.log(data)),
+            switchMap(() => {
+              return this.almaService.scanInItem(this.itemFromAlma.link,this.department,"digitaliseret1","Digiproj","false");
+            })
         )
-        .subscribe();
-    // TODO: fix hardcoded values
-    /*
-    this.almaService.scanInItem(this.itemFromAlma.link,this.department,"digitalisering2","Digiproj")
         .subscribe({
           next: result => {
-            this.result.emit(new Result(true,"Everything is ok"));
-           },
+            this.loading.emit(false);
+            this.backToMain(new Result(true,"Sendt to digitization"));
+          },
           error: error => {
-            this.result.emit(new Result(false,error.message));
+            this.loading.emit(false);
+            this.backToMain(new Result(false,error.message));
           }
         });
-        */
+  }
+
+  getQueryParams() {
+    let result:string = `&barcode=${this.itemFromAlma.item_data.barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`
+    if(this.isFraktur) {
+      result = result + `&field[Fraktur]=1`;
+    }
+    if (this.isMultivolume) {
+      result = result + `&field[Multivolume]=1`;
+    }
+    return result;
   }
 
   backToMain(message) {
     this.itemFromAlma=null;
-    this.backToMainEvent.emit(new Result(true,message));
+    this.backToMainEvent.emit(message);
   }
 }
