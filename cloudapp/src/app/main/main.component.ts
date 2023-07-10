@@ -1,10 +1,10 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { finalize } from "rxjs/operators";
+import {finalize, tap} from "rxjs/operators";
 import {
   CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
 } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
-import { DigitizationDepartmentService } from "../shared/digitizationDepartment.service";
+import { digitizationService } from "../shared/digitization.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
@@ -25,7 +25,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
   /* TODO delete */
   itemLoaded: boolean = false;
-  itemFromAlma: any;
+  itemFromApi: any;
   requests: any;
 
   constructor(
@@ -34,19 +34,21 @@ export class MainComponent implements OnInit, OnDestroy {
       private alert: AlertService,
       private digitizationDepartmentService: DigitizationDepartmentService,
       private almaService: AlmaService,
+      private digitizationService: digitizationService
   ) { }
 
 
 
   ngOnInit() {
-    this.sendToDigitizationDepartment();
     let pageMetadata = this.eventsService.getPageMetadata();
     console.log('JJ: ' + JSON.stringify(pageMetadata));
     this.loading=true;
+    //console.log('JJ: ' + JSON.stringify(pageMetadata));
+
     this.eventsService.getInitData().subscribe(data=>{
       this.currentlyAtLibCode = data.user.currentlyAtLibCode;
       this.currentlyAtDept = data.user['currentlyAtDept'];
-      console.log("InitData: "  + JSON.stringify(data));
+      //console.log("InitData: "  + JSON.stringify(data));
     })
 
     /* temporary code to get item from hardcoded barcode */
@@ -79,18 +81,20 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   scanBarcode() {
-    console.log("barcode scanned "+this.barcode.nativeElement.value)
+    //console.log("barcode scanned "+this.barcode.nativeElement.value)
     this.loading=true;
     const barcode = this.barcode.nativeElement.value;
-    const encodedBarcode = encodeURIComponent(barcode);
-    this.restService.call(`/items?item_barcode=${encodedBarcode.trim()}`)
+    const encodedBarcode = encodeURIComponent(barcode).trim();
+    this.restService.call(`/items?item_barcode=${encodedBarcode}`)
         .subscribe(
             result => {
-              this.itemFromAlma = result;
+              this.itemFromApi = result;
               this.getItemRequests(result.link);
             },
             error => this.alert.error('Failed to retrieve entity: ' + error.message)
         );
+    this.checkStatusInDigitization(encodedBarcode);
+    // this.sendToDigitization(encodedBarcode);
   }
 
   isDOD(): boolean {
@@ -115,16 +119,36 @@ export class MainComponent implements OnInit, OnDestroy {
         );
   }
 
-  sendToDigitizationDepartment(){
-    this.digitizationDepartmentService.send("&action=book_add&barcode=130024100538&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999");
+  private checkStatusInDigitization(barcode: string) {
+    this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
+        .pipe(
+            tap( data=> {console.log(data)}),
+            tap(data => {data.hasOwnProperty('error') && data.error === 'No book found with the barcode' ?  this.sendToDigitization(barcode) : (this.isReceived(data.step_title) ? this.receiveFromDigitization(barcode, data.step_title) : this.barcodeAlreadyExists(barcode, data.step_title))})
+        )
+        .subscribe();
   }
 
-  sendToDigitization() {
-
+  sendToDigitization(barcode){
+    this.digitizationService.send(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`)
+        .pipe(
+            tap( data=> {console.log(data)})
+        )
+        .subscribe();
   }
 
-  receiveFromDigitization() {
+  receiveFromDigitization(barcode, step_name) {
+    this.digitizationService.receive(`&barcode=${barcode}&step_name=${step_name}`)
+        .pipe(
+            tap( data=> {console.log(data)})
+        )
+        .subscribe();
+  }
 
+  isReceived(step_title) {
+    // TODO add finish step to config
+    let finish_step = 'KBH billedværk modtages (SAMLINGS-EJER)';
+    console.log(step_title);
+    return step_title === finish_step;
   }
 
   scanInItem(department:string,status:string,workOrderType:string) {
@@ -157,5 +181,13 @@ export class MainComponent implements OnInit, OnDestroy {
 
   updateLoading(event: boolean) {
     this.loading=event
+  }
+
+  private barcodeAlreadyExists(barcode: string, step: string) {
+    if (step === 'DONE'){
+      console.error(`Barcode ${barcode} already exists, please contact digitization department.`);
+    } else {
+      console.error(`Barcode ${barcode} is not in the finish step, please contact digitization department.`);
+    }
   }
 }
