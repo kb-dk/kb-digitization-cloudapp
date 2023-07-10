@@ -17,7 +17,7 @@ export class SendMaterialComponent implements OnInit {
 
   @Input() itemFromAlma: any = null;
   @Input() department: string = null;
-  @Output() result = new EventEmitter<Result>();
+  @Output() backToMainEvent = new EventEmitter();
   @Output() loading = new EventEmitter<boolean>();
   isFraktur: boolean;
   isMultivolume: boolean;
@@ -38,10 +38,12 @@ export class SendMaterialComponent implements OnInit {
 
 
   sendToDigitization() {
+    console.log(this.itemFromAlma);
     // TODO: call maestro
     this.digitizationService.send(`&barcode=${this.itemFromAlma.item_data.barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`)
         .pipe(
-            tap( data=> {console.log(data)})
+            tap( data=> {console.log(data)}),
+            tap(() => this.backToMain())
         )
         .subscribe();
     // TODO: fix hardcoded values
@@ -58,8 +60,8 @@ export class SendMaterialComponent implements OnInit {
         */
   }
 
-  cancel() {
+  backToMain() {
     this.itemFromAlma=null;
-    this.result.emit(new Result(true,"cancelled"));
+    this.backToMainEvent.emit('Back');
   }
 }

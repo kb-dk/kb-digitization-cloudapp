@@ -10,7 +10,7 @@ import {Result} from "../models/Result";
 })
 export class ReceiveMaterialComponent implements OnInit {
   @Input() itemFromAlma: any = null;
-  @Output() result = new EventEmitter<Result>();
+  @Output() backToMainEvent = new EventEmitter();
 
   constructor(
       private digitizationService: DigitizationService,
@@ -23,13 +23,14 @@ export class ReceiveMaterialComponent implements OnInit {
     let step_name = 'KBH billedværk modtages (SAMLINGS-EJER)';
     this.digitizationService.receive(`&barcode=${this.itemFromAlma.item_data.barcode}&step_name=${step_name}`)
         .pipe(
-            tap( data=> {console.log(data)})
+            tap( data=> {console.log(data)}),
+            tap(() => this.backToMain())
         )
         .subscribe();
   }
 
-  cancel() {
+  backToMain() {
     this.itemFromAlma=null;
-    this.result.emit(new Result(true,"cancelled"));
+    this.backToMainEvent.emit('Back');
   }
 }

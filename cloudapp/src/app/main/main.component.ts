@@ -142,13 +142,14 @@ export class MainComponent implements OnInit, OnDestroy {
         });
   }
 
-  handleResult(event: Result) {
-      if (event.ok) {
-        this.alert.success(event.message)
-      } else {
-        this.alert.error(event.message)
-      }
+  handleBackToMain(event: Result) {
+      // if (event.ok) {
+      //   this.alert.success(event.message)
+      // } else {
+      //   this.alert.error(event.message)
+      // }
       this.readyForDigitizationDept=false;
+      this.returnFromDigitizationDept=false;
   }
 
   updateLoading(event: boolean) {

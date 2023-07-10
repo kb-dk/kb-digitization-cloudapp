@@ -8,11 +8,12 @@
 <app-send-material *ngIf="readyForDigitizationDept"
                    [itemFromAlma]="itemFromApi"
                    [department]="this.currentlyAtDept"
-                   (result)="handleResult($event)"
+                   (backToMainEvent)="handleBackToMain($event)"
                     (loading)="updateLoading($event)">
 </app-send-material>
 <app-receive-material *ngIf="returnFromDigitizationDept"
                       [itemFromAlma]="itemFromApi"
+                      (backToMainEvent)="handleBackToMain($event)"
 ></app-receive-material>
 
 <div class="loading-shade" *ngIf="loading">
