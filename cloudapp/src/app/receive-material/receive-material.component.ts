@@ -10,6 +10,7 @@ import {Result} from "../models/Result";
 })
 export class ReceiveMaterialComponent implements OnInit {
   @Input() itemFromAlma: any = null;
+  @Input() department: string = null;
   @Output() backToMainEvent = new EventEmitter();
 
   constructor(
