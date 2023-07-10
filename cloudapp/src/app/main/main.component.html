@@ -6,7 +6,7 @@
   <input matInput #barcode (keyup.enter)="scanBarcode()" autocomplete="off">
 </mat-form-field>
 <app-send-material *ngIf="readyForDigitizationDept"
-                   [itemFromAlma]="itemFromAlma"
+                   [itemFromAlma]="itemFromApi"
                    [department]="this.currentlyAtDept"
                    (result)="handleResult($event)"
                     (loading)="updateLoading($event)">

@@ -20,7 +20,7 @@ export class MainComponent implements OnInit, OnDestroy {
   private currentlyAtDept: string;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
-  readyForDigitizationDept: boolean = true;
+  readyForDigitizationDept: boolean = false;
   returnFromDigitizationDept: boolean = false;
 
   /* TODO delete */
@@ -32,7 +32,6 @@ export class MainComponent implements OnInit, OnDestroy {
       private restService: CloudAppRestService,
       private eventsService: CloudAppEventsService,
       private alert: AlertService,
-      private digitizationDepartmentService: DigitizationDepartmentService,
       private almaService: AlmaService,
       private digitizationService: digitizationService
   ) { }
@@ -42,26 +41,11 @@ export class MainComponent implements OnInit, OnDestroy {
   ngOnInit() {
     let pageMetadata = this.eventsService.getPageMetadata();
     console.log('JJ: ' + JSON.stringify(pageMetadata));
-    this.loading=true;
-    //console.log('JJ: ' + JSON.stringify(pageMetadata));
 
     this.eventsService.getInitData().subscribe(data=>{
       this.currentlyAtLibCode = data.user.currentlyAtLibCode;
       this.currentlyAtDept = data.user['currentlyAtDept'];
-      //console.log("InitData: "  + JSON.stringify(data));
     })
-
-    /* temporary code to get item from hardcoded barcode */
-    this.almaService.getItemsFromBarcode('111108017993').subscribe({
-      next: result => {
-        this.itemFromAlma = result;
-        this.loading = false;
-      },
-      error: error => {
-        this.alert.error(error.message);
-        this.loading = false;
-      }
-    });
   }
 
 
@@ -89,16 +73,14 @@ export class MainComponent implements OnInit, OnDestroy {
         .subscribe(
             result => {
               this.itemFromApi = result;
-              this.getItemRequests(result.link);
             },
             error => this.alert.error('Failed to retrieve entity: ' + error.message)
         );
     this.checkStatusInDigitization(encodedBarcode);
-    // this.sendToDigitization(encodedBarcode);
   }
 
   isDOD(): boolean {
-    return this.itemFromAlma != null;
+    return this.itemFromApi != null;
   }
 
   hasRequests(): boolean {
@@ -123,9 +105,16 @@ export class MainComponent implements OnInit, OnDestroy {
     this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
         .pipe(
             tap( data=> {console.log(data)}),
-            tap(data => {data.hasOwnProperty('error') && data.error === 'No book found with the barcode' ?  this.sendToDigitization(barcode) : (this.isReceived(data.step_title) ? this.receiveFromDigitization(barcode, data.step_title) : this.barcodeAlreadyExists(barcode, data.step_title))})
+            tap(data => {
+              data.hasOwnProperty('error') && data.error === 'No book found with the barcode' ?
+                  this.readyForDigitizationDept=true : (this.isReceived(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title))})
         )
-        .subscribe();
+        .subscribe({
+              next: result => {
+                this.loading = false;
+              }
+            }
+        );
   }
 
   sendToDigitization(barcode){
@@ -153,7 +142,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
   scanInItem(department:string,status:string,workOrderType:string) {
     let request: Request = {
-      url: this.itemFromAlma.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
+      url: this.itemFromApi.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
       method: HttpMethod.POST,
     };
     this.restService.call(request)
