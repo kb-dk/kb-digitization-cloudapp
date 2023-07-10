@@ -15,7 +15,8 @@
                       [itemFromAlma]="itemFromApi"
                       [department]="this.currentlyAtDept"
                       (backToMainEvent)="handleBackToMain($event)"
-></app-receive-material>
+                      (loading)="updateLoading($event)">
+</app-receive-material>
 
 <div style="display: flex; justify-content: center" *ngIf="loading">
   <mat-spinner color="primary"></mat-spinner>
