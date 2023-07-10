@@ -17,6 +17,6 @@
                       (backToMainEvent)="handleBackToMain($event)"
 ></app-receive-material>
 
-<div class="loading-shade" *ngIf="loading">
-  <mat-spinner diameter="50"></mat-spinner>
+<div style="display: flex; justify-content: center" *ngIf="loading">
+  <mat-spinner color="primary"></mat-spinner>
 </div>
