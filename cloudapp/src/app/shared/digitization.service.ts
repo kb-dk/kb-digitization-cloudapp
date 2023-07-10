@@ -7,7 +7,7 @@ import {EMPTY, throwError} from "rxjs";
 @Injectable({
     providedIn: 'root',
 })
-export class digitizationService {
+export class DigitizationService {
     config = {api:{url:'http://mae-api-test-01.kb.dk/api/', key: 'key=ff74e7fb2254dd3ce3703ae049432615cb7a8c9cf3d947c5b99d846e6ee5073149932f2eec7f1585a8dd72f712a2864b0037f17dbf59dd86dc7773e687602692'}}
 
     constructor(private configService: CloudAppConfigService, private http: HttpClient) { }

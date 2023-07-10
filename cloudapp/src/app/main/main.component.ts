@@ -4,7 +4,7 @@ import {
   CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
 } from '@exlibris/exl-cloudapp-angular-lib';
 import { MatRadioChange } from '@angular/material/radio';
-import { digitizationService } from "../shared/digitization.service";
+import { DigitizationService } from "../shared/digitization.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
@@ -34,7 +34,7 @@ export class MainComponent implements OnInit, OnDestroy {
       private eventsService: CloudAppEventsService,
       private alert: AlertService,
       private almaService: AlmaService,
-      private digitizationService: digitizationService
+      private digitizationService: DigitizationService
   ) { }
 
 
@@ -48,9 +48,6 @@ export class MainComponent implements OnInit, OnDestroy {
       this.currentlyAtDept = data.user['currentlyAtDept'];
     })
   }
-
-
-
 
   ngOnDestroy(): void {
   }
@@ -117,22 +114,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
   private isBarcodeNew(data) {
     return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
-  }
-
-  sendToDigitization(barcode){
-    this.digitizationService.send(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`)
-        .pipe(
-            tap( data=> {console.log(data)})
-        )
-        .subscribe();
-  }
-
-  receiveFromDigitization(barcode, step_name) {
-    this.digitizationService.receive(`&barcode=${barcode}&step_name=${step_name}`)
-        .pipe(
-            tap( data=> {console.log(data)})
-        )
-        .subscribe();
   }
 
   isInFinishStep(step_title) {

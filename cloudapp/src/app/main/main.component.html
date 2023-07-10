@@ -11,7 +11,9 @@
                    (result)="handleResult($event)"
                     (loading)="updateLoading($event)">
 </app-send-material>
-<app-receive-material *ngIf="returnFromDigitizationDept"></app-receive-material>
+<app-receive-material *ngIf="returnFromDigitizationDept"
+                      [itemFromAlma]="itemFromApi"
+></app-receive-material>
 
 <div class="loading-shade" *ngIf="loading">
   <mat-spinner diameter="50"></mat-spinner>

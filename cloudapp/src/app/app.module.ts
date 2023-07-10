@@ -11,7 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
 import {ConfigComponent} from "./config/config.component";
 import {ToastrModule} from "ngx-toastr";
-import {digitizationService} from "./shared/digitization.service";
+import {DigitizationService} from "./shared/digitization.service";
 import { SendMaterialComponent } from './send-material/send-material.component';
 import { ReceiveMaterialComponent } from './receive-material/receive-material.component';
 
@@ -44,7 +44,7 @@ export function getToastrModule() {
   ],
   providers: [
     {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'standard'}},
-      digitizationService
+      DigitizationService
   ],
   bootstrap: [AppComponent],
 })

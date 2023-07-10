@@ -4,7 +4,7 @@ import {
   CloudAppEventsService
 } from '@exlibris/exl-cloudapp-angular-lib'
 import {AlmaService} from "../shared/alma.service";
-import { digitizationService } from "../shared/digitization.service";
+import { DigitizationService } from "../shared/digitization.service";
 import {Result} from "../models/Result";
 import {tap} from "rxjs/operators";
 
@@ -25,7 +25,7 @@ export class SendMaterialComponent implements OnInit {
   constructor(
       private eventService: CloudAppEventsService,
       private almaService: AlmaService,
-      private digitizationService: digitizationService
+      private digitizationService: DigitizationService
   )
   { }
 
