@@ -5,35 +5,13 @@
   <mat-label translate>Main.ScanLabel</mat-label>
   <input matInput #barcode (keyup.enter)="scanBarcode()" autocomplete="off">
 </mat-form-field>
-<div class="eca-actions" *ngIf="itemLoaded">
-  <button mat-flat-button color="primary" (click)="sendToDigitization()" >
-    Send til Digi
-  </button>
-  <button mat-flat-button color="primary" (click)="receiveFromDigitization()" >
-    Modtag fra Digi
-  </button>
-</div>
-<app-send-material *ngIf="readyForDigitizationDept" [barcode]="'12341234'"></app-send-material>
+<app-send-material *ngIf="readyForDigitizationDept"
+                   [itemFromAlma]="itemFromAlma"
+                   [department]="this.currentlyAtDept"
+                   (result)="handleResult($event)"
+                    (loading)="updateLoading($event)">
+</app-send-material>
 <app-receive-material *ngIf="returnFromDigitizationDept"></app-receive-material>
-
-
-
-<mat-card [style.display]="itemFromApi ? '' : 'none'">
-  <mat-card-header>
-    <mat-card-title>Itemdata from API</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <textarea #apiResultArea [value]="itemFromApi | json"></textarea>
-  </mat-card-content>
-</mat-card>
-<mat-card [style.display]="requests ? '' : 'none'">
-  <mat-card-header>
-    <mat-card-title>Requests</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <textarea #requestsArea [value]="requests | json"></textarea>
-  </mat-card-content>
-</mat-card>
 
 <div class="loading-shade" *ngIf="loading">
   <mat-spinner diameter="50"></mat-spinner>

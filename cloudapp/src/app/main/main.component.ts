@@ -6,6 +6,8 @@ import {
 import { MatRadioChange } from '@angular/material/radio';
 import { DigitizationDepartmentService } from "../shared/digitizationDepartment.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
+import {Result} from "../models/Result";
+import {AlmaService} from "../shared/alma.service";
 
 @Component({
   selector: 'app-main',
@@ -23,14 +25,15 @@ export class MainComponent implements OnInit, OnDestroy {
 
   /* TODO delete */
   itemLoaded: boolean = false;
-  itemFromApi: any;
+  itemFromAlma: any;
   requests: any;
 
   constructor(
       private restService: CloudAppRestService,
       private eventsService: CloudAppEventsService,
       private alert: AlertService,
-      private digitizationDepartmentService: DigitizationDepartmentService
+      private digitizationDepartmentService: DigitizationDepartmentService,
+      private almaService: AlmaService,
   ) { }
 
 
@@ -39,13 +42,24 @@ export class MainComponent implements OnInit, OnDestroy {
     this.sendToDigitizationDepartment();
     let pageMetadata = this.eventsService.getPageMetadata();
     console.log('JJ: ' + JSON.stringify(pageMetadata));
-
+    this.loading=true;
     this.eventsService.getInitData().subscribe(data=>{
       this.currentlyAtLibCode = data.user.currentlyAtLibCode;
       this.currentlyAtDept = data.user['currentlyAtDept'];
       console.log("InitData: "  + JSON.stringify(data));
     })
 
+    /* temporary code to get item from hardcoded barcode */
+    this.almaService.getItemsFromBarcode('111108017993').subscribe({
+      next: result => {
+        this.itemFromAlma = result;
+        this.loading = false;
+      },
+      error: error => {
+        this.alert.error(error.message);
+        this.loading = false;
+      }
+    });
   }
 
 
@@ -72,7 +86,7 @@ export class MainComponent implements OnInit, OnDestroy {
     this.restService.call(`/items?item_barcode=${encodedBarcode.trim()}`)
         .subscribe(
             result => {
-              this.itemFromApi = result;
+              this.itemFromAlma = result;
               this.getItemRequests(result.link);
             },
             error => this.alert.error('Failed to retrieve entity: ' + error.message)
@@ -80,7 +94,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   isDOD(): boolean {
-    return this.itemFromApi != null;
+    return this.itemFromAlma != null;
   }
 
   hasRequests(): boolean {
@@ -115,7 +129,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
   scanInItem(department:string,status:string,workOrderType:string) {
     let request: Request = {
-      url: this.itemFromApi.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
+      url: this.itemFromAlma.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
       method: HttpMethod.POST,
     };
     this.restService.call(request)
@@ -130,5 +144,18 @@ export class MainComponent implements OnInit, OnDestroy {
             console.error(e);
           }
         });
+  }
+
+  handleResult(event: Result) {
+      if (event.ok) {
+        this.alert.success(event.message)
+      } else {
+        this.alert.error(event.message)
+      }
+      this.readyForDigitizationDept=false;
+  }
+
+  updateLoading(event: boolean) {
+    this.loading=event
   }
 }
