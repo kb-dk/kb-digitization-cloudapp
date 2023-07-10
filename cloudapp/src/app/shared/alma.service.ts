@@ -17,7 +17,7 @@ export class AlmaService {
   ) { }
 
   scanInItem(itemLink:string, department:string, status:string, workOrderType:string) {
-    let params = { 'op': 'scan', 'department' : department, 'status': status, 'work_order_type=' : workOrderType };
+    let params = { 'op': 'scan', 'department' : department, 'status': status, 'work_order_type' : workOrderType };
     let request: Request = {
       url: itemLink,
       method: HttpMethod.POST,
