@@ -1,5 +1,5 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
-import {finalize, tap} from "rxjs/operators";
+import {catchError, filter, finalize, tap} from "rxjs/operators";
 import {
   CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
 } from '@exlibris/exl-cloudapp-angular-lib';
@@ -8,6 +8,7 @@ import { digitizationService } from "../shared/digitization.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
+import {EMPTY} from "rxjs";
 
 @Component({
   selector: 'app-main',
@@ -104,17 +105,18 @@ export class MainComponent implements OnInit, OnDestroy {
   private checkStatusInDigitization(barcode: string) {
     this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
         .pipe(
-            tap( data=> {console.log(data)}),
-            tap(data => {
-              data.hasOwnProperty('error') && data.error === 'No book found with the barcode' ?
-                  this.readyForDigitizationDept=true : (this.isReceived(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title))})
+            tap( () =>this.loading = false),
+            tap( data=> console.log(data)),
+            tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
+            filter(data => !this.isBarcodeNew(data)),
+            tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title)),
+            catchError(error => EMPTY)
         )
-        .subscribe({
-              next: result => {
-                this.loading = false;
-              }
-            }
-        );
+        .subscribe();
+  }
+
+  private isBarcodeNew(data) {
+    return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
   }
 
   sendToDigitization(barcode){
@@ -133,7 +135,7 @@ export class MainComponent implements OnInit, OnDestroy {
         .subscribe();
   }
 
-  isReceived(step_title) {
+  isInFinishStep(step_title) {
     // TODO add finish step to config
     let finish_step = 'KBH billedværk modtages (SAMLINGS-EJER)';
     console.log(step_title);
