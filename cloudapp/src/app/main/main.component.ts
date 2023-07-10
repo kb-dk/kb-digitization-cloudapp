@@ -10,6 +10,7 @@ import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
 import {EMPTY} from "rxjs";
 
+
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -123,7 +124,7 @@ export class MainComponent implements OnInit, OnDestroy {
     return step_title === finish_step;
   }
 
-  scanInItem(department:string,status:string,workOrderType:string) {
+  scanInItem(department:string, status:string, workOrderType:string) {
     let request: Request = {
       url: this.itemFromApi.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
       method: HttpMethod.POST,
@@ -143,13 +144,14 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   handleBackToMain(event: Result) {
-      // if (event.ok) {
-      //   this.alert.success(event.message)
-      // } else {
-      //   this.alert.error(event.message)
-      // }
+      if (event.ok) {
+        this.alert.success(event.message)
+      } else {
+        this.alert.error(event.message)
+      }
       this.readyForDigitizationDept=false;
       this.returnFromDigitizationDept=false;
+      this.barcode.nativeElement.value='';
   }
 
   updateLoading(event: boolean) {

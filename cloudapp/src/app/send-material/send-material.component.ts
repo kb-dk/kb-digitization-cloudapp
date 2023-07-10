@@ -38,12 +38,13 @@ export class SendMaterialComponent implements OnInit {
 
 
   sendToDigitization() {
-    console.log(this.itemFromAlma);
+    console.log('itemFromAlma:',this.itemFromAlma);
+    const barcode = this.itemFromAlma.item_data.barcode;
     // TODO: call maestro
-    this.digitizationService.send(`&barcode=${this.itemFromAlma.item_data.barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`)
+    this.digitizationService.send(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`)
         .pipe(
             tap( data=> {console.log(data)}),
-            tap(() => this.backToMain())
+            tap(() => this.backToMain(`${barcode} is sent to Digitization successfully.`))
         )
         .subscribe();
     // TODO: fix hardcoded values
@@ -60,8 +61,8 @@ export class SendMaterialComponent implements OnInit {
         */
   }
 
-  backToMain() {
+  backToMain(message) {
     this.itemFromAlma=null;
-    this.backToMainEvent.emit('Back');
+    this.backToMainEvent.emit(new Result(true,message));
   }
 }

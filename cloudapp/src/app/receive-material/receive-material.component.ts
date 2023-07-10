@@ -21,16 +21,17 @@ export class ReceiveMaterialComponent implements OnInit {
   receiveFromDigitization() {
     // TODO add finish step to config
     let step_name = 'KBH billedværk modtages (SAMLINGS-EJER)';
-    this.digitizationService.receive(`&barcode=${this.itemFromAlma.item_data.barcode}&step_name=${step_name}`)
+    const barcode = this.itemFromAlma.item_data.barcode;
+    this.digitizationService.receive(`&barcode=${barcode}&step_name=${step_name}`)
         .pipe(
             tap( data=> {console.log(data)}),
-            tap(() => this.backToMain())
+            tap(() => this.backToMain(`${barcode} is received from Digitization successfully.`))
         )
         .subscribe();
   }
 
-  backToMain() {
+  backToMain(message) {
     this.itemFromAlma=null;
-    this.backToMainEvent.emit('Back');
+    this.backToMainEvent.emit(new Result(true,message));
   }
 }
