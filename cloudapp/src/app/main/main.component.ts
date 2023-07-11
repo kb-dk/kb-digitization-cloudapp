@@ -8,7 +8,7 @@ import { DigitizationService } from "../shared/digitization.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
-import {EMPTY} from "rxjs";
+import {EMPTY, throwError} from "rxjs";
 
 
 @Component({
@@ -108,7 +108,12 @@ export class MainComponent implements OnInit, OnDestroy {
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
             tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title)),
-            catchError(error => EMPTY)
+            catchError(error => {
+                this.loading = false;
+                this.barcode.nativeElement.value = "";
+                this.handleError(error);
+                return EMPTY;
+            })
         )
         .subscribe();
   }
@@ -163,4 +168,10 @@ export class MainComponent implements OnInit, OnDestroy {
       this.alert.error(`Barcode ${barcode} already exists and is not in the finish step. 
                         Please contact digitization department.`);
   }
+
+    private handleError(error: any) {
+        console.log(error);
+        this.alert.error('Error connecting to digitization system.')
+        return EMPTY;
+    }
 }
