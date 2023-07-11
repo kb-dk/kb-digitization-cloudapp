@@ -90,9 +90,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
     this.restService.call<any>(itemLink+"/requests")
         .pipe(finalize(()=> {
-          this.loading=false;
           this.itemLoaded = true;
-          this.barcode.nativeElement.value = "";
+            this.resetMain();
         }))
         .subscribe(
             result => this.requests=result,
@@ -100,7 +99,12 @@ export class MainComponent implements OnInit, OnDestroy {
         );
   }
 
-  private checkStatusInDigitization(barcode: string) {
+    private resetMain() {
+        this.loading = false;
+        this.barcode.nativeElement.value = "";
+    }
+
+    private checkStatusInDigitization(barcode: string) {
     this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
         .pipe(
             tap( () =>this.loading = false),
@@ -109,8 +113,7 @@ export class MainComponent implements OnInit, OnDestroy {
             filter(data => !this.isBarcodeNew(data)),
             tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title)),
             catchError(error => {
-                this.loading = false;
-                this.barcode.nativeElement.value = "";
+                this.resetMain();
                 this.handleError(error);
                 return EMPTY;
             })
