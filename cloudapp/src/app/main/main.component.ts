@@ -124,25 +124,6 @@ export class MainComponent implements OnInit, OnDestroy {
     return step_title === finish_step;
   }
 
-  scanInItem(department:string, status:string, workOrderType:string) {
-    let request: Request = {
-      url: this.itemFromApi.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
-      method: HttpMethod.POST,
-    };
-    this.restService.call(request)
-        .subscribe({
-          next: result => {
-            this.eventsService.refreshPage().subscribe(
-                ()=>this.alert.success('Success!')
-            );
-          },
-          error: (e: RestErrorResponse) => {
-            this.alert.error('Failed to update data: ' + e.message);
-            console.error(e);
-          }
-        });
-  }
-
   handleBackToMain(event: Result) {
       if (event.ok) {
         this.alert.success(event.message)
