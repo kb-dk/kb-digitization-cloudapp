@@ -159,10 +159,8 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   private barcodeAlreadyExists(barcode: string, step: string) {
-    if (step === 'DONE'){
-      console.error(`Barcode ${barcode} already exists, please contact digitization department.`);
-    } else {
-      console.error(`Barcode ${barcode} is not in the finish step, please contact digitization department.`);
-    }
+      this.barcode.nativeElement.value='';
+      this.alert.error(`Barcode ${barcode} already exists and is not in the finish step. 
+                        Please contact digitization department.`);
   }
 }
