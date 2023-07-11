@@ -5,6 +5,9 @@
   <mat-label translate>Main.ScanLabel</mat-label>
   <input matInput #barcode (keyup.enter)="scanBarcode()" autocomplete="off">
 </mat-form-field>
+<div class="spinner-overlay" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+</div>
 <app-send-material *ngIf="readyForDigitizationDept"
                    [itemFromAlma]="itemFromApi"
                    [department]="this.currentlyAtDept"
@@ -18,6 +21,4 @@
                       (loading)="updateLoading($event)">
 </app-receive-material>
 
-<div style="display: flex; justify-content: center" *ngIf="loading">
-  <mat-spinner color="primary"></mat-spinner>
-</div>
+

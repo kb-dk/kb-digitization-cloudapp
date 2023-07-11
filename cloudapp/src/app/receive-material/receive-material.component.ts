@@ -28,6 +28,7 @@ export class ReceiveMaterialComponent implements OnInit {
     // TODO add finish step to config
     let step_name = 'KBH billedværk modtages (SAMLINGS-EJER)';
     const barcode = this.itemFromAlma.item_data.barcode;
+    this.loading.emit(true);
     this.digitizationService.receive(`&barcode=${barcode}&step_name=${step_name}`)
         .pipe(
             tap( data=> {console.log(data)}),
