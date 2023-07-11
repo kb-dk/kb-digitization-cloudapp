@@ -1,5 +1,5 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
-import {catchError, filter, finalize, tap} from "rxjs/operators";
+import {switchMap, filter, finalize, tap} from "rxjs/operators";
 import {
   CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
 } from '@exlibris/exl-cloudapp-angular-lib';
@@ -69,13 +69,20 @@ export class MainComponent implements OnInit, OnDestroy {
     const barcode = this.barcode.nativeElement.value;
     const encodedBarcode = encodeURIComponent(barcode).trim();
     this.restService.call(`/items?item_barcode=${encodedBarcode}`)
+        .pipe(
+            switchMap(() => {
+            return this.checkStatusInDigitization(encodedBarcode);
+        }))
         .subscribe(
             result => {
               this.itemFromApi = result;
+              this.loading = false;
             },
-            error => this.alert.error('Failed to retrieve entity: ' + error.message)
+            error => {
+              this.alert.error(error.message);
+              this.loading = false;
+            }
         );
-    this.checkStatusInDigitization(encodedBarcode);
   }
 
   isDOD(): boolean {
@@ -101,27 +108,26 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   private checkStatusInDigitization(barcode: string) {
-    this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
+    return this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
         .pipe(
             tap( () =>this.loading = false),
             tap( data=> console.log(data)),
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
-            tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title)),
-            catchError(error => EMPTY)
-        )
-        .subscribe();
+            tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleMaestroError(barcode, data)),
+        );
   }
 
   private isBarcodeNew(data) {
     return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
   }
 
-  isInFinishStep(step_title) {
-    // TODO add finish step to config
-    let finish_step = 'KBH billedværk modtages (SAMLINGS-EJER)';
-    console.log(step_title);
-    return step_title === finish_step;
+  isInFinishStep(data) {
+      // TODO add finish step to config
+      let finish_step = 'KBH billedværk modtages (SAMLINGS-EJER)';
+      if (data.hasOwnProperty('step_title')) {
+        return data.step_title === finish_step;
+      }
   }
 
   handleBackToMain(event: Result) {
@@ -139,11 +145,16 @@ export class MainComponent implements OnInit, OnDestroy {
     this.loading=event
   }
 
-  private barcodeAlreadyExists(barcode: string, step: string) {
-    if (step === 'DONE'){
-      console.error(`Barcode ${barcode} already exists, please contact digitization department.`);
+  private handleMaestroError(barcode:string, data: any) {
+      let done_step = 'KBH Cum Færdigregistreret';
+    if (data.hasOwnProperty('step_title')) {
+        if (data.step_title === done_step) {
+            this.alert.warn(`Stregkode ${barcode} er allerede færdigregistreret`);
+        } else {
+            this.alert.warn(`Stregkode ${barcode} har status ${data.step_title}`);
+        }
     } else {
-      console.error(`Barcode ${barcode} is not in the finish step, please contact digitization department.`);
+      this.alert.error(`Maestro fejl ${data.error}`);
     }
   }
 }
