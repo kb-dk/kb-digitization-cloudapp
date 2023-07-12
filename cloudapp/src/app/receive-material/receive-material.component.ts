@@ -34,7 +34,7 @@ export class ReceiveMaterialComponent implements OnInit {
         .pipe(
             tap( data=> {console.log(data)}),
             switchMap(() => {
-              return this.almaService.scanInItem(this.itemFromAlma.link,this.libCode,this.department,"digitaliseret2","Digiproj","true");
+                return this.almaService.sendToDigi(this.itemFromAlma.link,this.libCode,this.department);
             })
         )
         .subscribe({

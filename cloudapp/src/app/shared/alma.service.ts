@@ -18,15 +18,24 @@ export class AlmaService {
 
 
   sendToDigi(itemLink:string, library: string, department:string) {
-
+    let params = {'op': 'scan','status':'digitaliseret1'}
+    if (department !== 'DIGINAT') {
+      params['department'] = department;
+      params['work_order_type'] = "Digiproj";
+    }
+    return this.scanInItem(itemLink,params);
   }
 
   receiveFromDigi(itemLink:string, library: string, department:string) {
-    
+    let params = {'op': 'scan','status':'digitaliseret2','done':'true'}
+    if (department !== 'DIGINAT') {
+      params['department'] = department;
+      params['work_order_type'] = "Digiproj";
+    }
+    return this.scanInItem(itemLink,params);
   }
 
-  scanInItem(itemLink:string, library: string, department:string, status:string, workOrderType:string, done:string) {
-    let params = { 'op': 'scan', 'department' : department, 'status': status, 'work_order_type' : workOrderType, 'done' : done };
+  scanInItem(itemLink:string, params:any) {
     let request: Request = {
       url: itemLink,
       method: HttpMethod.POST,
