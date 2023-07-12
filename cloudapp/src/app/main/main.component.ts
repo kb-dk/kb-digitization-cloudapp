@@ -115,8 +115,8 @@ export class MainComponent implements OnInit, OnDestroy {
             tap( data=> console.log(data)),
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
-            tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleMaestroError(barcode, data)),
-            tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title)),
+            tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleOtherMaestroResponses(barcode, data)),
+            tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.handleOtherMaestroResponses(barcode, data)),
             catchError(error => {
                 this.resetMain();
                 this.handleError(error);
@@ -153,7 +153,7 @@ export class MainComponent implements OnInit, OnDestroy {
     this.loading=event
   }
 
-  private handleMaestroError(barcode:string, data: any) {
+  private handleOtherMaestroResponses(barcode:string, data: any) {
     let done_step = 'KBH Cum Færdigregistreret';
     if (data.hasOwnProperty('step_title')) {
       if (data.step_title === done_step) {
@@ -165,7 +165,7 @@ export class MainComponent implements OnInit, OnDestroy {
       this.alert.error(`Maestro fejl ${data.error}`);
     }
   }
-}
+
 
   private handleError(error: any) {
     console.log(error);
