@@ -27,7 +27,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
   /* TODO delete */
   itemLoaded: boolean = false;
-  itemFromApi: any;
+  itemFromApi: any = null;
   requests: any;
 
   constructor(
@@ -69,13 +69,10 @@ export class MainComponent implements OnInit, OnDestroy {
     const barcode = this.barcode.nativeElement.value;
     const encodedBarcode = encodeURIComponent(barcode).trim();
     this.restService.call(`/items?item_barcode=${encodedBarcode}`)
-        .pipe(
-            switchMap(() => {
-            return this.checkStatusInDigitization(encodedBarcode);
-        }))
         .subscribe(
             result => {
               this.itemFromApi = result;
+              this.checkStatusInDigitization(encodedBarcode);
               this.loading = false;
             },
             error => {
@@ -115,7 +112,7 @@ export class MainComponent implements OnInit, OnDestroy {
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
             tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleMaestroError(barcode, data)),
-        );
+        ).subscribe();
   }
 
   private isBarcodeNew(data) {
