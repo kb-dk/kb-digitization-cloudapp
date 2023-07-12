@@ -105,7 +105,8 @@ export class MainComponent implements OnInit, OnDestroy {
     }
 
     private checkStatusInDigitization(barcode: string) {
-    this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
+      const params = this.getParams('send');
+    this.digitizationService.check(`&barcode=${barcode}${params}`)
         .pipe(
             tap( () =>this.loading = false),
             tap( data=> console.log(data)),
@@ -176,5 +177,11 @@ export class MainComponent implements OnInit, OnDestroy {
         console.log(error);
         this.alert.error('Error connecting to digitization system.')
         return EMPTY;
+    }
+
+    private getParams(action: string) {
+      if (action === 'send'){
+          return '&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999';
+      }
     }
 }
