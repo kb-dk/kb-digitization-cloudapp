@@ -1,14 +1,12 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
-import {catchError, filter, finalize, tap} from "rxjs/operators";
+import {filter, finalize, tap, catchError} from "rxjs/operators";
 import {
   CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
 } from '@exlibris/exl-cloudapp-angular-lib';
-import { MatRadioChange } from '@angular/material/radio';
 import { DigitizationService } from "../shared/digitization.service";
-import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
-import {EMPTY, throwError} from "rxjs";
+import {EMPTY} from "rxjs";
 
 
 @Component({
@@ -27,7 +25,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
   /* TODO delete */
   itemLoaded: boolean = false;
-  itemFromApi: any;
+  itemFromApi: any = null;
   requests: any;
 
   constructor(
@@ -66,16 +64,21 @@ export class MainComponent implements OnInit, OnDestroy {
   scanBarcode() {
     //console.log("barcode scanned "+this.barcode.nativeElement.value)
     this.loading=true;
+    this.alert.clear();
     const barcode = this.barcode.nativeElement.value;
     const encodedBarcode = encodeURIComponent(barcode).trim();
     this.restService.call(`/items?item_barcode=${encodedBarcode}`)
         .subscribe(
             result => {
               this.itemFromApi = result;
+              this.checkStatusInDigitization(encodedBarcode);
+              this.loading = false;
             },
-            error => this.alert.error('Failed to retrieve entity: ' + error.message)
+            error => {
+              this.alert.error(error.message);
+              this.loading = false;
+            }
         );
-    this.checkStatusInDigitization(encodedBarcode);
   }
 
   isDOD(): boolean {
@@ -99,20 +102,19 @@ export class MainComponent implements OnInit, OnDestroy {
         );
   }
 
-    private resetMain() {
-        this.loading = false;
-        this.barcode.nativeElement.value = "";
-    }
+  private resetMain() {
+    this.loading = false;
+    this.barcode.nativeElement.value = "";
+  }
 
-    private checkStatusInDigitization(barcode: string) {
-      const params = this.getParams('send');
-    this.digitizationService.check(`&barcode=${barcode}${params}`)
+  private checkStatusInDigitization(barcode: string) {
+    return this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
         .pipe(
             tap( () =>this.loading = false),
             tap( data=> console.log(data)),
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
-            tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title)),
+            tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleOtherMaestroResponses(barcode, data)),
             catchError(error => {
                 this.resetMain();
                 this.handleError(error);
@@ -126,30 +128,12 @@ export class MainComponent implements OnInit, OnDestroy {
     return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
   }
 
-  isInFinishStep(step_title) {
-    // TODO add finish step to config
-    let finish_step = 'KBH billedværk modtages (SAMLINGS-EJER)';
-    console.log(step_title);
-    return step_title === finish_step;
-  }
-
-  scanInItem(department:string, status:string, workOrderType:string) {
-    let request: Request = {
-      url: this.itemFromApi.link + "?op=scan&department="+department+"&status="+status+"&work_order_type="+workOrderType,
-      method: HttpMethod.POST,
-    };
-    this.restService.call(request)
-        .subscribe({
-          next: result => {
-            this.eventsService.refreshPage().subscribe(
-                ()=>this.alert.success('Success!')
-            );
-          },
-          error: (e: RestErrorResponse) => {
-            this.alert.error('Failed to update data: ' + e.message);
-            console.error(e);
-          }
-        });
+  isInFinishStep(data) {
+      // TODO add finish step to config
+      let finish_step = 'KBH billedværk modtages (SAMLINGS-EJER)';
+      if (data.hasOwnProperty('step_title')) {
+        return data.step_title === finish_step;
+      }
   }
 
   handleBackToMain(event: Result) {
@@ -167,21 +151,30 @@ export class MainComponent implements OnInit, OnDestroy {
     this.loading=event
   }
 
-  private barcodeAlreadyExists(barcode: string, step: string) {
-      this.barcode.nativeElement.value='';
-      this.alert.error(`Barcode ${barcode} already exists and is not in the finish step. 
-                        Please contact digitization department.`);
+  private handleOtherMaestroResponses(barcode:string, data: any) {
+    let done_step = 'KBH Cum Færdigregistreret';
+    if (data.hasOwnProperty('step_title')) {
+      if (data.step_title === done_step) {
+        this.alert.warn(`Stregkode ${barcode} er allerede færdigregistreret`);
+      } else {
+        this.alert.warn(`Stregkode ${barcode} har status ${data.step_title}`);
+      }
+    } else {
+      this.alert.error(`Maestro fejl ${data.error}`);
+    }
   }
 
-    private handleError(error: any) {
-        console.log(error);
-        this.alert.error('Error connecting to digitization system.')
-        return EMPTY;
-    }
 
-    private getParams(action: string) {
-      if (action === 'send'){
-          return '&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999';
-      }
+  private handleError(error: any) {
+    console.log(error);
+    this.alert.error('Error connecting to digitization system.')
+    return EMPTY;
+  }
+
+  private getParams(action: string) {
+    if (action === 'send'){
+      return '&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999';
     }
+  }
+
 }

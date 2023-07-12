@@ -1,23 +1,25 @@
 <h2>Send til Digitalisering</h2>
 <h3><b>Department:</b> {{department}} </h3>
 <h3><b>Barcode: </b> {{itemFromAlma.item_data.barcode}} </h3>
- <mat-checkbox [(ngModel)]="isFraktur">
+<div>
+    <mat-checkbox [(ngModel)]="isFraktur">
         Fraktur
- </mat-checkbox>
-<mat-checkbox [(ngModel)]="isMultivolume">
-    Multi Volume
-</mat-checkbox>
-<div class="eca-actions">
-    <button mat-flat-button color="primary" (click)="sendToDigitization()" >
+    </mat-checkbox>
+</div>
+<div>
+    <mat-checkbox [(ngModel)]="isMultivolume">
+        Multi Volume
+    </mat-checkbox>
+</div>
+<div>
+    <button mat-stroked-button color="primary" (click)="sendToDigitization()" >
         Send til Digitalisering
     </button>
-    <button mat-flat-button color="primary" (click)="backToMain('')" >
+    <button mat-stroked-button color="basic" (click)="backToMain('')" >
         Fortryd
     </button>
 </div>
-<p>
-
-</p>
+<!--<div>
 <mat-card [style.display]="itemFromAlma? '' : 'none'">
     <mat-card-header>
         <mat-card-title>Itemdata from API</mat-card-title>
@@ -26,4 +28,4 @@
         <textarea #apiResultArea [value]="itemFromAlma | json"></textarea>
     </mat-card-content>
 </mat-card>
-
+</div>-->

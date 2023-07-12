@@ -1,10 +1,10 @@
-
-<h3><b>currentlyAtDept:</b> {{currentlyAtDept}} </h3>
-<h3><b>currentlyAtLibCode: </b> {{currentlyAtLibCode}} </h3>
 <mat-form-field>
   <mat-label translate>Main.ScanLabel</mat-label>
   <input matInput #barcode (keyup.enter)="scanBarcode()" autocomplete="off">
 </mat-form-field>
+<div class="spinner-overlay" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+</div>
 <app-send-material *ngIf="readyForDigitizationDept"
                    [itemFromAlma]="itemFromApi"
                    [department]="this.currentlyAtDept"
@@ -13,9 +13,9 @@
 </app-send-material>
 <app-receive-material *ngIf="returnFromDigitizationDept"
                       [itemFromAlma]="itemFromApi"
+                      [department]="this.currentlyAtDept"
                       (backToMainEvent)="handleBackToMain($event)"
-></app-receive-material>
+                      (loading)="updateLoading($event)">
+</app-receive-material>
 
-<div class="loading-shade" *ngIf="loading">
-  <mat-spinner diameter="50"></mat-spinner>
-</div>
+
