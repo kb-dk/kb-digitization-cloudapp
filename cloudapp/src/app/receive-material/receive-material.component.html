@@ -7,3 +7,14 @@
         Cancel
     </button>
 </div>
+
+<div>
+    <mat-card [style.display]="itemFromAlma? '' : 'none'">
+        <mat-card-header>
+            <mat-card-title>Itemdata from API</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <textarea #apiResultArea [value]="itemFromAlma | json"></textarea>
+        </mat-card-content>
+    </mat-card>
+</div>

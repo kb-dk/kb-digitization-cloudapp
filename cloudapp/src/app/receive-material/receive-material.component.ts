@@ -13,6 +13,7 @@ import {Result} from "../models/Result";
 export class ReceiveMaterialComponent implements OnInit {
   @Input() itemFromAlma: any = null;
   @Input() department: string = null;
+  @Input() libCode: string = null;
   @Output() backToMainEvent = new EventEmitter();
   @Output() loading = new EventEmitter<boolean>();
 
@@ -33,7 +34,7 @@ export class ReceiveMaterialComponent implements OnInit {
         .pipe(
             tap( data=> {console.log(data)}),
             switchMap(() => {
-              return this.almaService.scanInItem(this.itemFromAlma.link,this.department,"digitaliseret2","Digiproj","true");
+              return this.almaService.scanInItem(this.itemFromAlma.link,this.libCode,this.department,"digitaliseret2","Digiproj","true");
             })
         )
         .subscribe({
