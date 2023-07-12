@@ -1,14 +1,12 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
-import {switchMap, filter, finalize, tap} from "rxjs/operators";
+import {filter, finalize, tap, catchError} from "rxjs/operators";
 import {
   CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
 } from '@exlibris/exl-cloudapp-angular-lib';
-import { MatRadioChange } from '@angular/material/radio';
 import { DigitizationService } from "../shared/digitization.service";
-import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
-import {EMPTY, throwError} from "rxjs";
+import {EMPTY} from "rxjs";
 
 
 @Component({
