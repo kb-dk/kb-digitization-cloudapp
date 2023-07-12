@@ -116,7 +116,6 @@ export class MainComponent implements OnInit, OnDestroy {
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
             tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleOtherMaestroResponses(barcode, data)),
-            tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.handleOtherMaestroResponses(barcode, data)),
             catchError(error => {
                 this.resetMain();
                 this.handleError(error);
