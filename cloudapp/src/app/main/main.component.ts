@@ -8,7 +8,7 @@ import { DigitizationService } from "../shared/digitization.service";
 import {CloudAppOutgoingEvents} from "@exlibris/exl-cloudapp-angular-lib/lib/events/outgoing-events";
 import {Result} from "../models/Result";
 import {AlmaService} from "../shared/alma.service";
-import {EMPTY} from "rxjs";
+import {EMPTY, throwError} from "rxjs";
 
 
 @Component({
@@ -94,14 +94,18 @@ export class MainComponent implements OnInit, OnDestroy {
 
     this.restService.call<any>(itemLink+"/requests")
         .pipe(finalize(()=> {
-          this.loading=false;
           this.itemLoaded = true;
-          this.barcode.nativeElement.value = "";
+            this.resetMain();
         }))
         .subscribe(
             result => this.requests=result,
             error => this.requests=error
         );
+  }
+
+  private resetMain() {
+    this.loading = false;
+    this.barcode.nativeElement.value = "";
   }
 
   private checkStatusInDigitization(barcode: string) {
@@ -112,7 +116,14 @@ export class MainComponent implements OnInit, OnDestroy {
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
             tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleMaestroError(barcode, data)),
-        ).subscribe();
+            tap(data => this.isInFinishStep(data.step_title) ? this.returnFromDigitizationDept=true : this.barcodeAlreadyExists(barcode, data.step_title)),
+            catchError(error => {
+                this.resetMain();
+                this.handleError(error);
+                return EMPTY;
+            })
+        )
+        .subscribe();
   }
 
   private isBarcodeNew(data) {
@@ -143,15 +154,29 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   private handleMaestroError(barcode:string, data: any) {
-      let done_step = 'KBH Cum Færdigregistreret';
+    let done_step = 'KBH Cum Færdigregistreret';
     if (data.hasOwnProperty('step_title')) {
-        if (data.step_title === done_step) {
-            this.alert.warn(`Stregkode ${barcode} er allerede færdigregistreret`);
-        } else {
-            this.alert.warn(`Stregkode ${barcode} har status ${data.step_title}`);
-        }
+      if (data.step_title === done_step) {
+        this.alert.warn(`Stregkode ${barcode} er allerede færdigregistreret`);
+      } else {
+        this.alert.warn(`Stregkode ${barcode} har status ${data.step_title}`);
+      }
     } else {
       this.alert.error(`Maestro fejl ${data.error}`);
     }
   }
+}
+
+  private handleError(error: any) {
+    console.log(error);
+    this.alert.error('Error connecting to digitization system.')
+    return EMPTY;
+  }
+
+  private getParams(action: string) {
+    if (action === 'send'){
+      return '&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999';
+    }
+  }
+
 }
