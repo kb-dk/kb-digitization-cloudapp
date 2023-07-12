@@ -41,7 +41,7 @@ export class SendMaterialComponent implements OnInit {
 
   sendToDigitization() {
     let queryParams = this.getQueryParams();
-    console.log(queryParams);
+    this.loading.emit(true);
     this.digitizationService.send(queryParams)
         .pipe(
             tap(data => console.log(data)),
