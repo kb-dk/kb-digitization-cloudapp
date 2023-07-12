@@ -64,6 +64,7 @@ export class MainComponent implements OnInit, OnDestroy {
   scanBarcode() {
     //console.log("barcode scanned "+this.barcode.nativeElement.value)
     this.loading=true;
+    this.alert.clear();
     const barcode = this.barcode.nativeElement.value;
     const encodedBarcode = encodeURIComponent(barcode).trim();
     this.restService.call(`/items?item_barcode=${encodedBarcode}`)
