@@ -18,6 +18,7 @@ export class SendMaterialComponent implements OnInit {
 
   @Input() itemFromAlma: any = null;
   @Input() department: string = null;
+  @Input() libCode: string = null;
   @Output() backToMainEvent = new EventEmitter();
   @Output() loading = new EventEmitter<boolean>();
   isFraktur: boolean = false;
@@ -46,7 +47,7 @@ export class SendMaterialComponent implements OnInit {
         .pipe(
             tap(data => console.log(data)),
             switchMap(() => {
-              return this.almaService.scanInItem(this.itemFromAlma.link,this.department,"digitaliseret1","Digiproj","false");
+              return this.almaService.scanInItem(this.itemFromAlma.link,this.libCode,this.department,"digitaliseret1","Digiproj","false");
             })
         )
         .subscribe({

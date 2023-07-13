@@ -67,7 +67,7 @@ export class MainComponent implements OnInit, OnDestroy {
     this.alert.clear();
     const barcode = this.barcode.nativeElement.value;
     const encodedBarcode = encodeURIComponent(barcode).trim();
-    this.restService.call(`/items?item_barcode=${encodedBarcode}`)
+    this.almaService.getItemsFromBarcode(encodedBarcode)
         .subscribe(
             result => {
               this.itemFromApi = result;
@@ -166,7 +166,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
   private handleError(error: any) {
-    console.log(error);
     this.alert.error('Error connecting to digitization system.')
     return EMPTY;
   }

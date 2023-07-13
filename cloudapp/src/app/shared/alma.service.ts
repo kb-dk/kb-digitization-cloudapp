@@ -16,7 +16,16 @@ export class AlmaService {
       private alert: AlertService,
   ) { }
 
-  scanInItem(itemLink:string, department:string, status:string, workOrderType:string, done:string) {
+
+  sendToDigi(itemLink:string, library: string, department:string) {
+
+  }
+
+  receiveFromDigi(itemLink:string, library: string, department:string) {
+    
+  }
+
+  scanInItem(itemLink:string, library: string, department:string, status:string, workOrderType:string, done:string) {
     let params = { 'op': 'scan', 'department' : department, 'status': status, 'work_order_type' : workOrderType, 'done' : done };
     let request: Request = {
       url: itemLink,
