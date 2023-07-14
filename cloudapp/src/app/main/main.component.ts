@@ -39,9 +39,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    let pageMetadata = this.eventsService.getPageMetadata();
-    console.log('JJ: ' + JSON.stringify(pageMetadata));
-
     this.eventsService.getInitData().subscribe(data=>{
       this.currentlyAtLibCode = data.user.currentlyAtLibCode;
       this.currentlyAtDept = data.user['currentlyAtDept'];
