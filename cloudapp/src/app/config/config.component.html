@@ -26,7 +26,6 @@
                             <mat-label class="example-margin">{{'Parameter ' + (paramIndex + 1)}}</mat-label>
                             <input matInput placeholder="Param Name" formControlName="{{paramIndex}}" required>
                         </mat-form-field>
-                        <!--                <span>{{i}} {{params().length}} {{i+1 === params().length}}</span>-->
                         <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
                             <mat-button-toggle class="toggleButton" (click)="removeParamName(paramIndex)" *ngIf="getParamsNames().length !=1" disabled="disabled" value="italic"><mat-icon>remove_box</mat-icon></mat-button-toggle>
                             <mat-button-toggle class="toggleButton" (click)="addNewParamName()" *ngIf="paramIndex+1 === getParamsNames().length" value="bold"><mat-icon>add_box</mat-icon></mat-button-toggle>
@@ -89,7 +88,7 @@
 </form>
 
 
-<pre>{{ form.value | json }}</pre>
+<!--<pre>{{ form.value | json }}</pre>-->
 
 <button mat-icon-button color="warn" (click)="removeAllConfigs()">
     <mat-icon>Delete configs</mat-icon>

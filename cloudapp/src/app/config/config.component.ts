@@ -82,8 +82,6 @@ export class ConfigComponent implements OnInit {
         (< FormArray > this.form.get("paramNames")).push(this.fb.control(''));
         let desks = this.form.get("desks") as FormArray;
         for (let control of desks.controls) {
-            //TODO: hvis der findes desks -> tilføj ny param til disse
-            //TODO: hvis der findes en paramnames -> erstat evt. key med paramName
             (< FormArray > control.get("params")).push(this.createParamGroup(null));
         }
     }
@@ -127,8 +125,9 @@ export class ConfigComponent implements OnInit {
                 let newParamGroup = this.createParamGroup(control.value);
                 newParams.push(newParamGroup);
             }
+        } else {
+            newParams.push(this.createParamGroup(""));
         }
-        newParams.push(this.createParamGroup(""));
         return newParams;
     }
 
