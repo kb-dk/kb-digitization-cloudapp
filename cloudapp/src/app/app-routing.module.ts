@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { MainComponent } from './main/main.component';
-import {ConfigComponent, ConfigurationGuard} from "./config/config.component";
 import {ErrorComponent} from "./static/error.component";
+import {ConfigComponent, ConfigurationGuard} from "./config/config.component";
 
 const routes: Routes = [
   { path: '', component: MainComponent },

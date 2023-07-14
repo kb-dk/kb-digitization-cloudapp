@@ -1,10 +1,15 @@
-import { Component, OnInit, Injectable } from '@angular/core';
-import { AppService } from '../app.service';
-import {FormArray, FormBuilder, FormGroup} from '@angular/forms';
-import { CloudAppConfigService, CloudAppEventsService, CloudAppRestService, InitData, AlertService } from '@exlibris/exl-cloudapp-angular-lib';
-import { CanActivate, Router } from '@angular/router';
-import { Observable, iif, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import {Component, Injectable, OnInit} from '@angular/core';
+import {AppService} from '../app.service';
+import {FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
+import {
+    AlertService,
+    CloudAppConfigService,
+    CloudAppEventsService,
+    CloudAppRestService
+} from '@exlibris/exl-cloudapp-angular-lib';
+import {CanActivate} from '@angular/router';
+import {Observable} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'app-config',
@@ -12,51 +17,49 @@ import { map, switchMap } from 'rxjs/operators';
     styleUrls: ['./config.component.scss']
 })
 export class ConfigComponent implements OnInit {
-    baseForm: FormGroup;
+    form: FormGroup;
+
     saving = false;
+
+
+    rawValue = "";
+    private jsonString: string;
 
     constructor(
         private appService: AppService,
-        private formBuilder: FormBuilder,
+        private fb: FormBuilder,
         private configService: CloudAppConfigService,
         private alert: AlertService
     ) { }
 
     ngOnInit() {
         this.appService.setTitle('Configuration');
-        this.baseForm = this.formBuilder.group({
-            serviceUrl: this.formBuilder.control(''),
-            apiKey: this.formBuilder.control(''),
-            params: this.formBuilder.array([this.formBuilder.control('')]),
-            deskCode: this.formBuilder.control(''),
-            paramValues: this.formBuilder.array([this.formBuilder.control('')])
+        this.form = this.fb.group({
+            serviceUrl: this.fb.control(''),
+            apiKey: this.fb.control(''),
+            paramNames: this.fb.array([this.fb.control('')]),
+            desks: this.initDeskGroup(),
         });
         this.load();
     }
-
-    params(): FormArray {
-        return this.baseForm.get("params") as FormArray
-    }
-
-    paramValues(): FormArray {
-        return this.baseForm.get("paramValues") as FormArray
-    }
     load() {
-        this.configService.getAsFormGroup().subscribe( config => {
-            if (Object.keys(config.value).length!=0) {
-                this.baseForm = config;
-            }
-        });
+        this.configService.getAsFormGroup().subscribe(
+            config => {
+                console.log("Henter json: " + JSON.stringify(config.value));
+                if (Object.keys(config.value).length!=0) {
+                    this.form = config;
+                }
+            });
     }
-
 
     save() {
-        //console.log("Dette gemmes: 0 " + JSON.stringify(this.baseForm.value))
         this.saving = true;
-        this.configService.set(this.baseForm.value).subscribe(
+        console.log("Gemmer json: " + JSON.stringify(this.form.value));
+        console.log("Status for form: " + this.form.status)
+        this.configService.set(this.form.value).subscribe(
             () => {
                 this.alert.success('Configuration successfully saved.');
-                this.baseForm.markAsPristine();
+                this.form.markAsPristine();
             },
             err => this.alert.error(err.message),
             ()  => this.saving = false
@@ -67,20 +70,114 @@ export class ConfigComponent implements OnInit {
         this.configService.remove().subscribe( () => console.log('removed') );
     }
 
-    removeParam(i: number) {
-        this.params().removeAt(i);
+    removeParamName(i: number) {
+        (< FormArray > this.form.get("paramNames")).removeAt(i);
+        let desks = this.form.get("desks") as FormArray;
+        for (let control of desks.controls) {
+            (< FormArray > control.get("params")).removeAt(i);
+        }
     }
 
-    addNewParam() {
-        this.params().push(this.formBuilder.control(""));
+    addNewParamName() {
+        (< FormArray > this.form.get("paramNames")).push(this.fb.control(''));
+        let desks = this.form.get("desks") as FormArray;
+        for (let control of desks.controls) {
+            //TODO: hvis der findes desks -> tilføj ny param til disse
+            //TODO: hvis der findes en paramnames -> erstat evt. key med paramName
+            (< FormArray > control.get("params")).push(this.createParamGroup(null));
+        }
     }
 
-    showAddButton(i: number) {
-        let showAddButton = this.params().length-1>i;
-        //console.log(this.params().length + '  ' + i + ' ' + showAddButton );
-        return showAddButton;
-        
+    getParamsNames() {
+        return this.form.get("paramNames") as FormArray;
     }
+
+
+    removeDesk(i: number) {
+        (< FormArray > this.form.get("desks")).removeAt(i);
+    }
+
+    addNewDesk() {
+        let paramNames = this.form.get('paramNames') as FormArray;
+        (< FormArray > this.form.get("desks")).push(this.createDesk(paramNames));
+    }
+
+    initDeskGroup() {
+        const newDeskGroup = new FormArray([ this.createDesk(null)])
+        console.log("createDeskGroup()" + JSON.stringify(newDeskGroup.value));
+        return newDeskGroup;
+    }
+    createDesk(paramNames: FormArray) {
+        const newDesk = new FormGroup({
+            deskCode: this.fb.control(''),
+            workflowStatus: new FormControl(''),
+            multiform: new FormControl(''),
+            frakture: new FormControl(''),
+            useMarcField: new FormControl(''),
+            params: this.createParams(paramNames)
+        })
+        console.log("createDesk()"+ JSON.stringify(newDesk.value));
+        return newDesk;
+    }
+
+    createParams(paramNames: FormArray){
+        let newParams = new FormArray([]);
+        if (paramNames != null) {
+            for (let control of paramNames.controls) {
+                let newParamGroup = this.createParamGroup(control.value);
+                newParams.push(newParamGroup);
+            }
+        }
+        newParams.push(this.createParamGroup(""));
+        return newParams;
+    }
+
+    createParamGroup(paramName: string) {
+        let paramGroup = new FormGroup({
+            key: new FormControl(),
+            value: new FormControl(),
+        })
+        let key = paramGroup.get("key") as FormControl
+        key.setValue(paramName);
+        let value = paramGroup.get("value") as FormControl
+        value.setValue("");
+        return paramGroup;
+    }
+
+
+    getParamNameForIndex(paramNameIndex: number) {
+        try {
+            let paramNames = this.form.get("paramNames") as FormArray;
+            return paramNames.controls[paramNameIndex].value;
+        } catch (e) {
+            return 'no param name added'
+        }
+    }
+
+    getDesks() {
+        return this.form.get("desks") as FormArray;
+    }
+
+    getDeskFromIndex(deskIndex: number) {
+        return this.getDesks()[deskIndex] as FormGroup;
+    }
+    showJson() {
+        this.jsonString =  "JSON: " + JSON.stringify(this.form.value);
+    }
+
+
+    getParamsFor(deskIndex: number) {
+        var params = ( < FormArray > ( < FormArray > this.form.get('desks')).controls[deskIndex].get('params'));
+        if(params != null) {
+            return ( < FormArray > ( < FormArray > this.form.get('desks')).controls[deskIndex].get('params')).controls;
+        }
+        else {
+            console.log("No params for desk no " + deskIndex);
+        }
+        // var emptyArray = this.fb.array([this.fb.control('')]);
+    }
+
+
 }
 
 @Injectable({
@@ -90,7 +187,6 @@ export class ConfigurationGuard implements CanActivate {
     constructor (
         private eventsService: CloudAppEventsService,
         private restService: CloudAppRestService,
-        private router: Router
     ) {}
 
     canActivate(): Observable<boolean> {

@@ -9,10 +9,10 @@ import { MaterialModule, CloudAppTranslateModule, AlertModule } from '@exlibris/
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
-import {ConfigComponent} from "./config/config.component";
 import {DigitizationService} from "./shared/digitization.service";
 import { SendMaterialComponent } from './send-material/send-material.component';
 import { ReceiveMaterialComponent } from './receive-material/receive-material.component';
+import {ConfigComponent} from "./config/config.component";
 
 
 @NgModule({
