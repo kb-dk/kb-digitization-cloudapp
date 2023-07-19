@@ -2,12 +2,12 @@
 <h3><b>Department:</b> {{department}} </h3>
 <h3><b>Barcode: </b> {{itemFromAlma.item_data.barcode}} </h3>
 <div>
-    <mat-checkbox [(ngModel)]="isFraktur">
+    <mat-checkbox [(ngModel)]="isFraktur" *ngIf="deskConfig.frakture">
         Fraktur
     </mat-checkbox>
 </div>
 <div>
-    <mat-checkbox [(ngModel)]="isMultivolume">
+    <mat-checkbox [(ngModel)]="isMultivolume" *ngIf="deskConfig.multiform">
         Multi Volume
     </mat-checkbox>
 </div>
