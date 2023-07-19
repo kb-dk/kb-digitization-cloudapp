@@ -108,7 +108,8 @@ export class ConfigComponent implements OnInit {
     createDesk(paramNames: FormArray) {
         const newDesk = new FormGroup({
             deskCode: this.fb.control(''),
-            workflowStatus: new FormControl(''),
+            workOrderType: this.fb.control(''),
+            maestroFinishStep: new FormControl(''),
             multiform: new FormControl(''),
             frakture: new FormControl(''),
             useMarcField: new FormControl(''),
