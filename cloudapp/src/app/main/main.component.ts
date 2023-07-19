@@ -1,7 +1,13 @@
 import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
 import {filter, finalize, tap, catchError} from "rxjs/operators";
 import {
-  CloudAppRestService, CloudAppEventsService, AlertService, Request, HttpMethod, RestErrorResponse,
+    CloudAppRestService,
+    CloudAppEventsService,
+    AlertService,
+    Request,
+    HttpMethod,
+    RestErrorResponse,
+    CloudAppConfigService,
 } from '@exlibris/exl-cloudapp-angular-lib';
 import { DigitizationService } from "../shared/digitization.service";
 import {Result} from "../models/Result";
@@ -18,6 +24,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
   private currentlyAtLibCode: string;
   private currentlyAtDept: string;
+  private deskConfig;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
   readyForDigitizationDept: boolean = false;
@@ -29,6 +36,7 @@ export class MainComponent implements OnInit, OnDestroy {
   requests: any;
 
   constructor(
+      private configService: CloudAppConfigService,
       private restService: CloudAppRestService,
       private eventsService: CloudAppEventsService,
       private alert: AlertService,
@@ -39,10 +47,21 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+      this.loading = true;
     this.eventsService.getInitData().subscribe(data=>{
       this.currentlyAtLibCode = data.user.currentlyAtLibCode;
       this.currentlyAtDept = data.user['currentlyAtDept'];
-    })
+    });
+      this.configService.get().subscribe(config => {
+          if (config.desks) {
+              this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDept.trim());
+          }
+          if (this.deskConfig == undefined) {
+              this.alert.error(`Desk ${this.currentlyAtDept} not defined in app`);
+          }
+          this.loading = false;
+      })
+
   }
 
   ngOnDestroy(): void {
@@ -105,7 +124,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   private checkStatusInDigitization(barcode: string) {
-    return this.digitizationService.check(`&barcode=${barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999`)
+    return this.digitizationService.check(barcode,this.deskConfig)
         .pipe(
             tap( () =>this.loading = false),
             tap( data=> console.log(data)),
@@ -117,8 +136,8 @@ export class MainComponent implements OnInit, OnDestroy {
                 this.handleError(error);
                 return EMPTY;
             })
-        )
-        .subscribe();
+        ).subscribe();
+
   }
 
   private isBarcodeNew(data) {
@@ -127,21 +146,32 @@ export class MainComponent implements OnInit, OnDestroy {
 
   isInFinishStep(data) {
       // TODO add finish step to config
-      let finish_step = 'KBH billedværk modtages (SAMLINGS-EJER)';
+      let finish_step = this.deskConfig.maestroFinishStep.trim();
       if (data.hasOwnProperty('step_title')) {
         return data.step_title === finish_step;
       }
   }
 
   handleBackToMain(event: Result) {
+      console.log(this.getMessage(event.message));
       if (event.ok) {
-        this.alert.success(event.message)
+        this.alert.success(this.getMessage(event.message));
       } else {
-        this.alert.error(event.message)
+        this.alert.error(this.getMessage(event.message));
       }
       this.readyForDigitizationDept=false;
       this.returnFromDigitizationDept=false;
       this.barcode.nativeElement.value='';
+  }
+
+  getMessage(message:any) {
+      if (typeof message === 'string') {
+          return message;
+      }
+      if (message.hasOwnProperty('message')) {
+          return message.message;
+      }
+      return 'Kan ikke finde message';
   }
 
   updateLoading(event: boolean) {
@@ -163,14 +193,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
   private handleError(error: any) {
-    this.alert.error('Error connecting to digitization system.')
+    this.alert.error(error);
     return EMPTY;
-  }
-
-  private getParams(action: string) {
-    if (action === 'send'){
-      return '&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=69&field[title]=QUID:999999';
-    }
   }
 
 }

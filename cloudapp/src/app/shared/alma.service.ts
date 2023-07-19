@@ -17,20 +17,26 @@ export class AlmaService {
   ) { }
 
 
-  sendToDigi(itemLink:string, library: string, department:string) {
-    let params = {'op': 'scan','status':'digitaliseret1'}
-    if (department !== 'DIGINAT') {
-      params['department'] = department;
-      params['work_order_type'] = "Digiproj";
+  sendToDigi(itemLink:string, library: string, department:string, work_order_type:string=null) {
+    let params = {'op': 'scan','department' : department};
+    if (work_order_type) {
+      params['work_order_type'] = work_order_type;
+      params['status'] = 'digitaliseret1';
+    }
+    if (!this.libraryEqualsInstitution(library)) {
+      params['library'] = library;
     }
     return this.scanInItem(itemLink,params);
   }
 
-  receiveFromDigi(itemLink:string, library: string, department:string) {
-    let params = {'op': 'scan','status':'digitaliseret2','done':'true'}
-    if (department !== 'DIGINAT') {
-      params['department'] = department;
-      params['work_order_type'] = "Digiproj";
+  receiveFromDigi(itemLink:string, library: string, department:string,work_order_type:string=null) {
+    let params = {'op': 'scan','department' : department,'done':'true'};
+    if (work_order_type)  {
+      params['work_order_type'] = work_order_type;
+      params['status'] = 'digitaliseret2';
+    }
+    if (!this.libraryEqualsInstitution(library)) {
+      params['library'] = library;
     }
     return this.scanInItem(itemLink,params);
   }
@@ -48,7 +54,13 @@ export class AlmaService {
     return this.restService.call(`/items?item_barcode=${barcode.trim()}`);
   }
 
-  handleResponse(reponse:any) {
-    console.log(reponse);
+
+  private isWorkOrderDepartment(department: string) {
+      return department !== 'DIGINAT'
+  }
+
+
+  private libraryEqualsInstitution(department: string) {
+    return department === '45KBDK_KGL';
   }
 }

@@ -8,14 +8,14 @@
 <app-send-material *ngIf="readyForDigitizationDept"
                    [itemFromAlma]="itemFromApi"
                    [libCode]="this.currentlyAtLibCode"
-                   [department]="this.currentlyAtDept"
+                   [deskConfig]="this.deskConfig"
                    (backToMainEvent)="handleBackToMain($event)"
                     (loading)="updateLoading($event)">
 </app-send-material>
 <app-receive-material *ngIf="returnFromDigitizationDept"
                       [itemFromAlma]="itemFromApi"
                       [libCode]="this.currentlyAtLibCode"
-                      [department]="this.currentlyAtDept"
+                      [deskConfig]="this.deskConfig"
                       (backToMainEvent)="handleBackToMain($event)"
                       (loading)="updateLoading($event)">
 </app-receive-material>

@@ -4,6 +4,7 @@ import { DigitizationService } from "../shared/digitization.service";
 import {AlmaService} from "../shared/alma.service";
 import {AlertService} from "@exlibris/exl-cloudapp-angular-lib";
 import {Result} from "../models/Result";
+import {throwError} from "rxjs";
 
 @Component({
   selector: 'app-receive-material',
@@ -12,7 +13,7 @@ import {Result} from "../models/Result";
 })
 export class ReceiveMaterialComponent implements OnInit {
   @Input() itemFromAlma: any = null;
-  @Input() department: string = null;
+  @Input() deskConfig: any = null;
   @Input() libCode: string = null;
   @Output() backToMainEvent = new EventEmitter();
   @Output() loading = new EventEmitter<boolean>();
@@ -30,11 +31,15 @@ export class ReceiveMaterialComponent implements OnInit {
     let step_name = 'KBH billedværk modtages (SAMLINGS-EJER)';
     const barcode = this.itemFromAlma.item_data.barcode;
     this.loading.emit(true);
-    this.digitizationService.receive(`&barcode=${barcode}&step_name=${step_name}`)
+    this.digitizationService.receive(this.itemFromAlma.item_data.barcode,this.deskConfig)
         .pipe(
             tap( data=> {console.log(data)}),
-            switchMap(() => {
-                return this.almaService.receiveFromDigi(this.itemFromAlma.link,this.libCode,this.department);
+            switchMap(data => {
+                if (!data.hasOwnProperty('error')) {
+                    return this.almaService.receiveFromDigi(this.itemFromAlma.link,this.libCode,this.deskConfig.deskCode.trim(),this.deskConfig.workOrderType.trim());
+                } else {
+                    return throwError(data.error);
+                }
             })
         )
         .subscribe({
@@ -44,7 +49,7 @@ export class ReceiveMaterialComponent implements OnInit {
             },
             error: error => {
               this.loading.emit(false);
-              this.backToMain(new Result(false,error.message));
+              this.backToMain(new Result(false,error));
             }
         });
   }

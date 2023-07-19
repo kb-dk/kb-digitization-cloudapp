@@ -2,60 +2,68 @@ import {Injectable} from '@angular/core';
 import {CloudAppConfigService} from '@exlibris/exl-cloudapp-angular-lib';
 import {HttpClient} from '@angular/common/http';
 import {catchError, filter, map, tap} from "rxjs/operators";
-import {EMPTY, throwError} from "rxjs";
+import {EMPTY, Observable, throwError} from "rxjs";
+import * as string_decoder from "string_decoder";
 
 @Injectable({
     providedIn: 'root',
 })
 export class DigitizationService {
-    config = {api:{url:'http://mae-api-test-01.kb.dk/api/', key: 'key=ff74e7fb2254dd3ce3703ae049432615cb7a8c9cf3d947c5b99d846e6ee5073149932f2eec7f1585a8dd72f712a2864b0037f17dbf59dd86dc7773e687602692'}}
+    config: any;
 
-    constructor(private configService: CloudAppConfigService, private http: HttpClient) { }
-
-    send(queryParams: string){
-        if (this.config.api.url) {
-            this.config.api.key = this.config.api.key ? this.config.api.key : '';
-            return this.callApi(`${this.config.api.url}?${this.config.api.key}&action=book_add${queryParams}`);
-        }
-        return EMPTY;
+    constructor(private configService: CloudAppConfigService, private http: HttpClient) {
+        configService.get().subscribe(config => {
+            console.log("got config");
+            console.log(config);
+            this.config = config;
+        })
     }
 
-    check(queryParams: string){
-        if (this.config.api.url) {
-            this.config.api.key = this.config.api.key ? this.config.api.key : '';
-            return this.callApi(`${this.config.api.url}?${this.config.api.key}&action=book_info${queryParams}`);
-        }
-        return EMPTY;
+    check(barcode:string,deskConfig:any):Observable<any> {
+        return this.callApi('book_info',`barcode=${barcode}`);
     }
 
-    receive(queryParams: string){
-        if (this.config.api.url) {
-            this.config.api.key = this.config.api.key ? this.config.api.key : '';
-            return this.callApi(`${this.config.api.url}?${this.config.api.key}&action=step_finish${queryParams}`);
+
+    send(barcode:string, deskConfig:any, fraktur:boolean, multiVolume:boolean) {
+        let queryParams = this.getDeskParams(deskConfig);
+        queryParams = `barcode=${barcode}${queryParams}`;
+        if (fraktur) {
+            queryParams = `${queryParams}&field[Fraktur]=1`;
         }
-        return EMPTY;
+        if (multiVolume) {
+            queryParams = `${queryParams}&field[Multivolume]=1`;
+        }
+        return this.callApi('book_add',queryParams);
     }
 
-    private getConfig() {
-        return this.configService.get()
-            .pipe(
-                catchError(error => {
-                    console.log('Error getting configuration:', error);
-                    return EMPTY;
-                })
+    receive(barcode:string,deskConfig:any) {
+        let queryParams= `barcode=${barcode}&step_name=${deskConfig.maestroFinishStep.trim()}`;
+        return this.callApi('step_finish',queryParams);
+    }
+
+    private getDeskParams(deskConfig: any) {
+        let params = ``;
+        deskConfig.params.forEach((param,index) => {
+            params = `${params}&${this.config.paramNames[index].trim()}=${param.value.trim()}`
+        });
+        return params;
+    }
+
+    private callApi(action:string,queryParams:string) {
+        if (this.config.serviceUrl && this.config.apiKey) {
+            let url = `${this.config.serviceUrl.trim()}?key=${this.config.apiKey.trim()}&action=${action}&${queryParams}`
+            console.log(url);
+            return this.http.post(url,'',
+                {
+                    responseType: 'text',
+                    withCredentials: false,
+                }).pipe(
+                map(data => JSON.parse(data))
             );
+        }
+        return throwError("serviceURL or apiKey undefined");
     }
 
-    private callApi(url: string) {
-        return this.http.post(url,'',
-            {
-                responseType: 'text',
-                withCredentials: false,
-            }).pipe(
-            map(data => JSON.parse(data)),
-            // catchError(err => this.handleError(err))
-        );
-    }
 
     // private handleError = (err: any) => {
     //     console.error(err.status);

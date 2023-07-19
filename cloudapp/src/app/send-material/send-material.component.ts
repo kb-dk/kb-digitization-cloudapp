@@ -8,6 +8,7 @@ import { DigitizationService } from "../shared/digitization.service";
 import {switchMap, tap} from "rxjs/operators";
 import {query} from "@angular/animations";
 import {Result} from "../models/Result";
+import {throwError} from "rxjs";
 
 @Component({
   selector: 'app-send-material',
@@ -17,8 +18,8 @@ import {Result} from "../models/Result";
 export class SendMaterialComponent implements OnInit {
 
   @Input() itemFromAlma: any = null;
-  @Input() department: string = null;
   @Input() libCode: string = null;
+  @Input() deskConfig: any = null;
   @Output() backToMainEvent = new EventEmitter();
   @Output() loading = new EventEmitter<boolean>();
   isFraktur: boolean = false;
@@ -33,21 +34,21 @@ export class SendMaterialComponent implements OnInit {
   { }
 
   ngOnInit(): void {
-    this.eventService.getInitData().subscribe(data=>{
-      this.department = data.user['currentlyAtDept'];
-    });
   }
 
 
 
   sendToDigitization() {
-    let queryParams = this.getQueryParams();
     this.loading.emit(true);
-    this.digitizationService.send(queryParams)
+    this.digitizationService.send(this.itemFromAlma.item_data.barcode,this.deskConfig,this.isFraktur,this.isMultivolume)
         .pipe(
             tap(data => console.log(data)),
-            switchMap(() => {
-              return this.almaService.sendToDigi(this.itemFromAlma.link,this.libCode,this.department);
+            switchMap(data => {
+              if (!data.hasOwnProperty('error')) {
+                return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
+              } else {
+                return throwError(data.error);
+              }
             })
         )
         .subscribe({
@@ -57,13 +58,13 @@ export class SendMaterialComponent implements OnInit {
           },
           error: error => {
             this.loading.emit(false);
-            this.backToMain(new Result(false,error.message));
+            this.backToMain(new Result(false,error));
           }
         });
   }
 
   getQueryParams() {
-    let result:string = `&barcode=${this.itemFromAlma.item_data.barcode}&field[customer_id]=20&field[project_id]=37&field[job_id]=54&field[step_id]=73&field[title]=QUID:999999`
+    let result:string = `&barcode=${this.itemFromAlma.item_data.barcode}&field[customer_id]=7&field[project_id]=31&field[job_id]=48&field[step_id]=25&field[title]=QUID:999999`
     if(this.isFraktur) {
       result = result + `&field[Fraktur]=1`;
     }
