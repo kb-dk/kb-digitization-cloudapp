@@ -13,6 +13,7 @@ import {throwError} from "rxjs";
 })
 export class ReceiveMaterialComponent implements OnInit {
   @Input() itemFromAlma: any = null;
+  @Input() barcodeForMaestro: string = null;
   @Input() deskConfig: any = null;
   @Input() libCode: string = null;
   @Output() backToMainEvent = new EventEmitter();
@@ -28,10 +29,8 @@ export class ReceiveMaterialComponent implements OnInit {
 
   receiveFromDigitization() {
     // TODO add finish step to config
-    let step_name = 'KBH billedværk modtages (SAMLINGS-EJER)';
-    const barcode = this.itemFromAlma.item_data.barcode;
     this.loading.emit(true);
-    this.digitizationService.receive(this.itemFromAlma.item_data.barcode,this.deskConfig)
+    this.digitizationService.receive(this.barcodeForMaestro,this.deskConfig)
         .pipe(
             tap( data=> {console.log(data)}),
             switchMap(data => {

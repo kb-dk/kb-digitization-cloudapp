@@ -33,6 +33,7 @@ export class MainComponent implements OnInit, OnDestroy {
   /* TODO delete */
   itemLoaded: boolean = false;
   itemFromApi: any = null;
+  barcodeForMaestro: string = null;
   requests: any;
 
   constructor(
@@ -77,7 +78,7 @@ export class MainComponent implements OnInit, OnDestroy {
     return undefined;
   }
 
-  scanBarcode() {
+  async scanBarcode() {
     //console.log("barcode scanned "+this.barcode.nativeElement.value)
     this.loading=true;
     this.alert.clear();
@@ -87,8 +88,10 @@ export class MainComponent implements OnInit, OnDestroy {
         .subscribe(
             result => {
               this.itemFromApi = result;
-              this.checkStatusInDigitization(encodedBarcode);
-              this.loading = false;
+              this.getBarcodeOrX853x().then(r => {
+                  this.checkStatusInDigitization(this.barcodeForMaestro);
+                  this.loading = false;
+              });
             },
             error => {
               this.alert.error(error.message);
@@ -197,4 +200,18 @@ export class MainComponent implements OnInit, OnDestroy {
     return EMPTY;
   }
 
+  private async getBarcodeOrX853x() {
+      this.barcodeForMaestro = this.itemFromApi.item_data.barcode;
+      if (this.deskConfig.useMarcField) {
+          await this.almaService.getField583x(this.itemFromApi.holding_data.link)
+              .then(field583x => {
+                  if (field583x) {
+                      this.barcodeForMaestro = field583x;
+                  } else {
+                      console.log("field583x has no value");
+                  }
+              })
+      }
+      return Promise.resolve();
+  }
 }

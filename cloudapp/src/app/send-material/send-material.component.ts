@@ -18,6 +18,7 @@ import {throwError} from "rxjs";
 export class SendMaterialComponent implements OnInit {
 
   @Input() itemFromAlma: any = null;
+  @Input() barcodeForMaestro: string = null;
   @Input() libCode: string = null;
   @Input() deskConfig: any = null;
   @Output() backToMainEvent = new EventEmitter();
@@ -36,11 +37,9 @@ export class SendMaterialComponent implements OnInit {
   ngOnInit(): void {
   }
 
-
-
   sendToDigitization() {
     this.loading.emit(true);
-    this.digitizationService.send(this.itemFromAlma.item_data.barcode,this.deskConfig,this.isFraktur,this.isMultivolume)
+    this.digitizationService.send(this.barcodeForMaestro,this.deskConfig,this.isFraktur,this.isMultivolume)
         .pipe(
             tap(data => console.log(data)),
             switchMap(data => {
@@ -61,17 +60,6 @@ export class SendMaterialComponent implements OnInit {
             this.backToMain(new Result(false,error));
           }
         });
-  }
-
-  getQueryParams() {
-    let result:string = `&barcode=${this.itemFromAlma.item_data.barcode}&field[customer_id]=7&field[project_id]=31&field[job_id]=48&field[step_id]=25&field[title]=QUID:999999`
-    if(this.isFraktur) {
-      result = result + `&field[Fraktur]=1`;
-    }
-    if (this.isMultivolume) {
-      result = result + `&field[Multivolume]=1`;
-    }
-    return result;
   }
 
   backToMain(message) {

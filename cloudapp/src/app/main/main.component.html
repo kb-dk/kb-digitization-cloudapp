@@ -7,6 +7,7 @@
 </div>
 <app-send-material *ngIf="readyForDigitizationDept"
                    [itemFromAlma]="itemFromApi"
+                   [barcodeForMaestro]="barcodeForMaestro"
                    [libCode]="this.currentlyAtLibCode"
                    [deskConfig]="this.deskConfig"
                    (backToMainEvent)="handleBackToMain($event)"
@@ -14,6 +15,7 @@
 </app-send-material>
 <app-receive-material *ngIf="returnFromDigitizationDept"
                       [itemFromAlma]="itemFromApi"
+                      [barcodeForMaestro]="barcodeForMaestro"
                       [libCode]="this.currentlyAtLibCode"
                       [deskConfig]="this.deskConfig"
                       (backToMainEvent)="handleBackToMain($event)"

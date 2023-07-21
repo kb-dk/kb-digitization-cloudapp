@@ -1,6 +1,6 @@
 <h2>Send til Digitalisering</h2>
-<h3><b>Department:</b> {{department}} </h3>
-<h3><b>Barcode: </b> {{itemFromAlma.item_data.barcode}} </h3>
+<h3><b>Desk:</b> {{deskConfig.deskCode}} </h3>
+<h3><b>Barcode i Maestro: </b> {{barcodeForMaestro}} </h3>
 <div>
     <mat-checkbox [(ngModel)]="isFraktur" *ngIf="deskConfig.frakture">
         Fraktur
