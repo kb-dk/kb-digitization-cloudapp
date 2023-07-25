@@ -4,7 +4,7 @@ import { DigitizationService } from "../shared/digitization.service";
 import {AlmaService} from "../shared/alma.service";
 import {AlertService} from "@exlibris/exl-cloudapp-angular-lib";
 import {Result} from "../models/Result";
-import {throwError} from "rxjs";
+import {Observable, of, throwError} from "rxjs";
 
 @Component({
   selector: 'app-receive-material',
@@ -38,6 +38,15 @@ export class ReceiveMaterialComponent implements OnInit {
                     return this.almaService.receiveFromDigi(this.itemFromAlma.link,this.libCode,this.deskConfig.deskCode.trim(),this.deskConfig.workOrderType.trim());
                 } else {
                     return throwError(data.error);
+                }
+            }),
+            switchMap(data => {
+                console.log("check remove temp location");
+                console.log(this.deskConfig.removeTempLocation);
+                if (this.deskConfig.removeTempLocation) {
+                    return this.almaService.removeTemporaryLocation(this.itemFromAlma);
+                } else {
+                    return of('ok');
                 }
             })
         )

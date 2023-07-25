@@ -113,6 +113,7 @@ export class ConfigComponent implements OnInit {
             multiform: new FormControl(''),
             frakture: new FormControl(''),
             useMarcField: new FormControl(''),
+            removeTempLocation: new FormControl(''),
             params: this.createParams(paramNames)
         })
         console.log("createDesk()"+ JSON.stringify(newDesk.value));

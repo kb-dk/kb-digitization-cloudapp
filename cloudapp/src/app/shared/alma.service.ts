@@ -5,6 +5,7 @@ import {
   HttpMethod,
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
+import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -85,12 +86,24 @@ export class AlmaService {
     });
   }
 
-  private isWorkOrderDepartment(department: string) {
-      return department !== 'DIGINAT'
+  removeTemporaryLocation(itemFromApi) {
+    console.log('removing temp location');
+    console.log(itemFromApi);
+    let updatedItem = itemFromApi;
+    if (updatedItem.holding_data.in_temp_location) {
+      updatedItem.holding_data.in_temp_location = false;
+      console.log(updatedItem);
+      let request: Request = {
+        url: itemFromApi.link,
+        method: HttpMethod.PUT,
+        requestBody: updatedItem
+      };
+      return this.restService.call(request);
+    }
   }
 
 
-  private libraryEqualsInstitution(department: string) {
-    return department === '45KBDK_KGL';
+  private libraryEqualsInstitution(libCode: string) {
+    return libCode === '45KBDK_KGL';
   }
 }
