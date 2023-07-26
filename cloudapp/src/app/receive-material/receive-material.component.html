@@ -1,20 +1,23 @@
-<p>Modtag materiale fra Digitalisering</p>
+<h2>Modtag følgende materiale fra digitalisering</h2>
+<h3><b>Titel: {{itemFromAlma.bib_data.title}}</b></h3>
+<h3><b>Barcode i Maestro: </b> {{barcodeForMaestro}} </h3>
+<h3><b>Desk:</b> {{deskConfig.deskCode}} </h3>
 <div class="eca-actions">
-    <button mat-stroked-button color="primary"  (click)="receiveFromDigitization()" >
+    <button mat-raised-button color="primary"  (click)="receiveFromDigitization()" >
         Receive from digitization
     </button>
-    <button mat-stroked-button color="basic"  (click)="backToMain('Action cancelled')" >
+    <button mat-raised-button color="basic"  (click)="backToMain('Action cancelled')" >
         Cancel
     </button>
 </div>
 
-<div>
-    <mat-card [style.display]="itemFromAlma? '' : 'none'">
-        <mat-card-header>
-            <mat-card-title>Itemdata from API</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <textarea #apiResultArea [value]="itemFromAlma | json"></textarea>
-        </mat-card-content>
-    </mat-card>
-</div>
+<!--<div>-->
+<!--    <mat-card [style.display]="itemFromAlma? '' : 'none'">-->
+<!--        <mat-card-header>-->
+<!--            <mat-card-title>Itemdata from API</mat-card-title>-->
+<!--        </mat-card-header>-->
+<!--        <mat-card-content>-->
+<!--            <textarea #apiResultArea [value]="itemFromAlma | json"></textarea>-->
+<!--        </mat-card-content>-->
+<!--    </mat-card>-->
+<!--</div>-->
