@@ -88,7 +88,7 @@ export class MainComponent implements OnInit, OnDestroy {
         .subscribe(
             result => {
               this.itemFromApi = result;
-              this.getBarcodeOrX853x().then(r => {
+              this.getBarcodeOrField583x().then(r => {
                   this.checkStatusInDigitization(this.barcodeForMaestro);
                   this.loading = false;
               });
@@ -200,7 +200,7 @@ export class MainComponent implements OnInit, OnDestroy {
     return EMPTY;
   }
 
-  private async getBarcodeOrX853x() {
+  private async getBarcodeOrField583x() {
       this.barcodeForMaestro = this.itemFromApi.item_data.barcode;
       if (this.deskConfig.useMarcField) {
           await this.almaService.getField583x(this.itemFromApi.holding_data.link)
