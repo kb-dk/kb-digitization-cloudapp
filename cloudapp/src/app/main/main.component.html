@@ -1,5 +1,5 @@
 <mat-form-field>
-  <mat-label translate>Main.ScanLabel</mat-label>
+  <mat-label>Barcode</mat-label>
   <input matInput #barcode (keyup.enter)="scanBarcode()" autocomplete="off">
 </mat-form-field>
 <div class="spinner-overlay" *ngIf="loading">
