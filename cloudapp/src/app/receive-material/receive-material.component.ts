@@ -32,7 +32,6 @@ export class ReceiveMaterialComponent implements OnInit {
     this.loading.emit(true);
     this.digitizationService.receive(this.barcodeForMaestro,this.deskConfig)
         .pipe(
-            tap( data=> {console.log(data)}),
             switchMap(data => {
                 if (!data.hasOwnProperty('error')) {
                     return this.almaService.receiveFromDigi(this.itemFromAlma.link,this.libCode,this.deskConfig.deskCode.trim(),this.deskConfig.workOrderType.trim());
@@ -41,8 +40,6 @@ export class ReceiveMaterialComponent implements OnInit {
                 }
             }),
             switchMap(data => {
-                console.log("check remove temp location");
-                console.log(this.deskConfig.removeTempLocation);
                 if (this.deskConfig.removeTempLocation) {
                     return this.almaService.removeTemporaryLocation(this.itemFromAlma);
                 } else {

@@ -45,7 +45,6 @@ export class ConfigComponent implements OnInit {
     load() {
         this.configService.getAsFormGroup().subscribe(
             config => {
-                console.log("Henter json: " + JSON.stringify(config.value));
                 if (Object.keys(config.value).length!=0) {
                     this.form = config;
                 }
@@ -54,8 +53,6 @@ export class ConfigComponent implements OnInit {
 
     save() {
         this.saving = true;
-        console.log("Gemmer json: " + JSON.stringify(this.form.value));
-        console.log("Status for form: " + this.form.status)
         this.configService.set(this.form.value).subscribe(
             () => {
                 this.alert.success('Configuration successfully saved.');
@@ -67,7 +64,7 @@ export class ConfigComponent implements OnInit {
     }
 
     removeAllConfigs() {
-        this.configService.remove().subscribe( () => console.log('removed') );
+        this.configService.remove().subscribe();
     }
 
     removeParamName(i: number) {
@@ -102,7 +99,6 @@ export class ConfigComponent implements OnInit {
 
     initDeskGroup() {
         const newDeskGroup = new FormArray([ this.createDesk(null)])
-        console.log("createDeskGroup()" + JSON.stringify(newDeskGroup.value));
         return newDeskGroup;
     }
     createDesk(paramNames: FormArray) {
@@ -116,7 +112,6 @@ export class ConfigComponent implements OnInit {
             removeTempLocation: new FormControl(''),
             params: this.createParams(paramNames)
         })
-        console.log("createDesk()"+ JSON.stringify(newDesk.value));
         return newDesk;
     }
 

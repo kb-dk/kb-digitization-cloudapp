@@ -87,12 +87,9 @@ export class AlmaService {
   }
 
   removeTemporaryLocation(itemFromApi) {
-    console.log('removing temp location');
-    console.log(itemFromApi);
     let updatedItem = itemFromApi;
     if (updatedItem.holding_data.in_temp_location) {
       updatedItem.holding_data.in_temp_location = false;
-      console.log(updatedItem);
       let request: Request = {
         url: itemFromApi.link,
         method: HttpMethod.PUT,

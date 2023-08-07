@@ -13,8 +13,6 @@ export class DigitizationService {
 
     constructor(private configService: CloudAppConfigService, private http: HttpClient) {
         configService.get().subscribe(config => {
-            console.log("got config");
-            console.log(config);
             this.config = config;
         })
     }
@@ -52,7 +50,6 @@ export class DigitizationService {
     private callApi(action:string,queryParams:string) {
         if (this.config.serviceUrl && this.config.apiKey) {
             let url = `${this.config.serviceUrl.trim()}?key=${this.config.apiKey.trim()}&action=${action}&${queryParams}`
-            console.log(url);
             return this.http.post(url,'',
                 {
                     responseType: 'text',

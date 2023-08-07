@@ -49,7 +49,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
       this.loading = true;
-    this.eventsService.getInitData().subscribe(data=>{
+      this.eventsService.getInitData().subscribe(data=>{
       this.currentlyAtLibCode = data.user.currentlyAtLibCode;
       this.currentlyAtDept = data.user['currentlyAtDept'];
     });
@@ -82,7 +82,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   async scanBarcode() {
-    //console.log("barcode scanned "+this.barcode.nativeElement.value)
     this.loading=true;
     this.alert.clear();
     const barcode = this.barcode.nativeElement.value;
@@ -133,7 +132,6 @@ export class MainComponent implements OnInit, OnDestroy {
     return this.digitizationService.check(barcode,this.deskConfig)
         .pipe(
             tap( () =>this.loading = false),
-            tap( data=> console.log(data)),
             tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
             filter(data => !this.isBarcodeNew(data)),
             tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleOtherMaestroResponses(barcode, data)),
@@ -159,7 +157,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   handleBackToMain(event: Result) {
-      console.log(this.getMessage(event.message));
       if (event.ok) {
         this.alert.success(this.getMessage(event.message));
       } else {

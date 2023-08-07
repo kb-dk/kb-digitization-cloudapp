@@ -41,7 +41,6 @@ export class SendMaterialComponent implements OnInit {
     this.loading.emit(true);
     this.digitizationService.send(this.barcodeForMaestro,this.deskConfig,this.isFraktur,this.isMultivolume)
         .pipe(
-            tap(data => console.log(data)),
             switchMap(data => {
               if (!data.hasOwnProperty('error')) {
                 return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
