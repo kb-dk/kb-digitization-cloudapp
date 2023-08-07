@@ -54,10 +54,13 @@ export class MainComponent implements OnInit, OnDestroy {
       this.currentlyAtDept = data.user['currentlyAtDept'];
     });
       this.configService.get().subscribe(config => {
-          if (config.desks) {
+          if (config.desks && this.currentlyAtDept) {
               this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDept.trim());
           }
-          if (this.deskConfig == undefined) {
+
+          if (this.currentlyAtDept == undefined) {
+              this.alert.error(`Please first select a Desk in Alma and then open the app.`);
+          } else if (this.deskConfig == undefined) {
               this.alert.error(`Desk ${this.currentlyAtDept} not defined in app`);
           }
           this.loading = false;
