@@ -1,5 +1,10 @@
-<div>
-    <!--        <button mat-flat-button type="button" color="primary" (click)="save()" [disabled]="!(form?.dirty)">Save</button>-->
+<div class="cloudapp-actions">
+    <a [routerLink]="['']">
+        <button mat-raised-button>
+            <mat-icon>arrow_back</mat-icon>
+            Back
+        </button>
+    </a>
     <button mat-flat-button type="button" color="primary" (click)="save()" [disabled]="(!(form?.dirty)) && (!(form?.valid))">Save</button>
     <button mat-flat-button type="button" (click)="showJson()" >Show form</button>
 </div>
