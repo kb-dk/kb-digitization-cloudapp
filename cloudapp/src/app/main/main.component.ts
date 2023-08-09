@@ -172,7 +172,7 @@ export class MainComponent implements OnInit, OnDestroy {
       if (message.hasOwnProperty('message')) {
           return message.message;
       }
-      return 'Kan ikke finde message';
+      return 'Cannot find the message.';
   }
 
   updateLoading(event: boolean) {
@@ -183,12 +183,12 @@ export class MainComponent implements OnInit, OnDestroy {
     let done_step = 'KBH Cum Færdigregistreret';
     if (data.hasOwnProperty('step_title')) {
       if (data.step_title === done_step) {
-        this.alert.warn(`Stregkode ${barcode} er allerede færdigregistreret`);
+        this.alert.warn(`Barcode ${barcode} is already registered in the digitisation system.`);
       } else {
-        this.alert.warn(`Stregkode ${barcode} har status ${data.step_title}`);
+        this.alert.warn(`Barcode ${barcode} has the status ${data.step_title}`);
       }
     } else {
-      this.alert.error(`Maestro fejl ${data.error}`);
+      this.alert.error(`Maestro error ${data.error}`);
     }
   }
 
