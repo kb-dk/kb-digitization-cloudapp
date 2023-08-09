@@ -47,8 +47,17 @@ export class SendMaterialComponent implements OnInit {
             switchMap(data => {
               console.log(this.deskConfig);
               if (!data.hasOwnProperty('error')) {
-                // this.digitizationService.goToNextStep(this.barcodeForMaestro, 'x')
                 return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
+              } else {
+                return throwError(data.error);
+              }
+            })
+        )
+        .pipe(
+            switchMap(data => {
+              console.log(this.deskConfig);
+              if (!data.hasOwnProperty('error')) {
+                  return this.digitizationService.goToNextStep(this.barcodeForMaestro, 'KBH bog oprettet')
               } else {
                 return throwError(data.error);
               }

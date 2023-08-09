@@ -35,8 +35,12 @@ export class DigitizationService {
     }
 
     receive(barcode:string,deskConfig:any) {
-        let queryParams= `barcode=${barcode}&step_name=${deskConfig.maestroFinishStep.trim()}`;
-        return this.callApi('step_finish',queryParams);
+        return this.goToNextStep(barcode, deskConfig.maestroFinishStep);
+    }
+
+    goToNextStep(barcode: string, currentStep: any) {
+        let queryParams = `barcode=${barcode}&step_name=${currentStep.trim()}`;
+        return this.callApi('step_finish', queryParams);
     }
 
     private getDeskParams(deskConfig: any) {
