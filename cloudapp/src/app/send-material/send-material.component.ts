@@ -35,13 +35,10 @@ export class SendMaterialComponent implements OnInit {
   { }
 
   ngOnInit(): void {
-    console.log(this.deskConfig);
-
   }
 
   sendToDigitization() {
     this.loading.emit(true);
-    console.log(this.deskConfig);
     this.digitizationService.send(this.barcodeForMaestro,this.deskConfig,this.isFraktur,this.isMultivolume)
         .pipe(
             switchMap(data => {
@@ -55,9 +52,8 @@ export class SendMaterialComponent implements OnInit {
         )
         .pipe(
             switchMap(data => {
-              console.log(this.deskConfig);
               if (!data.hasOwnProperty('error')) {
-                  return this.digitizationService.goToNextStep(this.barcodeForMaestro, 'KBH bog oprettet')
+                  return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
               } else {
                 return throwError(data.error);
               }

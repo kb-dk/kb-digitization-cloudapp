@@ -106,6 +106,7 @@ export class ConfigComponent implements OnInit {
             deskName: this.fb.control(''),
             deskCode: this.fb.control(''),
             workOrderType: this.fb.control(''),
+            maestroStartStep: new FormControl(''),
             maestroFinishStep: new FormControl(''),
             multiform: new FormControl(''),
             frakture: new FormControl(''),
