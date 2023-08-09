@@ -148,7 +148,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   isInFinishStep(data) {
-      // TODO add finish step to config
       let finish_step = this.deskConfig.maestroFinishStep.trim();
       if (data.hasOwnProperty('step_title')) {
         return data.step_title === finish_step;
