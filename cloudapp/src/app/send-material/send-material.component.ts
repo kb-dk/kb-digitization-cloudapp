@@ -62,7 +62,7 @@ export class SendMaterialComponent implements OnInit {
         .subscribe({
           next: result => {
             this.loading.emit(false);
-            this.backToMain(new Result(true,"Sendt to digitization"));
+            this.backToMain(new Result(true,"Sent to digitization"));
           },
           error: error => {
             this.loading.emit(false);
