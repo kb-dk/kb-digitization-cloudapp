@@ -49,7 +49,7 @@ export class ReceiveMaterialComponent implements OnInit {
         .subscribe({
             next: result => {
               this.loading.emit(false);
-              this.backToMain(new Result(true,"Recieved from digitization"));
+              this.backToMain(new Result(true,"Received from digitization"));
             },
             error: error => {
               this.loading.emit(false);

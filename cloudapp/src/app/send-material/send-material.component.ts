@@ -15,7 +15,7 @@ import {throwError} from "rxjs";
   templateUrl: './send-material.component.html',
   styleUrls: ['./send-material.component.scss']
 })
-export class SendMaterialComponent implements OnInit {
+export class SendMaterialComponent{
 
   @Input() itemFromAlma: any = null;
   @Input() barcodeForMaestro: string = null;
@@ -34,29 +34,23 @@ export class SendMaterialComponent implements OnInit {
   )
   { }
 
-  ngOnInit(): void {
-  }
-
   sendToDigitization() {
     this.loading.emit(true);
     this.digitizationService.send(this.barcodeForMaestro,this.deskConfig,this.isFraktur,this.isMultivolume)
         .pipe(
             switchMap(data => {
-              console.log(this.deskConfig);
               if (!data.hasOwnProperty('error')) {
                 return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
               } else {
                 return throwError(data.error);
               }
-            })
-        )
-        .pipe(
+            }),
             switchMap(data => {
-              if (!data.hasOwnProperty('error')) {
-                  return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
-              } else {
-                return throwError(data.error);
-              }
+                if (!data.hasOwnProperty('error')) {
+                    return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
+                } else {
+                    return throwError(data.error);
+                }
             })
         )
         .subscribe({
