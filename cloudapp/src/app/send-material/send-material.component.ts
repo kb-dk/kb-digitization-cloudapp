@@ -35,14 +35,19 @@ export class SendMaterialComponent implements OnInit {
   { }
 
   ngOnInit(): void {
+    console.log(this.deskConfig);
+
   }
 
   sendToDigitization() {
     this.loading.emit(true);
+    console.log(this.deskConfig);
     this.digitizationService.send(this.barcodeForMaestro,this.deskConfig,this.isFraktur,this.isMultivolume)
         .pipe(
             switchMap(data => {
+              console.log(this.deskConfig);
               if (!data.hasOwnProperty('error')) {
+                // this.digitizationService.goToNextStep(this.barcodeForMaestro, 'x')
                 return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
               } else {
                 return throwError(data.error);

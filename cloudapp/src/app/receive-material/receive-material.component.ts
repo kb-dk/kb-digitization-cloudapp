@@ -28,12 +28,12 @@ export class ReceiveMaterialComponent implements OnInit {
   }
 
   receiveFromDigitization() {
-    // TODO add finish step to config
     this.loading.emit(true);
     this.digitizationService.receive(this.barcodeForMaestro,this.deskConfig)
         .pipe(
             switchMap(data => {
                 if (!data.hasOwnProperty('error')) {
+                    console.log(this.deskConfig);
                     return this.almaService.receiveFromDigi(this.itemFromAlma.link,this.libCode,this.deskConfig.deskCode.trim(),this.deskConfig.workOrderType.trim());
                 } else {
                     return throwError(data.error);

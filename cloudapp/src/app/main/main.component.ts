@@ -23,7 +23,7 @@ import {EMPTY} from "rxjs";
 export class MainComponent implements OnInit, OnDestroy {
 
   private currentlyAtLibCode: string;
-  private currentlyAtDept: string;
+  private currentlyAtDeptCode: string;
   private deskConfig;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
@@ -51,17 +51,16 @@ export class MainComponent implements OnInit, OnDestroy {
       this.loading = true;
       this.eventsService.getInitData().subscribe(data=>{
       this.currentlyAtLibCode = data.user.currentlyAtLibCode;
-      this.currentlyAtDept = data.user['currentlyAtDept'];
-    });
+      this.currentlyAtDeptCode = data.user['currentlyAtDept'];
+      });
       this.configService.get().subscribe(config => {
-          if (config.desks && this.currentlyAtDept) {
-              this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDept.trim());
+          if (config.desks && this.currentlyAtDeptCode) {
+              this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
           }
-
-          if (this.currentlyAtDept == undefined) {
-              this.alert.error(`Please first select a Desk in Alma and then open the app.`);
+          if (this.currentlyAtDeptCode == undefined) {
+              this.alert.error(`Please select a Desk in Alma first.`);
           } else if (this.deskConfig == undefined) {
-              this.alert.error(`Desk ${this.currentlyAtDept} not defined in app`);
+              this.alert.error(`The desk you are in, is not defined in the app.`);
           }
           this.loading = false;
       })

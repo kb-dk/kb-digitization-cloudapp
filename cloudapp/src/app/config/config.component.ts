@@ -103,6 +103,7 @@ export class ConfigComponent implements OnInit {
     }
     createDesk(paramNames: FormArray) {
         const newDesk = new FormGroup({
+            deskName: this.fb.control(''),
             deskCode: this.fb.control(''),
             workOrderType: this.fb.control(''),
             maestroFinishStep: new FormControl(''),

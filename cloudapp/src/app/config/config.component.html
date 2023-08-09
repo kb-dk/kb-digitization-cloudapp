@@ -46,9 +46,13 @@
                     <div [formGroupName]="deskIndex">
                         <mat-card>
                             <mat-card-header>
-                                <mat-card-title>{{ 'Desk No. ' + (deskIndex) }}</mat-card-title>
+                                <mat-card-title>{{ 'Desk No. ' + (deskIndex + 1) }}</mat-card-title>
                             </mat-card-header>
                             <mat-card-content>
+                                <mat-form-field>
+                                    <mat-label class="example-margin">Alma desk/location name</mat-label>
+                                    <input matInput placeholder="" formControlName="deskName" required>
+                                </mat-form-field>
                                 <mat-form-field>
                                     <mat-label class="example-margin">Alma desk/location code</mat-label>
                                     <input matInput placeholder="" formControlName="deskCode" required>
