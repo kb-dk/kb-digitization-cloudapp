@@ -158,10 +158,6 @@ export class ConfigComponent implements OnInit {
     getDeskFromIndex(deskIndex: number) {
         return this.getDesks()[deskIndex] as FormGroup;
     }
-    showJson() {
-        this.jsonString =  "JSON: " + JSON.stringify(this.form.value);
-    }
-
 
     getParamsFor(deskIndex: number) {
         var params = ( < FormArray > ( < FormArray > this.form.get('desks')).controls[deskIndex].get('params'));

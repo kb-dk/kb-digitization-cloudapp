@@ -6,7 +6,6 @@
         </button>
     </a>
     <button mat-flat-button type="button" color="primary" (click)="save()" [disabled]="(!(form?.dirty)) && (!(form?.valid))">Save</button>
-    <button mat-flat-button type="button" (click)="showJson()" >Show form</button>
 </div>
 
 <div class="loading-shade" *ngIf="saving">
