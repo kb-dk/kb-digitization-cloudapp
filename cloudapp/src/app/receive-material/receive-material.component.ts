@@ -1,10 +1,9 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {switchMap, tap} from "rxjs/operators";
+import {switchMap} from "rxjs/operators";
 import { DigitizationService } from "../shared/digitization.service";
 import {AlmaService} from "../shared/alma.service";
-import {AlertService} from "@exlibris/exl-cloudapp-angular-lib";
 import {Result} from "../models/Result";
-import {Observable, of, throwError} from "rxjs";
+import {of, throwError} from "rxjs";
 
 @Component({
   selector: 'app-receive-material',
@@ -21,8 +20,7 @@ export class ReceiveMaterialComponent implements OnInit {
 
     constructor(
       private digitizationService: DigitizationService,
-      private almaService: AlmaService,
-      private alert: AlertService,
+      private almaService: AlmaService
     ) {}
   ngOnInit(): void {
   }

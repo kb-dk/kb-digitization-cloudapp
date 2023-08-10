@@ -1,12 +1,9 @@
-import { Component, ElementRef,ViewChild, OnInit, OnDestroy } from '@angular/core';
-import {filter, finalize, tap, catchError} from "rxjs/operators";
+import { Component, ElementRef,ViewChild, OnInit } from '@angular/core';
+import {filter, tap, catchError} from "rxjs/operators";
 import {
     CloudAppRestService,
     CloudAppEventsService,
     AlertService,
-    Request,
-    HttpMethod,
-    RestErrorResponse,
     CloudAppConfigService,
 } from '@exlibris/exl-cloudapp-angular-lib';
 import { DigitizationService } from "../shared/digitization.service";
@@ -20,7 +17,7 @@ import {EMPTY} from "rxjs";
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
-export class MainComponent implements OnInit, OnDestroy {
+export class MainComponent implements OnInit {
 
   private currentlyAtLibCode: string;
   private currentlyAtDeptCode: string;
@@ -31,10 +28,8 @@ export class MainComponent implements OnInit, OnDestroy {
   returnFromDigitizationDept: boolean = false;
 
   /* TODO delete */
-  itemLoaded: boolean = false;
   itemFromApi: any = null;
   barcodeForMaestro: string = null;
-  requests: any;
 
   constructor(
       private configService: CloudAppConfigService,
@@ -44,8 +39,6 @@ export class MainComponent implements OnInit, OnDestroy {
       private almaService: AlmaService,
       private digitizationService: DigitizationService
   ) { }
-
-
 
   ngOnInit() {
       this.loading = true;
@@ -66,10 +59,6 @@ export class MainComponent implements OnInit, OnDestroy {
       })
 
   }
-
-  ngOnDestroy(): void {
-  }
-
 
   private tryParseJson(value: any) {
     try {
@@ -98,27 +87,6 @@ export class MainComponent implements OnInit, OnDestroy {
               this.alert.error(error.message);
               this.loading = false;
             }
-        );
-  }
-
-  isDOD(): boolean {
-    return this.itemFromApi != null;
-  }
-
-  hasRequests(): boolean {
-    return this.requests != null && this.requests.total_record_count>0;
-  }
-
-  getItemRequests(itemLink:string) {
-
-    this.restService.call<any>(itemLink+"/requests")
-        .pipe(finalize(()=> {
-          this.itemLoaded = true;
-            this.resetMain();
-        }))
-        .subscribe(
-            result => this.requests=result,
-            error => this.requests=error
         );
   }
 

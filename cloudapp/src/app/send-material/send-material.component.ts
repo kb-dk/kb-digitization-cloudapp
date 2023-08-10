@@ -1,12 +1,11 @@
-import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {
   AlertService,
   CloudAppEventsService
 } from '@exlibris/exl-cloudapp-angular-lib'
 import {AlmaService} from "../shared/alma.service";
 import { DigitizationService } from "../shared/digitization.service";
-import {switchMap, tap} from "rxjs/operators";
-import {query} from "@angular/animations";
+import {switchMap} from "rxjs/operators";
 import {Result} from "../models/Result";
 import {throwError} from "rxjs";
 
