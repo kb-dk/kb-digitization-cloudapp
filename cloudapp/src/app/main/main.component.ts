@@ -117,7 +117,6 @@ export class MainComponent implements OnInit {
 
   isInFinishStep(data) {
       let finish_step = this.deskConfig.maestroFinishStep.trim();
-      console.log(data.step_title , finish_step, data.step_title === finish_step);
       if (data.hasOwnProperty('step_title')) {
         return data.step_title === finish_step;
       }
