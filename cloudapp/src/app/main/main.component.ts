@@ -27,7 +27,6 @@ export class MainComponent implements OnInit {
   readyForDigitizationDept: boolean = false;
   returnFromDigitizationDept: boolean = false;
 
-  /* TODO delete */
   itemFromApi: any = null;
   barcodeForMaestro: string = null;
 
