@@ -12,16 +12,16 @@
 <app-send-material *ngIf="readyForDigitizationDept"
                    [itemFromAlma]="itemFromApi"
                    [barcodeForMaestro]="barcodeForMaestro"
-                   [libCode]="this.currentlyAtLibCode"
-                   [deskConfig]="this.deskConfig"
+                   [libCode]="currentlyAtLibCode"
+                   [deskConfig]="deskConfig"
                    (backToMainEvent)="handleBackToMain($event)"
                     (loading)="updateLoading($event)">
 </app-send-material>
 <app-receive-material *ngIf="returnFromDigitizationDept"
                       [itemFromAlma]="itemFromApi"
                       [barcodeForMaestro]="barcodeForMaestro"
-                      [libCode]="this.currentlyAtLibCode"
-                      [deskConfig]="this.deskConfig"
+                      [libCode]="currentlyAtLibCode"
+                      [deskConfig]="deskConfig"
                       (backToMainEvent)="handleBackToMain($event)"
                       (loading)="updateLoading($event)">
 </app-receive-material>

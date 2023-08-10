@@ -19,9 +19,9 @@ import {EMPTY} from "rxjs";
 })
 export class MainComponent implements OnInit {
 
-  private currentlyAtLibCode: string;
-  private currentlyAtDeptCode: string;
-  private deskConfig;
+  currentlyAtLibCode: string;
+  currentlyAtDeptCode: string;
+  deskConfig;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
   readyForDigitizationDept: boolean = false;

@@ -1,7 +1,7 @@
 {
    "id": "digitization-addon",
    "title": "Digitization addon",
-   "subtitle": "Hej Hej",
+   "subtitle": "Royal Danish library's addon to communicate with its digitization system, Maestro.",
    "author": "Royal Danish library",
    "icon": {
       "type": "font",
