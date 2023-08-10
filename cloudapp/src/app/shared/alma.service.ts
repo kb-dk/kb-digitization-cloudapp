@@ -5,7 +5,6 @@ import {
   HttpMethod,
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
-import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'

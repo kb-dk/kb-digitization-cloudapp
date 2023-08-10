@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {CloudAppConfigService} from '@exlibris/exl-cloudapp-angular-lib';
 import {HttpClient} from '@angular/common/http';
-import {catchError, filter, map, tap} from "rxjs/operators";
-import {EMPTY, Observable, throwError} from "rxjs";
-import * as string_decoder from "string_decoder";
+import {map} from "rxjs/operators";
+import {Observable, throwError} from "rxjs";
 
 @Injectable({
     providedIn: 'root',
@@ -64,28 +63,4 @@ export class DigitizationService {
         }
         return throwError("serviceURL or apiKey undefined");
     }
-
-
-    // private handleError = (err: any) => {
-    //     console.error(err.status);
-    //     console.error(err);
-    //     return throwError(err);
-    // };
-
-    // private handleMaestroError = (data: Object) => {
-    //     console.log(data);
-    //     if (data.hasOwnProperty('error')){
-    //         this.barcodeIsAlreadyInUse(data);
-    //     }
-    // };
-    //
-    // private barcodeIsAlreadyInUse(data: Object) {
-    //     if (data['error'].hasOwnProperty('barcode')) {
-    //         let errorMessage = data['error']['barcode'][0];
-    //         let barcode = errorMessage.substring(errorMessage.indexOf('"') + 1, errorMessage.lastIndexOf('"'));
-    //         if (errorMessage.includes('has already been taken')) {
-    //             console.error('This barcode cannot be added, since it already exists in Digitization department system.');
-    //         }
-    //     }
-    // }
 }
