@@ -21,7 +21,7 @@ export class DigitizationService {
     }
 
 
-    send(barcode:string, deskConfig:any, fraktur:boolean, multiVolume:boolean) {
+    send(barcode:string, deskConfig:any, fraktur:boolean, multiVolume:boolean, title: string) {
         let queryParams = this.getDeskParams(deskConfig);
         queryParams = `barcode=${barcode}${queryParams}`;
         if (fraktur) {
@@ -29,6 +29,9 @@ export class DigitizationService {
         }
         if (multiVolume) {
             queryParams = `${queryParams}&field[Multivolume]=1`;
+        }
+        if (title !== "") {
+            queryParams = `${queryParams}&field[title]=${title}`;
         }
         return this.callApi('book_add',queryParams);
     }

@@ -5,10 +5,12 @@
             Back
         </button>
     </a>
-    <button mat-flat-button type="button" color="primary" (click)="save()" [disabled]="(!(form?.dirty)) && (!(form?.valid))">Save</button>
+    <button mat-flat-button type="button" color="primary" (click)="save()"
+            [disabled]="(!(form?.dirty)) && (!(form?.valid))">Save
+    </button>
 </div>
 
-<div class="loading-shade" *ngIf="saving">
+<div class="loading-shade" *ngIf="isSaving">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
 </div>
 <form [formGroup]="form">
@@ -30,76 +32,78 @@
                             <mat-label class="example-margin">{{'Parameter ' + (paramIndex + 1)}}</mat-label>
                             <input matInput placeholder="Param Name" formControlName="{{paramIndex}}" required>
                         </mat-form-field>
-                        <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
-                            <mat-button-toggle class="toggleButton" (click)="removeParamName(paramIndex)" *ngIf="getParamsNames().length !=1" disabled="disabled" value="italic"><mat-icon>remove_box</mat-icon></mat-button-toggle>
-                            <mat-button-toggle class="toggleButton" (click)="addNewParamName()" *ngIf="paramIndex+1 === getParamsNames().length" value="bold"><mat-icon>add_box</mat-icon></mat-button-toggle>
-                        </mat-button-toggle-group>
+                        <button mat-button (click)="removeParamName(paramIndex)" *ngIf="getParamsNames().length !=1"><span class="uxf-icon uxf-trash eca-button"></span>
+                        </button>
+                    </div>
+                    <div>
+                        <button mat-button (click)="addNewParamName()"><span
+                                class="uxf-icon uxf-plus eca-button"></span></button>
                     </div>
                 </div>
             </section>
         </mat-tab>
 
         <mat-tab label="Desks">
-            <div formArrayName="desks" >
+            <div formArrayName="desks">
                 <div *ngFor="let desk of getDesks().controls; let deskIndex = index">
                     <div [formGroupName]="deskIndex">
-                        <mat-card>
-                            <mat-card-header>
-                                <mat-card-title>{{ 'Desk No. ' + (deskIndex + 1) }}</mat-card-title>
-                            </mat-card-header>
-                            <mat-card-content>
-                                <mat-form-field>
-                                    <mat-label class="example-margin">Alma desk/location name</mat-label>
-                                    <input matInput placeholder="" formControlName="deskName" required>
-                                </mat-form-field>
-                                <mat-form-field>
-                                    <mat-label class="example-margin">Alma desk/location code</mat-label>
-                                    <input matInput placeholder="" formControlName="deskCode" required>
-                                </mat-form-field>
-                                <mat-form-field>
-                                    <mat-label class="example-margin">WorkOrderType</mat-label>
-                                    <input matInput placeholder="Work Order Type" formControlName="workOrderType">
-                                </mat-form-field>
-                                <mat-form-field>
-                                    <mat-label class="example-margin">Maestro start Step (text)</mat-label>
-                                    <input matInput placeholder="Maestro Start Step (text)" formControlName="maestroStartStep" required>
-                                </mat-form-field>
-                                <mat-form-field>
-                                    <mat-label class="example-margin">Maestro Finish Step (text)</mat-label>
-                                    <input matInput placeholder="Maestro Finish Step (text)" formControlName="maestroFinishStep" required>
-                                </mat-form-field>
-                                <p></p>
-                                <mat-checkbox formControlName="frakture">Fraktur allowed&nbsp;&nbsp;</mat-checkbox>
-                                <mat-checkbox formControlName="multiform">Multi-Volume allowed&nbsp;&nbsp;</mat-checkbox>
-                                <mat-checkbox formControlName="useMarcField">Use Marc field instead of barcode</mat-checkbox>
-                                <mat-checkbox formControlName="removeTempLocation">Remove temporary location when book is received (DOD)</mat-checkbox>
-                                <br>
-                                <br>
-                                <h3>Parameters:</h3>
+                        <h1><span>{{ 'Desk No. ' + (deskIndex + 1) }}</span>
+                            <button mat-button mat-icon-button (click)="removeDesk(deskIndex)"
+                                        *ngIf="getDesks() != null && getDesks().length !=1"><span class="uxf-icon uxf-trash eca-button"></span></button>
+                        </h1>
+                        <mat-form-field>
+                            <mat-label class="example-margin">Alma desk/location name</mat-label>
+                            <input matInput placeholder="" formControlName="deskName" required>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label class="example-margin">Alma desk/location code</mat-label>
+                            <input matInput placeholder="" formControlName="deskCode" required>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label class="example-margin">WorkOrderType</mat-label>
+                            <input matInput placeholder="Work Order Type" formControlName="workOrderType">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label class="example-margin">Maestro start Step (text)</mat-label>
+                            <input matInput placeholder="Maestro Start Step (text)" formControlName="maestroStartStep"
+                                   required>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label class="example-margin">Maestro Finish Step (text)</mat-label>
+                            <input matInput placeholder="Maestro Finish Step (text)" formControlName="maestroFinishStep"
+                                   required>
+                        </mat-form-field>
+                        <p></p>
+                        <mat-checkbox formControlName="showTitle">Show title&nbsp;&nbsp;</mat-checkbox>
+                        <mat-checkbox formControlName="frakture">Fraktur allowed&nbsp;&nbsp;</mat-checkbox>
+                        <mat-checkbox formControlName="multiform">Multi-Volume allowed&nbsp;&nbsp;</mat-checkbox>
+                        <mat-checkbox formControlName="useMarcField">Use Marc field instead of barcode</mat-checkbox>
+                        <mat-checkbox formControlName="removeTempLocation">Remove temporary location when book is
+                            received (DOD)
+                        </mat-checkbox>
+                        <br>
+                        <br>
+                        <h3>Parameters:</h3>
 
-                                <div formArrayName="params">
-                                    <div *ngFor="let param of getParamsFor(deskIndex); let paramIndex = index" class="row">
-                                        <p></p>
-                                        <div [formGroupName]="paramIndex">
-                                            <mat-form-field>
-                                                <mat-label class="example-margin">{{getParamNameForIndex(paramIndex)}}</mat-label>
-                                                <input matInput placeholder="{{paramIndex}}" formControlName="value">
-                                            </mat-form-field>
-                                        </div>
-                                    </div>
+                        <div formArrayName="params">
+                            <div *ngFor="let param of getParamsFor(deskIndex); let paramIndex = index" class="row">
+                                <p></p>
+                                <div [formGroupName]="paramIndex">
+                                    <mat-form-field>
+                                        <mat-label
+                                                class="example-margin">{{getParamNameForIndex(paramIndex)}}</mat-label>
+                                        <input matInput placeholder="{{paramIndex}}" formControlName="value">
+                                    </mat-form-field>
                                 </div>
-                                <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
-                                    <mat-button-toggle class="toggleButton" (click)="removeDesk(deskIndex)" *ngIf="getDesks() != null && getDesks().length !=1" disabled="disabled" value="italic"><mat-icon>remove_box</mat-icon></mat-button-toggle>
-                                    <mat-button-toggle class="toggleButton" (click)="addNewDesk()" *ngIf="deskIndex+1 === getDesks().length" value="bold"><mat-icon>add_box</mat-icon></mat-button-toggle>
-                                </mat-button-toggle-group>
-                            </mat-card-content>
-                        </mat-card>
+                            </div>
+                        </div>
                     </div>
                     <mat-divider></mat-divider>
                 </div>
+                <div>
+                    <button mat-button mat-icon-button (click)="addNewDesk()"><span class="uxf-icon uxf-plus eca-button"></span></button>
+                </div>
             </div>
-
-
         </mat-tab>
     </mat-tab-group>
 </form>

@@ -1,11 +1,13 @@
 <div *ngIf="deskConfig">
   <h3><b>Your current Desk: </b> {{deskConfig.deskName}} </h3>
 </div>
-
-<mat-form-field>
-  <mat-label>Barcode</mat-label>
-  <input matInput #barcode (keyup.enter)="scanBarcode()" autocomplete="off">
-</mat-form-field>
+<div>
+  <mat-form-field>
+    <mat-label>Barcode</mat-label>
+    <input matInput #barcode (keyup.enter)="scanBarcode()">
+    <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
+  </mat-form-field>
+</div>
 <div class="spinner-overlay" *ngIf="loading">
   <mat-spinner></mat-spinner>
 </div>

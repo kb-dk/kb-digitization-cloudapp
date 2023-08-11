@@ -1,6 +1,6 @@
-<h2>Send the following material to the Digitisation department:</h2>
-<h3><b>Titel: </b> {{itemFromAlma.bib_data.title}}</h3>
-<h3><b>Barcode i Maestro: </b> {{barcodeForMaestro}} </h3>
+<h2>Send the following material to the digitization department:</h2>
+<h3><b>Title: </b> {{itemFromAlma.bib_data.title}}</h3>
+<h3><b>Barcode in Maestro: </b> {{barcodeForMaestro}} </h3>
 <h3><b>Desk code: </b> {{deskConfig.deskCode}} </h3>
 <div>
     <mat-checkbox [(ngModel)]="isFraktur" *ngIf="deskConfig.frakture">
@@ -9,14 +9,20 @@
 </div>
 <div>
     <mat-checkbox [(ngModel)]="isMultivolume" *ngIf="deskConfig.multiform">
-       <h3><b> Multi Volume</b></h3>
+       <h3><b> Multi-Volume</b></h3>
     </mat-checkbox>
+</div>
+<div>
+    <mat-form-field>
+        <mat-label>Title</mat-label>
+        <input matInput [(ngModel)]="title" *ngIf="deskConfig.showTitle">
+    </mat-form-field>
 </div>
 <div class="cloudapp-actions">
     <button mat-raised-button color="primary" (click)="sendToDigitization()" >
-        Send til Digitalisering
+        Send to digitization
     </button>
     <button mat-raised-button color="basic" (click)="backToMain('')" >
-        Fortryd
+        Cancel
     </button>
 </div>

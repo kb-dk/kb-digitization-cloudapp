@@ -18,10 +18,7 @@ import {map, switchMap} from 'rxjs/operators';
 })
 export class ConfigComponent implements OnInit {
     form: FormGroup;
-
-    saving = false;
-
-
+    isSaving: boolean;
     rawValue = "";
     private jsonString: string;
 
@@ -33,6 +30,7 @@ export class ConfigComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.isSaving = false;
         this.appService.setTitle('Configuration');
         this.form = this.fb.group({
             serviceUrl: this.fb.control(''),
@@ -52,14 +50,15 @@ export class ConfigComponent implements OnInit {
     }
 
     save() {
-        this.saving = true;
+        this.isSaving = true;
+        console.log(this.form.value);
         this.configService.set(this.form.value).subscribe(
             () => {
                 this.alert.success('Configuration successfully saved.');
                 this.form.markAsPristine();
             },
             err => this.alert.error(err.message),
-            ()  => this.saving = false
+            ()  => this.isSaving = false
         );
     }
 
@@ -110,6 +109,7 @@ export class ConfigComponent implements OnInit {
             maestroFinishStep: new FormControl(''),
             multiform: new FormControl(''),
             frakture: new FormControl(''),
+            showTitle: new FormControl(''),
             useMarcField: new FormControl(''),
             removeTempLocation: new FormControl(''),
             params: this.createParams(paramNames)

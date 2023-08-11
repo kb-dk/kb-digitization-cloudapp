@@ -6,36 +6,27 @@
 .mat-button-toggle-appearance-standard .mat-button-toggle-label-content {
   line-height: 23px;
 }
-/*
-div.title {
-  display: flex;
-  margin-top: 10px;
-}
 
-mat-form-field{
-  width: 100%;
-}
-
-.padding-top{
-  padding-top: 30px;
-}
-
-.mat-icon{
+span .eca-button{
   cursor: pointer;
+  padding: 7px;
+  border-radius: 50%;
 }
 
-.title h1 {
-  background-color: #1a5e1f!important;
-  color: #fff!important;
-  padding: 10px;
-  border-radius: 4px;
-  margin-top: 10px;
-  width: 100%;
+mat-form-field,
+.mat-form-field,
+mat-checkbox,
+mat-card-title,
+h1 span
+{
+  width: 80%;
 }
 
-.back-container{
-  width: 100%;
-  text-align: right;
+h1 span{
+  display: inline-block;
 }
-*/
 
+mat-divider{
+  margin-bottom: 30px;
+  margin-top: 20px;
+}

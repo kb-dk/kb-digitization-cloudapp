@@ -54,6 +54,7 @@ export class MainComponent implements OnInit {
           } else if (this.deskConfig == undefined) {
               this.alert.error(`The desk you are in, is not defined in the app.`);
           }
+          console.log(this.currentlyAtDeptCode);
           this.loading = false;
       })
 
@@ -152,7 +153,7 @@ export class MainComponent implements OnInit {
       if (data.step_title === done_step) {
         this.alert.warn(`Barcode ${barcode} is already registered in the digitisation system.`);
       } else {
-        this.alert.warn(`Barcode ${barcode} has the status ${data.step_title}`);
+        this.alert.warn(`Barcode "${barcode}" has the status "${data.step_title}"`);
       }
     } else {
       this.alert.error(`Maestro error ${data.error}`);

@@ -24,6 +24,7 @@ export class SendMaterialComponent{
   @Output() loading = new EventEmitter<boolean>();
   isFraktur: boolean = false;
   isMultivolume: boolean = false;
+  title: string = "";
 
   constructor(
       private eventService: CloudAppEventsService,
@@ -35,7 +36,7 @@ export class SendMaterialComponent{
 
   sendToDigitization() {
     this.loading.emit(true);
-    this.digitizationService.send(this.barcodeForMaestro,this.deskConfig,this.isFraktur,this.isMultivolume)
+    this.digitizationService.send(this.barcodeForMaestro,this.deskConfig,this.isFraktur,this.isMultivolume, this.title)
         .pipe(
             switchMap(data => {
               if (!data.hasOwnProperty('error')) {
