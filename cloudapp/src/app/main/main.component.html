@@ -8,8 +8,8 @@
     <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
   </mat-form-field>
 </div>
-<div class="spinner-overlay" *ngIf="loading">
-  <mat-spinner></mat-spinner>
+<div class="loading-shade" *ngIf="loading">
+  <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
 </div>
 <app-send-material *ngIf="readyForDigitizationDept"
                    [itemFromAlma]="itemFromApi"
