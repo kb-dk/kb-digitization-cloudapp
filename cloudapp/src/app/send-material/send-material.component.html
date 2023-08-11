@@ -12,10 +12,10 @@
        <h3><b> Multi-Volume</b></h3>
     </mat-checkbox>
 </div>
-<div>
+<div *ngIf="deskConfig.showTitle">
     <mat-form-field>
         <mat-label>Title</mat-label>
-        <input matInput [(ngModel)]="title" *ngIf="deskConfig.showTitle">
+        <input matInput [(ngModel)]="title">
     </mat-form-field>
 </div>
 <div class="cloudapp-actions">
