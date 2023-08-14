@@ -5,6 +5,7 @@ import {
   HttpMethod,
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
+import {EMPTY, of} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,8 @@ export class AlmaService {
     if (!this.libraryEqualsInstitution(library)) {
       params['library'] = library;
     }
+    console.log(itemLink,params);
+
     return this.scanInItem(itemLink,params);
   }
 
@@ -95,6 +98,8 @@ export class AlmaService {
         requestBody: updatedItem
       };
       return this.restService.call(request);
+    } else {
+      return of('No temporary location to remove.');
     }
   }
 

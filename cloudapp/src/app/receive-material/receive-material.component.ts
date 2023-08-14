@@ -33,10 +33,11 @@ export class ReceiveMaterialComponent implements OnInit {
                 if (!data.hasOwnProperty('error')) {
                     return this.almaService.receiveFromDigi(this.itemFromAlma.link,this.libCode,this.deskConfig.deskCode.trim(),this.deskConfig.workOrderType.trim());
                 } else {
-                    return throwError(data.error);
+                    throwError(data.error);
+                    return of('');
                 }
             }),
-            switchMap(data => {
+            switchMap(() => {
                 if (this.deskConfig.removeTempLocation) {
                     return this.almaService.removeTemporaryLocation(this.itemFromAlma);
                 } else {
@@ -50,8 +51,8 @@ export class ReceiveMaterialComponent implements OnInit {
               this.backToMain(new Result(true,"Received from digitization"));
             },
             error: error => {
-              this.loading.emit(false);
-              this.backToMain(new Result(false,error));
+                this.loading.emit(false);
+                this.backToMain(new Result(false, error));
             }
         });
   }
