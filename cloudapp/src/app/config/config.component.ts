@@ -20,7 +20,6 @@ export class ConfigComponent implements OnInit {
     form: FormGroup;
     isSaving: boolean;
     rawValue = "";
-    private jsonString: string;
 
     constructor(
         private appService: AppService,
@@ -62,6 +61,7 @@ export class ConfigComponent implements OnInit {
         );
     }
 
+    //The call button is commented out in the html. Might come in handy during testing.
     removeAllConfigs() {
         this.configService.remove().subscribe();
     }
@@ -97,11 +97,10 @@ export class ConfigComponent implements OnInit {
     }
 
     initDeskGroup() {
-        const newDeskGroup = new FormArray([ this.createDesk(null)])
-        return newDeskGroup;
+        return new FormArray([ this.createDesk(null)])
     }
     createDesk(paramNames: FormArray) {
-        const newDesk = new FormGroup({
+        return new FormGroup({
             deskName: this.fb.control(''),
             deskCode: this.fb.control(''),
             workOrderType: this.fb.control(''),
@@ -114,7 +113,6 @@ export class ConfigComponent implements OnInit {
             removeTempLocation: new FormControl(''),
             params: this.createParams(paramNames)
         })
-        return newDesk;
     }
 
     createParams(paramNames: FormArray){
