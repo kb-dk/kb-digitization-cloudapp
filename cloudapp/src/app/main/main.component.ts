@@ -54,7 +54,6 @@ export class MainComponent implements OnInit {
           } else if (this.deskConfig == undefined) {
               this.alert.error(`The desk you are in, is not defined in the app.`);
           }
-          console.log(this.currentlyAtDeptCode);
           this.loading = false;
       })
 
@@ -67,27 +66,6 @@ export class MainComponent implements OnInit {
       console.error(e);
     }
     return undefined;
-  }
-
-  async scanBarcode() {
-    this.loading=true;
-    this.alert.clear();
-    const barcode = this.barcode.nativeElement.value;
-    const encodedBarcode = encodeURIComponent(barcode).trim();
-    this.almaService.getItemsFromBarcode(encodedBarcode)
-        .subscribe(
-            result => {
-              this.itemFromApi = result;
-              this.getBarcodeOrField583x().then(r => {
-                  this.checkStatusInDigitization(this.barcodeForMaestro);
-                  this.loading = false;
-              });
-            },
-            error => {
-              this.alert.error(error.message);
-              this.loading = false;
-            }
-        );
   }
 
   private resetMain() {

@@ -166,7 +166,6 @@ export class ConfigComponent implements OnInit {
         else {
             console.log("No params for desk no " + deskIndex);
         }
-        // var emptyArray = this.fb.array([this.fb.control('')]);
     }
 
 
