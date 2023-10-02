@@ -68,7 +68,7 @@ export class SendMaterialComponent{
             .subscribe({
                 next: result => {
                     this.loading.emit(false);
-                    this.alert.success(`"${this.itemFromAlma.bib_data.title}" is sent to digitization.`);
+                    this.alert.success(`Document is successfully scanned in Alma.`);
                     this.resetForm();
                 },
                 error: error => {
