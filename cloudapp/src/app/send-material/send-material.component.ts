@@ -3,7 +3,7 @@ import {AlertService, CloudAppEventsService} from '@exlibris/exl-cloudapp-angula
 import {AlmaService} from "../shared/alma.service";
 import {DigitizationService} from "../shared/digitization.service";
 import {catchError, concatMap, switchMap, tap} from "rxjs/operators";
-import {EMPTY, throwError} from "rxjs";
+import {EMPTY, of, throwError} from "rxjs";
 
 @Component({
   selector: 'app-send-material',
@@ -55,25 +55,24 @@ export class SendMaterialComponent{
     private sendToDigi() {
         this.digitizationService.send(this.barcodeForMaestro, this.deskConfig, this.isFraktur, this.isMultivolume, this.note)
             .pipe(
+                // Check if the document is created
+                switchMap(data => {
+                        return this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)
+                }),
+                tap(data => console.log('DATA:', data)),
                 switchMap(data => {
                     // Set the document to next step in Maestro only if it is created
-                    console.log(data);
-                    if (data.message === 'Add document ok') {
+                    if (data.barcode && data.barcode === this.barcodeForMaestro) {
                         this.alert.success('Document is successfully added to Maestro.');
                         return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
                     } else {
                         data.hasOwnProperty('error') ? this.alert.error('Error creating the document in Maestro. ', data.error) : null;
-                        return EMPTY;
+                        return of({message:'Error creating the document in Maestro'});
                     }
                 }),
                 switchMap(data => {
-                    console.log('1');
                     data.hasOwnProperty('error') ? this.alert.error( `Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk. ${data.error}`) : null;
                     return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
-                }),
-                catchError(err => {
-                    console.log(err);
-                    return EMPTY;
                 })
             )
             .subscribe({
