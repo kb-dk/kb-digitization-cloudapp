@@ -57,6 +57,7 @@ export class SendMaterialComponent{
             .pipe(
                 switchMap(data => {
                     // Set the document to next step in Maestro only if it is created
+                    console.log(data);
                     if (data.message === 'Add document ok') {
                         this.alert.success('Document is successfully added to Maestro.');
                         return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
@@ -66,6 +67,7 @@ export class SendMaterialComponent{
                     }
                 }),
                 switchMap(data => {
+                    console.log('1');
                     data.hasOwnProperty('error') ? this.alert.error( `Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk. ${data.error}`) : null;
                     return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
                 }),
