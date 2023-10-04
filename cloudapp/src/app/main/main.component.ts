@@ -1,14 +1,10 @@
 import { Component, ElementRef,ViewChild, OnInit } from '@angular/core';
-import {filter, tap, catchError} from "rxjs/operators";
 import {
     CloudAppRestService,
     CloudAppEventsService,
     AlertService,
     CloudAppConfigService,
 } from '@exlibris/exl-cloudapp-angular-lib';
-import { DigitizationService } from "../shared/digitization.service";
-import {Result} from "../models/Result";
-import {AlmaService} from "../shared/alma.service";
 import {EMPTY} from "rxjs";
 
 
@@ -24,19 +20,12 @@ export class MainComponent implements OnInit {
   deskConfig;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
-  readyForDigitizationDept: boolean = false;
-  returnFromDigitizationDept: boolean = false;
-
-  itemFromApi: any = null;
-  barcodeForMaestro: string = null;
 
   constructor(
       private configService: CloudAppConfigService,
       private restService: CloudAppRestService,
       private eventsService: CloudAppEventsService,
       private alert: AlertService,
-      private almaService: AlmaService,
-      private digitizationService: DigitizationService
   ) { }
 
   ngOnInit() {
@@ -56,69 +45,6 @@ export class MainComponent implements OnInit {
           }
           this.loading = false;
       })
-
-  }
-
-  private tryParseJson(value: any) {
-    try {
-      return JSON.parse(value);
-    } catch (e) {
-      console.error(e);
-    }
-    return undefined;
-  }
-
-  private resetMain() {
-    this.loading = false;
-    this.barcode.nativeElement.value = "";
-  }
-
-  private checkStatusInDigitization(barcode: string) {
-    return this.digitizationService.check(barcode,this.deskConfig)
-        .pipe(
-            tap( () =>this.loading = false),
-            tap(data => this.isBarcodeNew(data) ? this.readyForDigitizationDept=true : null),
-            filter(data => !this.isBarcodeNew(data)),
-            tap(data => this.isInFinishStep(data) ? this.returnFromDigitizationDept=true : this.handleOtherMaestroResponses(barcode, data)),
-            catchError(error => {
-                this.resetMain();
-                this.handleError(error);
-                return EMPTY;
-            })
-        ).subscribe();
-
-  }
-
-  private isBarcodeNew(data) {
-    return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
-  }
-
-  isInFinishStep(data) {
-      let finish_step = this.deskConfig.maestroFinishStep.trim();
-      if (data.hasOwnProperty('step_title')) {
-        return data.step_title === finish_step;
-      }
-  }
-
-  handleBackToMain(event: Result) {
-      if (event.ok) {
-        this.alert.success(this.getMessage(event.message));
-      } else {
-        this.alert.error(this.getMessage(event.message));
-      }
-      this.readyForDigitizationDept=false;
-      this.returnFromDigitizationDept=false;
-      this.barcode.nativeElement.value='';
-  }
-
-  getMessage(message:any) {
-      if (typeof message === 'string') {
-          return message;
-      }
-      if (message.hasOwnProperty('message')) {
-          return message.message;
-      }
-      return 'Cannot find the message.';
   }
 
   updateLoading(event: boolean) {
@@ -142,20 +68,5 @@ export class MainComponent implements OnInit {
   private handleError(error: any) {
     this.alert.error(error);
     return EMPTY;
-  }
-
-  private async getBarcodeOrField583x() {
-      this.barcodeForMaestro = this.itemFromApi.item_data.barcode;
-      if (this.deskConfig.useMarcField) {
-          await this.almaService.getField583x(this.itemFromApi.holding_data.link)
-              .then(field583x => {
-                  if (field583x) {
-                      this.barcodeForMaestro = field583x;
-                  } else {
-                      console.log("field583x has no value");
-                  }
-              })
-      }
-      return Promise.resolve();
   }
 }

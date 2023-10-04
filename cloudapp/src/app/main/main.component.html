@@ -5,31 +5,6 @@
 <div *ngIf="deskConfig">
     <h3 color="info"><b>Your current Desk: </b> {{deskConfig.deskName}} </h3>
     <mat-tab-group>
-
-        <!--<div>-->
-        <!--  <mat-form-field>-->
-        <!--    <mat-label>Barcode</mat-label>-->
-        <!--    <input matInput #barcode (keyup.enter)="scanBarcode()">-->
-        <!--    <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>-->
-        <!--  </mat-form-field>-->
-        <!--</div>-->
-
-        <!--&lt;!&ndash;<app-send-material *ngIf="readyForDigitizationDept"&ndash;&gt;-->
-        <!--&lt;!&ndash;                   [itemFromAlma]="itemFromApi"&ndash;&gt;-->
-        <!--&lt;!&ndash;                   [barcodeForMaestro]="barcodeForMaestro"&ndash;&gt;-->
-        <!--&lt;!&ndash;                   [libCode]="currentlyAtLibCode"&ndash;&gt;-->
-        <!--&lt;!&ndash;                   [deskConfig]="deskConfig"&ndash;&gt;-->
-        <!--&lt;!&ndash;                   (backToMainEvent)="handleBackToMain($event)"&ndash;&gt;-->
-        <!--&lt;!&ndash;                    (loading)="updateLoading($event)">&ndash;&gt;-->
-        <!--&lt;!&ndash;</app-send-material>&ndash;&gt;-->
-        <!--&lt;!&ndash;<app-receive-material *ngIf="returnFromDigitizationDept"&ndash;&gt;-->
-        <!--&lt;!&ndash;                      [itemFromAlma]="itemFromApi"&ndash;&gt;-->
-        <!--&lt;!&ndash;                      [barcodeForMaestro]="barcodeForMaestro"&ndash;&gt;-->
-        <!--&lt;!&ndash;                      [libCode]="currentlyAtLibCode"&ndash;&gt;-->
-        <!--&lt;!&ndash;                      [deskConfig]="deskConfig"&ndash;&gt;-->
-        <!--&lt;!&ndash;                      (backToMainEvent)="handleBackToMain($event)"&ndash;&gt;-->
-        <!--&lt;!&ndash;                      (loading)="updateLoading($event)">&ndash;&gt;-->
-        <!--&lt;!&ndash;</app-receive-material>&ndash;&gt;-->
         <mat-tab label="Send To Digitization">
             <app-send-material
                     [deskConfig]="deskConfig"
