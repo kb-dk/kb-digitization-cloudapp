@@ -41,7 +41,10 @@ export class ReceiveMaterialComponent implements OnInit {
       );
   }
 
-    // todo cleanup in the variables and functions
+    // Three things happen here:
+    // 1- Set the document in the next step in Maestro workflow (if it has the correct step for finishing).
+    // 2- Call Scan in item API in Alma which sets the item in the relevant status in Alma.
+    // 3- Remove "Temporary location" in Alma, if relevant.
     private receiveFromDigi() {
         this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
             .pipe(
@@ -79,34 +82,22 @@ export class ReceiveMaterialComponent implements OnInit {
             );
     }
 
-
     private checkStatusInDigitization(barcode: string) {
         return this.digitizationService.check(barcode,this.deskConfig)
             .pipe(
                 tap( () =>this.loading.emit(false)),
                 tap(data => {
                     console.log(data);
-                    if(this.isBarcodeNew(data)){
+                    if(this.digitizationService.isBarcodeNew(data)){
                         throw new Error(`There is no document with this Barcode in Maestro.`);
                     }
-                    if (!this.isInFinishStep(data)){
+                    if (!this.digitizationService.isInFinishStep(data, this.deskConfig.maestroFinishStep)){
                         throw new Error(`Document is not in finish step in Maestro. Please contact digitization department.`);
                     }
                 }),
             );
     }
 
-
-    isInFinishStep(data) {
-        let finish_step = this.deskConfig.maestroFinishStep.trim();
-        if (data.hasOwnProperty('step_title')) {
-            return data.step_title === finish_step;
-        }
-    }
-
-    private isBarcodeNew(data) {
-        return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
-    }
     private async getBarcodeOrField583x() {
         this.barcodeForMaestro = this.itemFromAlma.item_data.barcode;
         if (this.deskConfig.useMarcField) {
@@ -124,8 +115,9 @@ export class ReceiveMaterialComponent implements OnInit {
 
     getItemFromAlma(barcode) {
         const encodedBarcode = encodeURIComponent(barcode).trim();
-        return this.almaService.getItemsFromBarcode(encodedBarcode);
+        return this.almaService.getItemsFromBarcode(encodeURIComponent(barcode).trim());
     }
+
   resetForm(message) {
       this.itemFromAlma=null;
       this.barcode.nativeElement.value = "";

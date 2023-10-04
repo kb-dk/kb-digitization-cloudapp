@@ -20,6 +20,17 @@ export class DigitizationService {
         return this.callApi('book_info',`barcode=${barcode}`);
     }
 
+    isBarcodeNew(data) {
+        return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
+    }
+
+
+    isInFinishStep(data, maestroFinishStep) {
+        let finish_step = maestroFinishStep.trim();
+        if (data.hasOwnProperty('step_title')) {
+            return data.step_title === finish_step;
+        }
+    }
 
     send(barcode:string, deskConfig:any, fraktur:boolean, multiVolume:boolean, title: string) {
         let queryParams = this.getDeskParams(deskConfig);

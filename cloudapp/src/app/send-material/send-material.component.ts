@@ -43,11 +43,15 @@ export class SendMaterialComponent{
       );
   }
 
+    // Three things happen here:
+    // 1- Create the document in Maestro.
+    // 2- Set the document in the next step in Maestro workflow.
+    // 3- Call Scan in item API in Alma which sets the item in the relevant status in Alma.
     private sendToDigi() {
         this.digitizationService.send(this.barcodeForMaestro, this.deskConfig, this.isFraktur, this.isMultivolume, this.note)
             .pipe(
                 switchMap(data => {
-                    // Go to next step only if it is created
+                    // Set the document to next step in Maestro only if it is created
                     if (data.message === 'Add document ok') {
                         this.alert.success('Document is successfully added to Maestro.');
                         return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
@@ -101,7 +105,6 @@ export class SendMaterialComponent{
         return this.almaService.getItemsFromBarcode(encodedBarcode);
     }
 
-
     private async getBarcodeOrField583x() {
         this.barcodeForMaestro = this.itemFromAlma.item_data.barcode;
         if (this.deskConfig.useMarcField) {
@@ -122,15 +125,11 @@ export class SendMaterialComponent{
             .pipe(
                 tap( () =>this.loading.emit(false)),
                 tap(data => {
-                    if(!this.isBarcodeNew(data)){
+                    if(!this.digitizationService.isBarcodeNew(data)){
                         throw new Error(`Barcode already exists in Maestro.`);
                     }
                 }),
             );
-    }
-
-    private isBarcodeNew(data) {
-        return data.hasOwnProperty('error') && data.error === 'No book found with the barcode';
     }
 
     private handleError(error: any) {
