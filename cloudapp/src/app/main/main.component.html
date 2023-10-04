@@ -41,7 +41,12 @@
         </mat-tab>
 
         <mat-tab label="Receive From Digitization">
-            <app-receive-material>
+            <app-receive-material
+                    [deskConfig]="deskConfig"
+                    (loading)="updateLoading($event)"
+                    [libCode]="currentlyAtLibCode"
+
+            >
             </app-receive-material>
         </mat-tab>
     </mat-tab-group>
