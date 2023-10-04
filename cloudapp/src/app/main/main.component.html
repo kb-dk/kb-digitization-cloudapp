@@ -1,31 +1,28 @@
-<div *ngIf="deskConfig">
-  <h3><b>Your current Desk: </b> {{deskConfig.deskName}} </h3>
-</div>
-<div>
-  <mat-form-field>
-    <mat-label>Barcode</mat-label>
-    <input matInput #barcode (keyup.enter)="scanBarcode()">
-    <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
-  </mat-form-field>
-</div>
 <div class="loading-shade" *ngIf="loading">
-  <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
 </div>
-<app-send-material *ngIf="readyForDigitizationDept"
-                   [itemFromAlma]="itemFromApi"
-                   [barcodeForMaestro]="barcodeForMaestro"
-                   [libCode]="currentlyAtLibCode"
-                   [deskConfig]="deskConfig"
-                   (backToMainEvent)="handleBackToMain($event)"
-                    (loading)="updateLoading($event)">
-</app-send-material>
-<app-receive-material *ngIf="returnFromDigitizationDept"
-                      [itemFromAlma]="itemFromApi"
-                      [barcodeForMaestro]="barcodeForMaestro"
-                      [libCode]="currentlyAtLibCode"
-                      [deskConfig]="deskConfig"
-                      (backToMainEvent)="handleBackToMain($event)"
-                      (loading)="updateLoading($event)">
-</app-receive-material>
 
+<div *ngIf="deskConfig">
+    <h3 color="info"><b>Your current Desk: </b> {{deskConfig.deskName}} </h3>
+    <mat-tab-group>
+        <mat-tab label="Send To Digitization">
+            <app-send-material
+                    [deskConfig]="deskConfig"
+                    (loading)="updateLoading($event)"
+                    [libCode]="currentlyAtLibCode"
+            >
 
+            </app-send-material>
+        </mat-tab>
+
+        <mat-tab label="Receive From Digitization">
+            <app-receive-material
+                    [deskConfig]="deskConfig"
+                    (loading)="updateLoading($event)"
+                    [libCode]="currentlyAtLibCode"
+
+            >
+            </app-receive-material>
+        </mat-tab>
+    </mat-tab-group>
+</div>

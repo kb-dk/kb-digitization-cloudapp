@@ -19,6 +19,7 @@ export class AlmaService {
 
 
   sendToDigi(itemLink:string, library: string, department:string, work_order_type:string=null) {
+
     let params = {'op': 'scan','department' : department};
     if (work_order_type) {
       params['work_order_type'] = work_order_type;

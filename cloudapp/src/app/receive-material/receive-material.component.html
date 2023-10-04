@@ -1,12 +1,17 @@
-<h2>Receive the following material from digitization department:</h2>
-<h3><b>Titel: {{itemFromAlma.bib_data.title}}</b></h3>
-<h3><b>Barcode i Maestro: </b> {{barcodeForMaestro}} </h3>
-<h3><b>Desk:</b> {{deskConfig.deskCode}} </h3>
+<div>
+    <mat-form-field>
+        <mat-label>Barcode</mat-label>
+        <input matInput #barcode (keyup.enter)="receiveFromDigitization()">
+        <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
+    </mat-form-field>
+</div>
+<h3><b>Desk code: </b> {{deskConfig.deskCode}} </h3>
+
 <div class="eca-actions">
     <button mat-raised-button color="primary"  (click)="receiveFromDigitization()" >
         Receive from digitization
     </button>
-    <button mat-raised-button color="basic"  (click)="backToMain('Action cancelled')" >
+    <button mat-raised-button color="basic"  (click)="resetForm('Action cancelled')" >
         Cancel
     </button>
 </div>

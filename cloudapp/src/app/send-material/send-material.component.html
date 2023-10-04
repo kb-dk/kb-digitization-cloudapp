@@ -1,6 +1,10 @@
-<h2>Send the following material to the digitization department:</h2>
-<h3><b>Title: </b> {{itemFromAlma.bib_data.title}}</h3>
-<h3><b>Barcode in Maestro: </b> {{barcodeForMaestro}} </h3>
+<div>
+  <mat-form-field>
+    <mat-label>Barcode</mat-label>
+    <input matInput #barcode (keyup.enter)="sendToDigitization()">
+    <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
+  </mat-form-field>
+</div>
 <h3><b>Desk code: </b> {{deskConfig.deskCode}} </h3>
 <div>
     <mat-checkbox [(ngModel)]="isFraktur" *ngIf="deskConfig.frakture">
@@ -15,14 +19,14 @@
 <div *ngIf="deskConfig.showTitle">
     <mat-form-field>
         <mat-label>Note</mat-label>
-        <input matInput [(ngModel)]="title">
+        <input matInput [(ngModel)]="note">
     </mat-form-field>
 </div>
 <div class="cloudapp-actions">
     <button mat-raised-button color="primary" (click)="sendToDigitization()" >
         Send to digitization
     </button>
-    <button mat-raised-button color="basic" (click)="backToMain('')" >
+    <button mat-raised-button color="basic" (click)="resetForm()" >
         Cancel
     </button>
 </div>
