@@ -14,6 +14,7 @@ import {of, throwError} from "rxjs";
 export class ReceiveMaterialComponent implements OnInit {
   itemFromAlma: any = null;
   barcodeForMaestro: string = "";
+  isReceiving: boolean = false;
   @Input() deskConfig: any = null;
   @Input() libCode: string = null;
   @Output() loading = new EventEmitter<boolean>();
@@ -27,19 +28,23 @@ export class ReceiveMaterialComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  receiveFromDigitization() {
-      this.loading.emit(true);
-      this.checkBarcodeStatusInAlmaAndMaestro().subscribe(
-          result => {
-              this.receiveFromDigi();
-          },
-          error => {
-              this.alert.error(error.message);
-              this.loading.emit(false);
-              throwError(() => new Error(error.message));
-          }
-      );
-  }
+    receiveFromDigitization() {
+        if (!this.isReceiving) {
+            this.loading.emit(true);
+            this.isReceiving = true;
+            this.checkBarcodeStatusInAlmaAndMaestro().subscribe(
+                result => {
+                    this.receiveFromDigi();
+                },
+                error => {
+                    this.alert.error(error.message);
+                    this.loading.emit(false);
+                    this.isReceiving = false;
+                    throwError(() => new Error(error.message));
+                }
+            );
+        }
+    }
 
     // Three things happen here:
     // 1- Set the document in the next step in Maestro workflow (if it has the correct step for finishing).
@@ -61,10 +66,12 @@ export class ReceiveMaterialComponent implements OnInit {
             .subscribe({
                 next: result => {
                     this.loading.emit(false);
+                    this.isReceiving = false;
                     this.resetForm(new Result(true, "Received from digitization"));
                 },
                 error: error => {
                     this.loading.emit(false);
+                    this.isReceiving = false;
                     this.resetForm(new Result(false, error));
                 }
             });
@@ -78,14 +85,12 @@ export class ReceiveMaterialComponent implements OnInit {
                     return this.getBarcodeOrField583x();
                 }),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
-                tap(() => this.loading.emit(false))
             );
     }
 
     private checkStatusInDigitization(barcode: string) {
         return this.digitizationService.check(barcode,this.deskConfig)
             .pipe(
-                tap( () =>this.loading.emit(false)),
                 tap(data => {
                     console.log(data);
                     if(this.digitizationService.isBarcodeNew(data)){

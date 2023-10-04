@@ -15,6 +15,7 @@ export class SendMaterialComponent{
     barcodeForMaestro: string = null;
     isFraktur: boolean = false;
     isMultivolume: boolean = false;
+    isSending: boolean = false;
     note: string = "";
     @Input() libCode: string = null;
     @Input() deskConfig: any = null;
@@ -30,17 +31,21 @@ export class SendMaterialComponent{
   { }
 
   sendToDigitization() {
-      this.loading.emit(true);
-      this.checkBarcodeStatusInAlmaAndMaestro().subscribe(
-          result => {
-              this.sendToDigi();
-          },
-          error => {
-              this.alert.error(error.message);
-              this.loading.emit(false);
-              throwError(() => new Error(error.message));
-          }
-      );
+      if (!this.isSending) {
+          this.isSending = true;
+          this.loading.emit(true);
+          this.checkBarcodeStatusInAlmaAndMaestro().subscribe(
+              result => {
+                  this.sendToDigi();
+              },
+              error => {
+                  this.alert.error(error.message);
+                  this.loading.emit(false);
+                  this.isSending = false;
+                  throwError(() => new Error(error.message));
+              }
+          );
+      }
   }
 
     // Three things happen here:
@@ -72,10 +77,12 @@ export class SendMaterialComponent{
             .subscribe({
                 next: result => {
                     this.loading.emit(false);
+                    this.isSending = false;
                     this.alert.success(`Document is successfully scanned in Alma.`);
                     this.resetForm();
                 },
                 error: error => {
+                    this.isSending = false;
                     this.loading.emit(false);
                     this.resetForm();
                 }
@@ -89,8 +96,7 @@ export class SendMaterialComponent{
                     this.itemFromAlma = AlmaItem;
                     return this.getBarcodeOrField583x();
                 }),
-                concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
-                tap(() => this.loading.emit(false))
+                concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro))
             );
     }
 
@@ -123,7 +129,6 @@ export class SendMaterialComponent{
     private checkStatusInDigitization(barcode: string) {
         return this.digitizationService.check(barcode,this.deskConfig)
             .pipe(
-                tap( () =>this.loading.emit(false)),
                 tap(data => {
                     if(!this.digitizationService.isBarcodeNew(data)){
                         throw new Error(`Barcode already exists in Maestro.`);
