@@ -67,7 +67,7 @@ export class SendMaterialComponent{
                         if (data.hasOwnProperty('step_title') && data['step_title'].trim() === this.deskConfig.maestroStartStep.trim()) {
                             return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
                         }else{
-                            data.hasOwnProperty('error') ? this.alert.error( `Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk. ${data.error}`) : null;
+                            this.alert.error( `Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk.`);
                             return of({message:'Error setting the document in the next step in Maestro'});
                         }
                     } else {

@@ -53,15 +53,18 @@ export class ReceiveMaterialComponent implements OnInit {
     private receiveFromDigi() {
         this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
             .pipe(
-                tap(data => data.hasOwnProperty('error') ? null :this.alert.success('Document is successfully finished in Maestro.')),
+                tap(data => this.alert.success('Document is successfully finished in Maestro.')),
                 switchMap(() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim())),
+                tap(() => this.alert.success('Document is successfully scanned in Alma.')),
                 switchMap(() => {
                     if (this.deskConfig.removeTempLocation) {
                         return this.almaService.removeTemporaryLocation(this.itemFromAlma);
                     } else {
                         return of('ok');
                     }
-                })
+                },
+                    tap(data => data === 'ok' ? null : this.alert.success('Temporary location is removed in Alma.')),
+                    )
             )
             .subscribe({
                 next: result => {
