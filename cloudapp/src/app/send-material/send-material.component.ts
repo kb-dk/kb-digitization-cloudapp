@@ -62,16 +62,20 @@ export class SendMaterialComponent{
                 tap(data => console.log('DATA:', data)),
                 switchMap(data => {
                     // Set the document to next step in Maestro only if it is created
-                    if (data.barcode && data.barcode === this.barcodeForMaestro) {
+                    if (data.hasOwnProperty('barcode') && data.barcode === this.barcodeForMaestro) {
                         this.alert.success('Document is successfully added to Maestro.');
-                        return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
+                        if (data.hasOwnProperty('step_title') && data['step_title'].trim() === this.deskConfig.maestroStartStep.trim()) {
+                            return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
+                        }else{
+                            data.hasOwnProperty('error') ? this.alert.error( `Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk. ${data.error}`) : null;
+                            return of({message:'Error setting the document in the next step in Maestro'});
+                        }
                     } else {
                         data.hasOwnProperty('error') ? this.alert.error('Error creating the document in Maestro. ', data.error) : null;
                         return of({message:'Error creating the document in Maestro'});
                     }
                 }),
                 switchMap(data => {
-                    data.hasOwnProperty('error') ? this.alert.error( `Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk. ${data.error}`) : null;
                     return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
                 })
             )
@@ -85,6 +89,7 @@ export class SendMaterialComponent{
                 error: error => {
                     this.isSending = false;
                     this.loading.emit(false);
+                    this.alert.error(error);
                     this.resetForm();
                 }
             });
