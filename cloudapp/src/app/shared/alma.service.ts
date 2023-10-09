@@ -23,7 +23,7 @@ export class AlmaService {
     let params = {'op': 'scan','department' : department};
     if (work_order_type) {
       params['work_order_type'] = work_order_type;
-      params['status'] = 'digitaliseret1';
+      params['status'] = 'digitaliseret2';
     }
     if (!this.libraryEqualsInstitution(library)) {
       params['library'] = library;
@@ -35,7 +35,7 @@ export class AlmaService {
     let params = {'op': 'scan','department' : department,'done':'true'};
     if (work_order_type)  {
       params['work_order_type'] = work_order_type;
-      params['status'] = 'digitaliseret2';
+      params['status'] = 'digitaliseret1';
     }
     if (!this.libraryEqualsInstitution(library)) {
       params['library'] = library;
