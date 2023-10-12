@@ -18,6 +18,7 @@ export class SendMaterialComponent{
     isSending: boolean = false;
     note: string = "";
     @Input() libCode: string = null;
+    @Input() institution: string = null;
     @Input() deskConfig: any = null;
     @Output() loading = new EventEmitter<boolean>();
     @ViewChild('barcode', {static: false}) barcode: ElementRef;
@@ -60,7 +61,6 @@ export class SendMaterialComponent{
                 switchMap(data => {
                         return this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)
                 }),
-                tap(data => console.log('DATA:', data)),
                 switchMap(data => {
                     // Set the document to next step in Maestro only if it is created
                     if (data.hasOwnProperty('barcode') && data.barcode === this.barcodeForMaestro) {
@@ -77,7 +77,7 @@ export class SendMaterialComponent{
                     }
                 }),
                 switchMap(data => {
-                    return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim());
+                    return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim());
                 })
             )
             .subscribe({

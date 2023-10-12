@@ -54,7 +54,7 @@ export class ReceiveMaterialComponent implements OnInit {
         this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
             .pipe(
                 tap(data => this.alert.success('Document is successfully finished in Maestro.')),
-                switchMap(() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim())),
+                switchMap(() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.deskConfig.institution.trim())),
                 tap(() => this.alert.success('Document is successfully scanned in Alma.')),
                 switchMap(() => {
                     if (this.deskConfig.removeTempLocation) {
@@ -95,7 +95,6 @@ export class ReceiveMaterialComponent implements OnInit {
         return this.digitizationService.check(barcode,this.deskConfig)
             .pipe(
                 tap(data => {
-                    console.log(data);
                     if(this.digitizationService.isBarcodeNew(data)){
                         throw new Error(`There is no document with this Barcode in Maestro.`);
                     }

@@ -21,30 +21,28 @@ export class AlmaService {
   ) { }
 
 
-  sendToDigi(itemLink:string, library: string, department:string, work_order_type:string=null) {
+  sendToDigi(itemLink:string, library: string, department:string, work_order_type:string=null, institution: string) {
 
     let params = {'op': 'scan','department' : department};
     if (work_order_type) {
       params['work_order_type'] = work_order_type;
       params['status'] = 'digitaliseret2';
     }
-    if (!this.libraryEqualsInstitution(library)) {
+    if (!this.libraryEqualsInstitution(library, institution)) {
       params['library'] = library;
     }
     return this.scanInItem(itemLink,params);
   }
 
-  receiveFromDigi(itemLink:string, library: string, department:string,work_order_type:string=null) {
+  receiveFromDigi(itemLink:string, library: string, department:string,work_order_type:string=null, institution: string) {
     let params = {'op': 'scan','department' : department,'done':'true'};
     if (work_order_type)  {
       params['work_order_type'] = work_order_type;
       params['status'] = 'digitaliseret1';
     }
-    if (!this.libraryEqualsInstitution(library)) {
+    if (!this.libraryEqualsInstitution(library, institution)) {
       params['library'] = library;
     }
-    console.log(itemLink,params);
-
     return this.scanInItem(itemLink,params);
   }
 
@@ -122,7 +120,7 @@ export class AlmaService {
   }
 
 
-  private libraryEqualsInstitution(libCode: string) {
-    return libCode === '45KBDK_KGL';
+  private libraryEqualsInstitution(libCode: string, institution: string) {
+    return libCode === institution;
   }
 }

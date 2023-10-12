@@ -17,6 +17,7 @@ export class MainComponent implements OnInit {
 
   currentlyAtLibCode: string;
   currentlyAtDeptCode: string;
+  institution: string;
   deskConfig;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
@@ -35,6 +36,9 @@ export class MainComponent implements OnInit {
       this.currentlyAtDeptCode = data.user['currentlyAtDept'];
       });
       this.configService.get().subscribe(config => {
+          if (config.institution) {
+              this.institution = config.institution.trim();
+          }
           if (config.desks && this.currentlyAtDeptCode) {
               this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
           }
