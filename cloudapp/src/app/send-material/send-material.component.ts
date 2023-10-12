@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@an
 import {AlertService, CloudAppEventsService} from '@exlibris/exl-cloudapp-angular-lib'
 import {AlmaService} from "../shared/alma.service";
 import {DigitizationService} from "../shared/digitization.service";
-import {catchError, concatMap, switchMap, tap} from "rxjs/operators";
+import {catchError, concatMap, map, switchMap, tap} from "rxjs/operators";
 import {EMPTY, of, throwError} from "rxjs";
 
 @Component({
@@ -37,6 +37,7 @@ export class SendMaterialComponent{
           this.checkBarcodeStatusInAlmaAndMaestro().subscribe(
               result => {
                   this.sendToDigi();
+                  this.loading.emit(false);
               },
               error => {
                   this.alert.error(error.message);
@@ -101,6 +102,14 @@ export class SendMaterialComponent{
                 concatMap((AlmaItem) => {
                     this.itemFromAlma = AlmaItem;
                     return this.getBarcodeOrField583x();
+                }),
+                concatMap(() => this.almaService.isField583xUnique(this.barcodeForMaestro)),
+                map((isField583xUnique) => {
+                    if (!isField583xUnique){
+                        let message = "Field 583x is not unique.";
+                        throw new Error(message);
+                    }
+                    return of('ok');
                 }),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro))
             );

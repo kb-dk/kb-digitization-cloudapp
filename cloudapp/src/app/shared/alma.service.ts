@@ -5,7 +5,9 @@ import {
   HttpMethod,
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
-import {EMPTY, of} from "rxjs";
+import {Observable, of} from "rxjs";
+import {map} from "rxjs/operators";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,7 @@ export class AlmaService {
 
   constructor(
       private restService: CloudAppRestService,
+      private http: HttpClient,
       private alert: AlertService,
   ) { }
 
@@ -58,6 +61,20 @@ export class AlmaService {
     return this.restService.call(`/items?item_barcode=${barcode.trim()}`);
   }
 
+  isField583xUnique(fieldContent) : Observable<boolean>{
+    const url = `https://kbdk-kgl-psb.alma.exlibrisgroup.com/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&marcxml=json&query=alma.all_for_ui=${fieldContent}`;
+    return this.http.post(url,'',
+        {
+          responseType: 'text',
+          withCredentials: false,
+        }).pipe(
+        map(data => {
+          let parser = new DOMParser();
+          return parser.parseFromString(data,"text/xml");
+        }),
+        map(xmlDoc => xmlDoc.getElementsByTagName("numberOfRecords")[0].innerHTML === '1')
+    );
+}
 
   getField583x(holdingLink): Promise<string> {
     return new Promise((resolve, reject) => {
