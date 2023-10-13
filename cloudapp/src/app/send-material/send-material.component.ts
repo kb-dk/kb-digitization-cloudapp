@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@an
 import {AlertService, CloudAppEventsService} from '@exlibris/exl-cloudapp-angular-lib'
 import {AlmaService} from "../shared/alma.service";
 import {DigitizationService} from "../shared/digitization.service";
-import {catchError, concatMap, map, switchMap, tap} from "rxjs/operators";
+import {catchError, concatMap, map, tap} from "rxjs/operators";
 import {EMPTY, of, throwError} from "rxjs";
 
 @Component({
@@ -17,6 +17,7 @@ export class SendMaterialComponent{
     isMultivolume: boolean = false;
     isSending: boolean = false;
     note: string = "";
+    successMessage: string[] = [];
     @Input() libCode: string = null;
     @Input() institution: string = null;
     @Input() almaUrl: string = null;
@@ -36,15 +37,17 @@ export class SendMaterialComponent{
       if (!this.isSending) {
           this.isSending = true;
           this.loading.emit(true);
-          this.checkBarcodeStatusInAlmaAndMaestro().subscribe(
+          this.checkBarcodeStatusInAlmaAndMaestro().pipe(
+              concatMap  (() => this.sendToDigi())
+          )
+              .subscribe(
               result => {
-                  this.sendToDigi();
-                  this.loading.emit(false);
+                  this.showSuccessMessage ();
+                  this.resetForm();
               },
               error => {
                   this.alert.error(error.message);
-                  this.loading.emit(false);
-                  this.isSending = false;
+                  this.resetForm();
                   throwError(() => new Error(error.message));
               }
           );
@@ -56,16 +59,14 @@ export class SendMaterialComponent{
     // 2- Set the document in the next step in Maestro workflow.
     // 3- Call Scan in item API in Alma which sets the item in the relevant status in Alma.
     private sendToDigi() {
-        this.digitizationService.send(this.barcodeForMaestro, this.deskConfig, this.isFraktur, this.isMultivolume, this.note)
+        return this.digitizationService.send(this.barcodeForMaestro, this.deskConfig, this.isFraktur, this.isMultivolume, this.note)
             .pipe(
                 // Check if the document is created
-                switchMap(data => {
-                        return this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)
-                }),
-                switchMap(data => {
+                concatMap (data => this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)),
+                concatMap (data => {
                     // Set the document to next step in Maestro only if it is created
                     if (data.hasOwnProperty('barcode') && data.barcode === this.barcodeForMaestro) {
-                        this.alert.success('Document is successfully added to Maestro.');
+                        this.successMessage = ['Maestro'];
                         if (data.hasOwnProperty('step_title') && data['step_title'].trim() === this.deskConfig.maestroStartStep.trim()) {
                             return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
                         }else{
@@ -77,33 +78,16 @@ export class SendMaterialComponent{
                         return of({message:'Error creating the document in Maestro'});
                     }
                 }),
-                switchMap(data => {
-                    return this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim());
-                })
+                concatMap (data => this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
+                tap (() => this.successMessage.push (`Alma`))
             )
-            .subscribe({
-                next: result => {
-                    this.loading.emit(false);
-                    this.isSending = false;
-                    this.alert.success(`Document is successfully scanned in Alma.`);
-                    this.resetForm();
-                },
-                error: error => {
-                    this.isSending = false;
-                    this.loading.emit(false);
-                    this.alert.error(error);
-                    this.resetForm();
-                }
-            });
     }
 
     private checkBarcodeStatusInAlmaAndMaestro() {
         return this.getItemFromAlma(this.barcode.nativeElement.value)
             .pipe(
-                concatMap((AlmaItem) => {
-                    this.itemFromAlma = AlmaItem;
-                    return this.getBarcodeOrField583x();
-                }),
+                tap(AlmaItem => this.itemFromAlma = AlmaItem),
+                concatMap((AlmaItem) => this.getBarcodeOrField583x()),
                 concatMap(() => this.almaService.isField583xUnique(this.barcodeForMaestro, this.institution, this.almaUrl)),
                 map((isField583xUnique) => {
                     if (!isField583xUnique && this.deskConfig.useMarcField){
@@ -117,6 +101,8 @@ export class SendMaterialComponent{
     }
 
     resetForm() {
+        this.loading.emit(false);
+        this.isSending = false;
         this.itemFromAlma=null;
         this.barcode.nativeElement.value = "";
         this.barcodeForMaestro = "";
@@ -147,7 +133,7 @@ export class SendMaterialComponent{
             .pipe(
                 tap(data => {
                     if(!this.digitizationService.isBarcodeNew(data)){
-                        throw new Error(`Barcode already exists in Maestro.`);
+                        throw new Error(`Barcode "${barcode}" already exists in Maestro.`);
                     }
                 }),
             );
@@ -156,5 +142,11 @@ export class SendMaterialComponent{
     private handleError(error: any) {
         this.alert.error(error);
         return EMPTY;
+    }
+
+    private showSuccessMessage() {
+        const title : string = this.itemFromAlma?.bib_data?.title;
+        this.alert.success(`${this.barcodeForMaestro} ${title ? `with the title "${title}"` : ''} is successfully sent to ${this.successMessage.join(' and ')}.`, { delay: 5000});
+        this.successMessage = [];
     }
 }

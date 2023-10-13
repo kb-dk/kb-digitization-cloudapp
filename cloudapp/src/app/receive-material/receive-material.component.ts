@@ -1,10 +1,10 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {AlertService} from '@exlibris/exl-cloudapp-angular-lib'
-import {concatMap, switchMap, tap} from "rxjs/operators";
+import {concatMap, map, tap} from "rxjs/operators";
 import { DigitizationService } from "../shared/digitization.service";
 import {AlmaService} from "../shared/alma.service";
 import {Result} from "../models/Result";
-import {of, throwError} from "rxjs";
+import {Observable, of, throwError} from "rxjs";
 
 @Component({
   selector: 'app-receive-material',
@@ -15,7 +15,9 @@ export class ReceiveMaterialComponent implements OnInit {
   itemFromAlma: any = null;
   barcodeForMaestro: string = "";
   isReceiving: boolean = false;
+  successMessage: string[] = [];
   @Input() deskConfig: any = null;
+  @Input() institution: string = '';
   @Input() libCode: string = null;
   @Output() loading = new EventEmitter<boolean>();
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
@@ -32,14 +34,16 @@ export class ReceiveMaterialComponent implements OnInit {
         if (!this.isReceiving) {
             this.loading.emit(true);
             this.isReceiving = true;
-            this.checkBarcodeStatusInAlmaAndMaestro().subscribe(
+            this.checkBarcodeStatusInAlmaAndMaestro().pipe(
+                concatMap(() => this.receiveFromDigi())
+            )
+                .subscribe(
                 result => {
-                    this.receiveFromDigi();
+                    this.resetForm(new Result(true, "Received from digitization"));
                 },
                 error => {
-                    this.alert.error(error.message);
-                    this.loading.emit(false);
-                    this.isReceiving = false;
+                    this.resetForm(new Result(false, error));
+                    console.log(error);
                     throwError(() => new Error(error.message));
                 }
             );
@@ -51,42 +55,27 @@ export class ReceiveMaterialComponent implements OnInit {
     // 2- Call Scan in item API in Alma which sets the item in the relevant status in Alma.
     // 3- Remove "Temporary location" in Alma, if relevant.
     private receiveFromDigi() {
-        this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
+        return this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
             .pipe(
-                tap(data => this.alert.success('Document is successfully finished in Maestro.')),
-                switchMap(() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.deskConfig.institution.trim())),
-                tap(() => this.alert.success('Document is successfully scanned in Alma.')),
-                switchMap(() => {
+                tap(data => this.successMessage = ['Maestro']),
+                tap(data => console.log(this.deskConfig, this.institution.trim())),
+                concatMap (() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
+                tap(() => this.successMessage.push('Alma')),
+                concatMap ((): Observable<any> => {
                     if (this.deskConfig.removeTempLocation) {
                         return this.almaService.removeTemporaryLocation(this.itemFromAlma);
-                    } else {
-                        return of('ok');
                     }
-                },
-                    tap(data => data === 'ok' ? null : this.alert.success('Temporary location is removed in Alma.')),
-                    )
+                    return of('');
+                }),
+                tap(result => result !== 'NoTemp' ? this.successMessage.push('temporary location is removed.') : null),
             )
-            .subscribe({
-                next: result => {
-                    this.loading.emit(false);
-                    this.isReceiving = false;
-                    this.resetForm(new Result(true, "Received from digitization"));
-                },
-                error: error => {
-                    this.loading.emit(false);
-                    this.isReceiving = false;
-                    this.resetForm(new Result(false, error));
-                }
-            });
     }
 
     private checkBarcodeStatusInAlmaAndMaestro() {
         return this.getItemFromAlma(this.barcode.nativeElement.value)
             .pipe(
-                concatMap((AlmaItem) => {
-                    this.itemFromAlma = AlmaItem;
-                    return this.getBarcodeOrField583x();
-                }),
+                tap(AlmaItem => this.itemFromAlma = AlmaItem),
+                concatMap((AlmaItem) => this.getBarcodeOrField583x()),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
             );
     }
@@ -95,13 +84,23 @@ export class ReceiveMaterialComponent implements OnInit {
         return this.digitizationService.check(barcode,this.deskConfig)
             .pipe(
                 tap(data => {
-                    if(this.digitizationService.isBarcodeNew(data)){
-                        throw new Error(`There is no document with this Barcode in Maestro.`);
-                    }
-                    if (!this.digitizationService.isInFinishStep(data, this.deskConfig.maestroFinishStep)){
-                        throw new Error(`Document is not in finish step in Maestro. Please contact digitization department.`);
+                    if (this.digitizationService.isBarcodeNew(data)){
+                        const message = `There is no document with this Barcode in Maestro.`;
+                        console.log(message)
+                        throw new Error(message);
                     }
                 }),
+                map(data => {
+                    console.log(this.digitizationService.isInFinishStep(data, this.deskConfig.maestroFinishStep), this.deskConfig.maestroFinishStep, data);
+                    return this.digitizationService.isInFinishStep(data, this.deskConfig.maestroFinishStep);
+                }),
+                tap(isInFinishStep=> {
+                    if (!isInFinishStep){
+                        const message = `Document is not in finish step in Maestro. Please contact digitization department.`;
+                        console.log(message)
+                        throw new Error(message);
+                    }
+                })
             );
     }
 
@@ -126,8 +125,17 @@ export class ReceiveMaterialComponent implements OnInit {
     }
 
   resetForm(message) {
+      message.ok ? this.showSuccessMessage() : this.alert.error(message);
+      this.loading.emit(false);
+      this.isReceiving = false;
       this.itemFromAlma=null;
       this.barcode.nativeElement.value = "";
       this.barcodeForMaestro = "";
   }
+
+    private showSuccessMessage() {
+        const title : string = this.itemFromAlma?.bib_data?.title;
+        this.alert.success(`${this.barcodeForMaestro} ${title ? `with the title "${title}"` : ''} is successfully received in ${this.successMessage.join(' and ')}.`, { delay: 10000});
+        this.successMessage = [];
+    }
 }

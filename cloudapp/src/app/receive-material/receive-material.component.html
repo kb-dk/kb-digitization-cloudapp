@@ -8,7 +8,7 @@
 <h3><b>Desk code: </b> {{deskConfig.deskCode}} </h3>
 
 <div class="eca-actions">
-    <button mat-raised-button color="primary"  (click)="receiveFromDigitization()" >
+    <button mat-raised-button color="primary" [disabled]="isReceiving"  (click)="receiveFromDigitization()" >
         Receive from digitization
     </button>
     <button mat-raised-button color="basic"  (click)="resetForm('Action cancelled')" >

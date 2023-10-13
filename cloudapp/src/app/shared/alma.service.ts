@@ -70,7 +70,7 @@ export class AlmaService {
           let parser = new DOMParser();
           return parser.parseFromString(data,"text/xml");
         }),
-        map(xmlDoc => xmlDoc.getElementsByTagName("numberOfRecords")[0].innerHTML === '1')
+        map(xmlDoc => xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML === '1')
     );
 }
 
@@ -115,7 +115,7 @@ export class AlmaService {
       };
       return this.restService.call(request);
     } else {
-      return of('No temporary location to remove.');
+      return of('NoTemp');
     }
   }
 
