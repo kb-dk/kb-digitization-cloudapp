@@ -43,7 +43,6 @@ export class ReceiveMaterialComponent implements OnInit {
                 },
                 error => {
                     this.resetForm(new Result(false, error));
-                    console.log(error);
                     throwError(() => new Error(error.message));
                 }
             );
@@ -58,7 +57,6 @@ export class ReceiveMaterialComponent implements OnInit {
         return this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
             .pipe(
                 tap(data => this.successMessage = ['Maestro']),
-                tap(data => console.log(this.deskConfig, this.institution.trim())),
                 concatMap (() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
                 tap(() => this.successMessage.push('Alma')),
                 concatMap ((): Observable<any> => {
@@ -86,18 +84,15 @@ export class ReceiveMaterialComponent implements OnInit {
                 tap(data => {
                     if (this.digitizationService.isBarcodeNew(data)){
                         const message = `There is no document with this Barcode in Maestro.`;
-                        console.log(message)
                         throw new Error(message);
                     }
                 }),
                 map(data => {
-                    console.log(this.digitizationService.isInFinishStep(data, this.deskConfig.maestroFinishStep), this.deskConfig.maestroFinishStep, data);
                     return this.digitizationService.isInFinishStep(data, this.deskConfig.maestroFinishStep);
                 }),
                 tap(isInFinishStep=> {
                     if (!isInFinishStep){
                         const message = `Document is not in finish step in Maestro. Please contact digitization department.`;
-                        console.log(message)
                         throw new Error(message);
                     }
                 })
