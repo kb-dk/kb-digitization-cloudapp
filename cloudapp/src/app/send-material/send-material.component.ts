@@ -19,6 +19,7 @@ export class SendMaterialComponent{
     note: string = "";
     @Input() libCode: string = null;
     @Input() institution: string = null;
+    @Input() almaUrl: string = null;
     @Input() deskConfig: any = null;
     @Output() loading = new EventEmitter<boolean>();
     @ViewChild('barcode', {static: false}) barcode: ElementRef;
@@ -103,9 +104,9 @@ export class SendMaterialComponent{
                     this.itemFromAlma = AlmaItem;
                     return this.getBarcodeOrField583x();
                 }),
-                concatMap(() => this.almaService.isField583xUnique(this.barcodeForMaestro)),
+                concatMap(() => this.almaService.isField583xUnique(this.barcodeForMaestro, this.institution, this.almaUrl)),
                 map((isField583xUnique) => {
-                    if (!isField583xUnique){
+                    if (!isField583xUnique && this.deskConfig.useMarcField){
                         let message = "Field 583x is not unique.";
                         throw new Error(message);
                     }

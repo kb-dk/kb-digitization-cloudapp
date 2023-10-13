@@ -26,10 +26,6 @@
                     <mat-label class="example-margin">Api key</mat-label>
                     <input matInput placeholder="Api key" formControlName="apiKey" required>
                 </mat-form-field>
-                <mat-form-field>
-                    <mat-label class="example-margin">Institution name</mat-label>
-                    <input matInput placeholder="institution" formControlName="institution" required>
-                </mat-form-field>
                 <div formArrayName="paramNames">
                     <div *ngFor="let paramName of getParamsNames().controls; let paramIndex = index" class="row">
                         <mat-form-field>

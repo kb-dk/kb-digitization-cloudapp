@@ -59,8 +59,8 @@ export class AlmaService {
     return this.restService.call(`/items?item_barcode=${barcode.trim()}`);
   }
 
-  isField583xUnique(fieldContent) : Observable<boolean>{
-    const url = `https://kbdk-kgl-psb.alma.exlibrisgroup.com/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&marcxml=json&query=alma.all_for_ui=${fieldContent}`;
+  isField583xUnique(fieldContent, institution, almaUrl) : Observable<boolean>{
+    const url = `${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&marcxml=json&query=alma.all_for_ui=${fieldContent}`;
     return this.http.post(url,'',
         {
           responseType: 'text',

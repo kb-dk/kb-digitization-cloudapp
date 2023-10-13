@@ -34,7 +34,6 @@ export class ConfigComponent implements OnInit {
         this.form = this.fb.group({
             serviceUrl: this.fb.control(''),
             apiKey: this.fb.control(''),
-            institution: this.fb.control(''),
             paramNames: this.fb.array([this.fb.control('')]),
             desks: this.initDeskGroup(),
         });

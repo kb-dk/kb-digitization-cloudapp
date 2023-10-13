@@ -18,6 +18,7 @@ export class MainComponent implements OnInit {
   currentlyAtLibCode: string;
   currentlyAtDeptCode: string;
   institution: string;
+  almaUrl: string = '';
   deskConfig;
   loading = false;
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
@@ -31,14 +32,13 @@ export class MainComponent implements OnInit {
 
   ngOnInit() {
       this.loading = true;
-      this.eventsService.getInitData().subscribe(data=>{
-      this.currentlyAtLibCode = data.user.currentlyAtLibCode;
-      this.currentlyAtDeptCode = data.user['currentlyAtDept'];
+      this.eventsService.getInitData().subscribe(data => {
+          this.currentlyAtLibCode = data.user.currentlyAtLibCode;
+          this.currentlyAtDeptCode = data.user['currentlyAtDept'];
+          this.institution = data.instCode;
+          this.almaUrl = data.urls.alma;
       });
       this.configService.get().subscribe(config => {
-          if (config.institution) {
-              this.institution = config.institution.trim();
-          }
           if (config.desks && this.currentlyAtDeptCode) {
               this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
           }
