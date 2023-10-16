@@ -46,6 +46,10 @@ export class SendMaterialComponent{
                   this.resetForm();
               },
               error => {
+                  console.error(error);
+                  if (error.message && error.message.includes ("Http failure response for") && error.message.includes("") ){
+                      error.message = "Cannot connect to digitization system. Please check your network connection!";
+                  }
                   this.alert.error(error.message);
                   this.resetForm();
                   throwError(() => new Error(error.message));
