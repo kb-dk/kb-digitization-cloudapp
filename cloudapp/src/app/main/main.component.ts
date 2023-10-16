@@ -33,6 +33,7 @@ export class MainComponent implements OnInit {
   ngOnInit() {
       this.loading = true;
       this.eventsService.getInitData().subscribe(data => {
+          console.log(data);
           this.currentlyAtLibCode = data.user.currentlyAtLibCode;
           this.currentlyAtDeptCode = data.user['currentlyAtDept'];
           this.institution = data.instCode;
@@ -45,7 +46,7 @@ export class MainComponent implements OnInit {
           if (this.currentlyAtDeptCode == undefined) {
               this.alert.error(`Please select a Desk in Alma first.`);
           } else if (this.deskConfig == undefined) {
-              this.alert.error(`The desk you are in, is not defined in the app.`);
+              this.alert.error(`The desk you are at ( with desk code: "${this.currentlyAtDeptCode}" ), is not defined in the app.`);
           }
           this.loading = false;
       })
