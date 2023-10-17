@@ -11,11 +11,12 @@ import {Observable, of, throwError} from "rxjs";
   templateUrl: './receive-material.component.html',
   styleUrls: ['./receive-material.component.scss']
 })
-export class ReceiveMaterialComponent implements OnInit {
+export class ReceiveMaterialComponent{
   itemFromAlma: any = null;
   barcodeForMaestro: string = "";
   isReceiving: boolean = false;
   successMessage: string[] = [];
+  @Input() inputLabel: string = '';
   @Input() deskConfig: any = null;
   @Input() institution: string = '';
   @Input() almaUrl: string = null;
@@ -28,8 +29,6 @@ export class ReceiveMaterialComponent implements OnInit {
       private almaService: AlmaService,
       private alert: AlertService
     ) {}
-  ngOnInit(): void {
-  }
 
     receiveFromDigitization() {
         if (!this.isReceiving) {
@@ -44,6 +43,7 @@ export class ReceiveMaterialComponent implements OnInit {
                 },
                 error => {
                     this.resetForm(new Result(false, error));
+                    console.log(error);
                     throwError(() => new Error(error.message));
                 }
             );
@@ -86,6 +86,7 @@ export class ReceiveMaterialComponent implements OnInit {
                 tap(data => {
                     if (this.digitizationService.isBarcodeNew(data)){
                         const message = `There is no document with this Barcode in Maestro.`;
+                        console.log(message);
                         throw new Error(message);
                     }
                 }),
@@ -95,6 +96,8 @@ export class ReceiveMaterialComponent implements OnInit {
                 tap(isInFinishStep=> {
                     if (!isInFinishStep){
                         const message = `Document is not in finish step in Maestro. Please contact digitization department.`;
+                        console.log(message);
+
                         throw new Error(message);
                     }
                 })

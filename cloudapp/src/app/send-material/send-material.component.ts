@@ -10,7 +10,7 @@ import {EMPTY, of, throwError} from "rxjs";
   templateUrl: './send-material.component.html',
   styleUrls: ['./send-material.component.scss']
 })
-export class SendMaterialComponent implements OnInit{
+export class SendMaterialComponent{
     itemFromAlma: any = null;
     barcodeForMaestro: string = null;
     isFraktur: boolean = false;
@@ -18,7 +18,7 @@ export class SendMaterialComponent implements OnInit{
     isSending: boolean = false;
     note: string = "";
     successMessage: string[] = [];
-    inputLabel: string = '';
+    @Input() inputLabel: string = '';
     @Input() libCode: string = null;
     @Input() institution: string = null;
     @Input() almaUrl: string = null;
@@ -33,10 +33,6 @@ export class SendMaterialComponent implements OnInit{
       private digitizationService: DigitizationService
   )
   { }
-
-  ngOnInit(){
-      this.inputLabel = this.deskConfig.useMarcField ? 'Barcode or field583x or MMSID' : 'Barcode';
-  }
 
   sendToDigitization() {
       if (!this.isSending) {

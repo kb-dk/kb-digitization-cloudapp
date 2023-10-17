@@ -21,6 +21,7 @@ export class MainComponent implements OnInit {
   almaUrl: string = '';
   deskConfig;
   loading = false;
+  inputLabel:string = '';
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
 
   constructor(
@@ -33,7 +34,6 @@ export class MainComponent implements OnInit {
   ngOnInit() {
       this.loading = true;
       this.eventsService.getInitData().subscribe(data => {
-          console.log(data);
           this.currentlyAtLibCode = data.user.currentlyAtLibCode;
           this.currentlyAtDeptCode = data.user['currentlyAtDept'];
           this.institution = data.instCode;
@@ -48,6 +48,7 @@ export class MainComponent implements OnInit {
           } else if (this.deskConfig == undefined) {
               this.alert.error(`The desk you are at ( with desk code: "${this.currentlyAtDeptCode}" ), is not defined in the app.`);
           }
+          this.inputLabel = this.deskConfig.useMarcField ? 'Barcode or field583x or MMSID' : 'Barcode';
           this.loading = false;
       })
   }
