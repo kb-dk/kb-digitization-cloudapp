@@ -17,7 +17,6 @@ export class AlmaService {
   constructor(
       private restService: CloudAppRestService,
       private http: HttpClient,
-      private alert: AlertService,
   ) { }
 
 
@@ -94,7 +93,7 @@ export class AlmaService {
         }),
         map(xmlDoc => {
           console.log(xmlDoc);
-          let numberOfRecords = 0;
+          let numberOfRecords: number;
           numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
           switch (numberOfRecords) {
             case 1:

@@ -5,8 +5,6 @@ import {
     AlertService,
     CloudAppConfigService,
 } from '@exlibris/exl-cloudapp-angular-lib';
-import {EMPTY} from "rxjs";
-
 
 @Component({
   selector: 'app-main',

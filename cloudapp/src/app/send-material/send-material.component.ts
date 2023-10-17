@@ -3,7 +3,7 @@ import {AlertService, CloudAppEventsService} from '@exlibris/exl-cloudapp-angula
 import {AlmaService} from "../shared/alma.service";
 import {DigitizationService} from "../shared/digitization.service";
 import {concatMap, map, tap} from "rxjs/operators";
-import {EMPTY, of, throwError} from "rxjs";
+import {of, throwError} from "rxjs";
 
 @Component({
   selector: 'app-send-material',
