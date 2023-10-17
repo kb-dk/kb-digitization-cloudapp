@@ -18,6 +18,7 @@ export class ReceiveMaterialComponent implements OnInit {
   successMessage: string[] = [];
   @Input() deskConfig: any = null;
   @Input() institution: string = '';
+  @Input() almaUrl: string = null;
   @Input() libCode: string = null;
   @Output() loading = new EventEmitter<boolean>();
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
@@ -73,7 +74,8 @@ export class ReceiveMaterialComponent implements OnInit {
         return this.getItemFromAlma(this.barcode.nativeElement.value)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
-                concatMap((AlmaItem) => this.getBarcodeOrField583x()),
+                concatMap((AlmaItem) => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
+                tap(barcodeForMaestro => this.barcodeForMaestro = barcodeForMaestro.toString()),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
             );
     }
@@ -99,24 +101,8 @@ export class ReceiveMaterialComponent implements OnInit {
             );
     }
 
-    private async getBarcodeOrField583x() {
-        this.barcodeForMaestro = this.itemFromAlma.item_data.barcode;
-        if (this.deskConfig.useMarcField) {
-            await this.almaService.getField583x(this.itemFromAlma.holding_data.link)
-                .then(field583x => {
-                    if (field583x) {
-                        this.barcodeForMaestro = field583x;
-                    } else {
-                        console.log("field583x has no value");
-                    }
-                })
-        }
-        return Promise.resolve();
-    }
-
-    getItemFromAlma(barcode) {
-        const encodedBarcode = encodeURIComponent(barcode).trim();
-        return this.almaService.getItemsFromBarcode(encodeURIComponent(barcode).trim());
+    getItemFromAlma(barcodeOrField583x) {
+        return this.almaService.getItemFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl);
     }
 
   resetForm(message) {

@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {AlertService, CloudAppEventsService} from '@exlibris/exl-cloudapp-angular-lib'
 import {AlmaService} from "../shared/alma.service";
 import {DigitizationService} from "../shared/digitization.service";
@@ -10,7 +10,7 @@ import {EMPTY, of, throwError} from "rxjs";
   templateUrl: './send-material.component.html',
   styleUrls: ['./send-material.component.scss']
 })
-export class SendMaterialComponent{
+export class SendMaterialComponent implements OnInit{
     itemFromAlma: any = null;
     barcodeForMaestro: string = null;
     isFraktur: boolean = false;
@@ -18,6 +18,7 @@ export class SendMaterialComponent{
     isSending: boolean = false;
     note: string = "";
     successMessage: string[] = [];
+    inputLabel: string = '';
     @Input() libCode: string = null;
     @Input() institution: string = null;
     @Input() almaUrl: string = null;
@@ -32,6 +33,10 @@ export class SendMaterialComponent{
       private digitizationService: DigitizationService
   )
   { }
+
+  ngOnInit(){
+      this.inputLabel = this.deskConfig.useMarcField ? 'Barcode or field583x or MMSID' : 'Barcode';
+  }
 
   sendToDigitization() {
       if (!this.isSending) {
@@ -88,11 +93,13 @@ export class SendMaterialComponent{
     }
 
     private checkBarcodeStatusInAlmaAndMaestro() {
-        return this.getItemFromAlma(this.barcode.nativeElement.value)
+      let inputText = this.barcode.nativeElement.value;
+        return this.getItemFromAlma(inputText)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
-                concatMap((AlmaItem) => this.getBarcodeOrField583x()),
-                concatMap(() => this.almaService.isField583xUnique(this.barcodeForMaestro, this.institution, this.almaUrl)),
+                concatMap((AlmaItem) => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
+                tap(barcodeForMaestro => this.barcodeForMaestro = barcodeForMaestro.toString()),
+                concatMap( barcodeForMaestro => barcodeForMaestro === inputText ? of('true') : this.almaService.isField583xUnique(barcodeForMaestro, this.institution, this.almaUrl)),
                 map((isField583xUnique) => {
                     if (!isField583xUnique && this.deskConfig.useMarcField){
                         let message = "Field 583x is not unique.";
@@ -112,24 +119,9 @@ export class SendMaterialComponent{
         this.barcodeForMaestro = "";
     }
 
-    getItemFromAlma(barcode) {
-        const encodedBarcode = encodeURIComponent(barcode).trim();
-        return this.almaService.getItemsFromBarcode(encodedBarcode);
-    }
-
-    private async getBarcodeOrField583x() {
-        this.barcodeForMaestro = this.itemFromAlma.item_data.barcode;
-        if (this.deskConfig.useMarcField) {
-            await this.almaService.getField583x(this.itemFromAlma.holding_data.link)
-                .then(field583x => {
-                    if (field583x) {
-                        this.barcodeForMaestro = field583x;
-                    } else {
-                        console.log("field583x has no value");
-                    }
-                })
-        }
-        return Promise.resolve();
+    getItemFromAlma(barcodeOrField583x) {
+        return this.almaService.getItemFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl).pipe(
+        );
     }
 
     private checkStatusInDigitization(barcode: string) {

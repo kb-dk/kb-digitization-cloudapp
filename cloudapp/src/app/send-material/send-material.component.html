@@ -1,6 +1,6 @@
 <div>
   <mat-form-field>
-    <mat-label>Barcode</mat-label>
+    <mat-label>{{ inputLabel }}</mat-label>
     <input matInput #barcode (keyup.enter)="sendToDigitization()">
     <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
   </mat-form-field>
