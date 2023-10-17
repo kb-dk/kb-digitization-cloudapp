@@ -74,10 +74,9 @@ export class AlmaService {
     );
 }
 
-  getField583x(holdingLink): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.restService.call(holdingLink).subscribe({
-        next: data => {
+  getField583x(holdingLink) {
+    return this.restService.call(holdingLink).pipe(
+        map(data => {
           if (data.hasOwnProperty('anies') && Array.isArray(data.anies)) {
             let doc = new DOMParser().parseFromString(data.anies[0], "application/xml");
             let datafields = doc.getElementsByTagName('datafield');
@@ -88,20 +87,15 @@ export class AlmaService {
                 for (let j = 0; j < subfields.length; j++) {
                   let subfield = subfields[j] as HTMLElement;
                   if (subfield.hasAttribute('code') && subfield.getAttribute('code') === 'x') {
-                    resolve(subfield.textContent);
-                    return;
+                    return (subfield.textContent);
                   }
                 }
               }
             }
           }
-          resolve('');
-        },
-        error: err => {
-          resolve('');
-        }
-      });
-    });
+          return '';
+        })
+      )
   }
 
   removeTemporaryLocation(itemFromApi) {
