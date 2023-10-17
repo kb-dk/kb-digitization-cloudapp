@@ -135,26 +135,23 @@ export class AlmaService {
 
   getField583x(holdingLink) {
     return this.restService.call(holdingLink).pipe(
-        map(data => {
-          if (data.hasOwnProperty('anies') && Array.isArray(data.anies)) {
-            let doc = new DOMParser().parseFromString(data.anies[0], "application/xml");
-            let datafields = doc.getElementsByTagName('datafield');
-            for (let i = 0; i < datafields.length; i++) {
-              let datafield = datafields[i] as HTMLElement;
-              if (datafield.hasAttribute('tag') && datafield.getAttribute('tag') === '583') {
-                let subfields = datafield.getElementsByTagName('subfield');
-                for (let j = 0; j < subfields.length; j++) {
-                  let subfield = subfields[j] as HTMLElement;
-                  if (subfield.hasAttribute('code') && subfield.getAttribute('code') === 'x') {
-                    return (subfield.textContent);
-                  }
-                }
-              }
-            }
-          }
-          return '';
+        map(response => response.hasOwnProperty('anies') && Array.isArray(response.anies) ? response.anies[0] : ''),
+        map(xmlDoc => {
+          return this.getFieldContentFromXML(xmlDoc, '583', 'x');
         })
       )
+  }
+
+  private getFieldContentFromXML(xmlDoc, tag, code) {
+    console.log(xmlDoc);
+    let doc = new DOMParser().parseFromString(xmlDoc, "application/xml");
+    let fieldContent = doc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
+    console.log(fieldContent, fieldContent.length, fieldContent[0].innerHTML);
+    if (fieldContent.length === 1) {
+      return fieldContent[0].textContent;
+    } else {
+      return '';
+    }
   }
 
   removeTemporaryLocation(itemFromApi) {
