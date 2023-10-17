@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  AlertService,
   CloudAppRestService,
   HttpMethod,
   Request
