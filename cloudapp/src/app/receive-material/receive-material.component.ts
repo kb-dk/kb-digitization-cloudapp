@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {AlertService} from '@exlibris/exl-cloudapp-angular-lib'
 import {concatMap, map, tap} from "rxjs/operators";
 import { DigitizationService } from "../shared/digitization.service";
@@ -38,7 +38,7 @@ export class ReceiveMaterialComponent{
                 concatMap(() => this.receiveFromDigi())
             )
                 .subscribe(
-                result => {
+                    () => {
                     this.resetForm(new Result(true, "Received from digitization"));
                 },
                 error => {
@@ -57,7 +57,7 @@ export class ReceiveMaterialComponent{
     private receiveFromDigi() {
         return this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
             .pipe(
-                tap(data => this.successMessage = ['Maestro']),
+                tap(() => this.successMessage = ['Maestro']),
                 concatMap (() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
                 tap(() => this.successMessage.push('Alma')),
                 concatMap ((): Observable<any> => {
@@ -74,7 +74,7 @@ export class ReceiveMaterialComponent{
         return this.getItemFromAlma(this.barcode.nativeElement.value)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
-                concatMap((AlmaItem) => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
+                concatMap(() => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
                 tap(barcodeForMaestro => this.barcodeForMaestro = barcodeForMaestro.toString()),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
             );

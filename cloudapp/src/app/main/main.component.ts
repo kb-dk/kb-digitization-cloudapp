@@ -56,23 +56,4 @@ export class MainComponent implements OnInit {
   updateLoading(event: boolean) {
     this.loading=event
   }
-
-  private handleOtherMaestroResponses(barcode:string, data: any) {
-    let done_step = 'KBH Cum Færdigregistreret';
-    if (data.hasOwnProperty('step_title')) {
-      if (data.step_title === done_step) {
-        this.alert.warn(`Barcode ${barcode} is already registered in the digitisation system.`);
-      } else {
-        this.alert.warn(`Barcode "${barcode}" has the status "${data.step_title}"`);
-      }
-    } else {
-      this.alert.error(`Maestro error ${data.error}`);
-    }
-  }
-
-
-  private handleError(error: any) {
-    this.alert.error(error);
-    return EMPTY;
-  }
 }

@@ -1,8 +1,8 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {AlertService, CloudAppEventsService} from '@exlibris/exl-cloudapp-angular-lib'
 import {AlmaService} from "../shared/alma.service";
 import {DigitizationService} from "../shared/digitization.service";
-import {catchError, concatMap, map, tap} from "rxjs/operators";
+import {concatMap, map, tap} from "rxjs/operators";
 import {EMPTY, of, throwError} from "rxjs";
 
 @Component({
@@ -42,7 +42,7 @@ export class SendMaterialComponent{
               concatMap  (() => this.sendToDigi())
           )
               .subscribe(
-              result => {
+                  () => {
                   this.showSuccessMessage ();
                   this.resetForm();
               },
@@ -67,7 +67,7 @@ export class SendMaterialComponent{
         return this.digitizationService.send(this.barcodeForMaestro, this.deskConfig, this.isFraktur, this.isMultivolume, this.note)
             .pipe(
                 // Check if the document is created
-                concatMap (data => this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)),
+                concatMap (() => this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)),
                 concatMap (data => {
                     // Set the document to next step in Maestro only if it is created
                     if (data.hasOwnProperty('barcode') && data.barcode === this.barcodeForMaestro) {
@@ -83,7 +83,7 @@ export class SendMaterialComponent{
                         return of({message:'Error creating the document in Maestro'});
                     }
                 }),
-                concatMap (data => this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
+                concatMap (() => this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
                 tap (() => this.successMessage.push (`Alma`))
             )
     }
@@ -93,7 +93,7 @@ export class SendMaterialComponent{
         return this.getItemFromAlma(inputText)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
-                concatMap((AlmaItem) => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
+                concatMap(() => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
                 tap(barcodeForMaestro => this.barcodeForMaestro = barcodeForMaestro.toString()),
                 concatMap( barcodeForMaestro => barcodeForMaestro === inputText ? of('true') : this.almaService.isField583xUnique(barcodeForMaestro, this.institution, this.almaUrl)),
                 map((isField583xUnique) => {
@@ -129,11 +129,6 @@ export class SendMaterialComponent{
                     }
                 }),
             );
-    }
-
-    private handleError(error: any) {
-        this.alert.error(error);
-        return EMPTY;
     }
 
     private showSuccessMessage() {
