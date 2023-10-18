@@ -19,8 +19,7 @@ export class AlmaService {
   ) { }
 
 
-  sendToDigi(itemLink:string, library: string, department:string, work_order_type:string=null, institution: string) {
-
+  sendToDigi = (itemLink:string, library: string, department:string, work_order_type:string=null, institution: string) => {
     let params = {'op': 'scan','department' : department};
     if (work_order_type) {
       params['work_order_type'] = work_order_type;
@@ -32,7 +31,7 @@ export class AlmaService {
     return this.scanInItem(itemLink,params);
   }
 
-  receiveFromDigi(itemLink:string, library: string, department:string,work_order_type:string=null, institution: string) {
+  receiveFromDigi = (itemLink:string, library: string, department:string,work_order_type:string=null, institution: string) => {
     let params = {'op': 'scan','department' : department,'done':'true'};
     if (work_order_type)  {
       params['work_order_type'] = work_order_type;
@@ -44,7 +43,7 @@ export class AlmaService {
     return this.scanInItem(itemLink,params);
   }
 
-  scanInItem(itemLink:string, params:any) {
+  scanInItem = (itemLink:string, params:any) => {
     let request: Request = {
       url: itemLink,
       method: HttpMethod.POST,
@@ -53,8 +52,7 @@ export class AlmaService {
     return this.restService.call(request);
   }
 
-  getItemFromAlma(useField583x, barcodeOrField583x, institution, almaUrl){
-    console.log(barcodeOrField583x);
+  getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
     const encodedBarcodeOrField583x = encodeURIComponent(barcodeOrField583x).trim();
     if(useField583x){
       return this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl);
@@ -62,61 +60,49 @@ export class AlmaService {
       return this.getItemsFromBarcode(encodedBarcodeOrField583x);
     }
   }
-  getItemsFromBarcode(barcode:string) {
-    return this.restService.call(`/items?item_barcode=${barcode.trim()}`);
-  }
+  getItemsFromBarcode = (barcode:string) => this.restService.call(`/items?item_barcode=${barcode.trim()}`);
 
-  getItemsFromField583x(field583x:string, institution, almaUrl) {
-    return this.getMMSIDFromField583x(field583x, institution, almaUrl).pipe(
-        concatMap(mmsid => this.getHoldingsFromMMSID(mmsid)),
-        concatMap(holdings => this.getItemFromHolding(holdings)),
-        map(items => items.item[0] && items.item[0].item_data && items.item[0].item_data.barcode ? items.item[0].item_data.barcode : undefined),
-        map(barcodeOrUndefined => barcodeOrUndefined === 'undefined' ? throwError(() => new Error(`Barcode not found.`)) : barcodeOrUndefined),
-        concatMap(barcode => this.getItemsFromBarcode(barcode)),
-        tap(data => console.log('Item:', data))
+  getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMarcrecordFromField583x(field583x, institution, almaUrl).pipe(
+        concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
+        concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
+        map(items => items.item?.length === 1 ? items.item[0] : throwError(() => new Error(`There are more than one item.`))),
     );
-  }
 
-
-
-  getMMSIDFromField583x(fieldContent: string, institution, almaUrl) {
-    const url = `${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`;
-    return this.http.post(url,'',
+  getMarcrecordFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`,'',
         {
           responseType: 'text',
           withCredentials: false,
         }).pipe(
-        map(data => {
-          let parser = new DOMParser();
-          return parser.parseFromString(data,"text/xml");
-        }),
-        map(xmlDoc => {
-          console.log(xmlDoc);
-          let numberOfRecords: number;
-          numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
-          switch (numberOfRecords) {
-            case 1:
-              return xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
-            case 0:
-              throw new Error(`Barcode or Field583x not exists.`);
-            default:
-              throw new Error(`Field583x is not unique.`);
-          }
-        }),
-        tap(data => console.log(data))
+        map(data => new DOMParser().parseFromString(data,"text/xml")),
+        map((xmlDoc: Document): [Document, String] => this.getMMSIDFromMarc(xmlDoc)),
+        map(([xmlDoc, MMSID]): [String, String]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)])
     );
-  }
 
 
-  getHoldingsFromMMSID(mmsid: string) {
-    return this.restService.call(`/bibs/${mmsid.trim()}/holdings`);
+  private getMMSIDFromMarc = (xmlDoc: Document): [Document, String] => {
+    let numberOfRecords: number;
+    numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
+    switch (numberOfRecords) {
+      case 1:
+         let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
+        return [xmlDoc, MMSID];
+      case 0:
+        throw new Error(`Barcode or Field583x not exists.`);
+      default:
+        throw new Error(`Field583x is not unique.`);
+    }
   }
 
-  getItemFromHolding(holdings) {
-    console.log(holdings.holding[0].link);
-    return this.restService.call(`${holdings.holding[0].link}/items`);
-  }
-  isField583xUnique(fieldContent, institution, almaUrl) : Observable<boolean>{
+  private getHoldingNrFromMarc = (xmlDoc: Document): String => this.getFieldContentFromXML(xmlDoc, 'AVA', '8');
+
+  getHoldingIdFromMMSID = (mmsid: String): Observable<[String, String]> => this.restService.call(`/bibs/${mmsid.trim()}/holdings`).pipe(
+        map (holdings => holdings.hasOwnProperty('holding') && holdings['holding'][0] && holdings['holding'][0]['holding_id'] ? holdings['holding'][0]['holding_id'] : ''),
+        map (holdingId => [mmsid, holdingId])
+    );
+
+  getItemFromHolding = (link) => this.restService.call(`${link}`);
+
+  isField583xUnique = (fieldContent, institution, almaUrl) : Observable<boolean> => {
     const url = `${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`;
     return this.http.post(url,'',
         {
@@ -131,20 +117,16 @@ export class AlmaService {
     );
 }
 
-  getField583x(holdingLink) {
-    return this.restService.call(holdingLink).pipe(
+  getField583x = (holdingLink) => this.restService.call(holdingLink).pipe(
         map(response => response.hasOwnProperty('anies') && Array.isArray(response.anies) ? response.anies[0] : ''),
+        map(XMLText => new DOMParser().parseFromString(XMLText, "application/xml")),
         map(xmlDoc => {
           return this.getFieldContentFromXML(xmlDoc, '583', 'x');
         })
       )
-  }
 
-  private getFieldContentFromXML(xmlDoc, tag, code) {
-    console.log(xmlDoc);
-    let doc = new DOMParser().parseFromString(xmlDoc, "application/xml");
-    let fieldContent = doc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
-    console.log(fieldContent, fieldContent.length, fieldContent[0].innerHTML);
+  private getFieldContentFromXML = (xmlDoc, tag, code) => {
+    let fieldContent = xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
     if (fieldContent.length === 1) {
       return fieldContent[0].textContent;
     } else {
@@ -152,7 +134,7 @@ export class AlmaService {
     }
   }
 
-  removeTemporaryLocation(itemFromApi) {
+  removeTemporaryLocation = (itemFromApi) => {
     let updatedItem = itemFromApi;
     if (updatedItem.holding_data.in_temp_location) {
       updatedItem.holding_data.in_temp_location = false;
@@ -167,7 +149,7 @@ export class AlmaService {
     }
   }
 
-  getBarcodeOrField583x(barcode, useMarcField, link): Observable<string> {
+  getBarcodeOrField583x = (barcode, useMarcField, link): Observable<string> => {
     let barcodeForMaestro = barcode;
     if (useMarcField) {
       return this.getField583x(link).pipe(
@@ -186,7 +168,5 @@ export class AlmaService {
     }
   }
 
-  private libraryEqualsInstitution(libCode: string, institution: string) {
-    return libCode === institution;
-  }
+  private libraryEqualsInstitution = (libCode: string, institution: string) => libCode === institution;
 }
