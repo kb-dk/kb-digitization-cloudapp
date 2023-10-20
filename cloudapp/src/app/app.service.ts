@@ -7,16 +7,16 @@ import {BehaviorSubject, Observable} from "rxjs";
     providedIn: 'root'
 })
 export class AppService {
-    private title = new BehaviorSubject<String>('App title');
+    private title = new BehaviorSubject<string>('App title');
     private title$ = this.title.asObservable();
 
     constructor(private initService: InitService) {}
 
-    setTitle(title: String) {
+    setTitle(title: string) {
         this.title.next(title);
     }
 
-    getTitle(): Observable<String> {
+    getTitle(): Observable<string> {
         return this.title$;
     }
 

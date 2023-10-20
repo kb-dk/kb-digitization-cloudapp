@@ -84,12 +84,12 @@ export class AlmaService {
           withCredentials: false,
         }).pipe(
         map(data => new DOMParser().parseFromString(data,"text/xml")),
-        map((xmlDoc: Document): [Document, String] => this.getMMSIDFromMarc(xmlDoc)),
-        map(([xmlDoc, MMSID]): [String, String]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)])
+        map((xmlDoc: Document): [Document, string] => this.getMMSIDFromMarc(xmlDoc)),
+        map(([xmlDoc, MMSID]): [string, string]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)])
     );
 
 
-  private getMMSIDFromMarc = (xmlDoc: Document): [Document, String] => {
+  private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
     let numberOfRecords: number;
     numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
     switch (numberOfRecords) {
@@ -103,9 +103,9 @@ export class AlmaService {
     }
   }
 
-  private getHoldingNrFromMarc = (xmlDoc: Document): String => this.getFieldContentFromXML(xmlDoc, 'AVA', '8');
+  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromXML(xmlDoc, 'AVA', '8');
 
-  getHoldingIdFromMMSID = (mmsid: String): Observable<[String, String]> => this.restService.call(`/bibs/${mmsid.trim()}/holdings`).pipe(
+  getHoldingIdFromMMSID = (mmsid: string): Observable<[string, string]> => this.restService.call(`/bibs/${mmsid.trim()}/holdings`).pipe(
         map (holdings => holdings.hasOwnProperty('holding') && holdings['holding'][0] && holdings['holding'][0]['holding_id'] ? holdings['holding'][0]['holding_id'] : ''),
         map (holdingId => [mmsid, holdingId])
     );
@@ -135,7 +135,7 @@ export class AlmaService {
         })
       )
 
-  private getFieldContentFromXML = (xmlDoc, tag, code) => {
+  private getFieldContentFromXML = (xmlDoc, tag, code): string => {
     let fieldContent = xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
     if (fieldContent.length === 1) {
       return fieldContent[0].textContent;
