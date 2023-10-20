@@ -5,7 +5,7 @@ import {
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
 import {Observable, of, throwError} from "rxjs";
-import {concatMap, map, tap} from "rxjs/operators";
+import {catchError, concatMap, map, tap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 
 @Injectable({
@@ -23,7 +23,7 @@ export class AlmaService {
     let params = {'op': 'scan','department' : department};
     if (work_order_type) {
       params['work_order_type'] = work_order_type;
-      params['status'] = 'digitaliseret2';
+      params['status'] = 'digitaliseret1';
     }
     if (!this.libraryEqualsInstitution(library, institution)) {
       params['library'] = library;
@@ -35,7 +35,7 @@ export class AlmaService {
     let params = {'op': 'scan','department' : department,'done':'true'};
     if (work_order_type)  {
       params['work_order_type'] = work_order_type;
-      params['status'] = 'digitaliseret1';
+      params['status'] = 'digitaliseret2';
     }
     if (!this.libraryEqualsInstitution(library, institution)) {
       params['library'] = library;
@@ -55,7 +55,14 @@ export class AlmaService {
   getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
     const encodedBarcodeOrField583x = encodeURIComponent(barcodeOrField583x).trim();
     if(useField583x){
-      return this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl);
+      return this.getItemsFromBarcode(encodedBarcodeOrField583x)
+          .pipe(
+              catchError(error => error.message === `No items found for barcode ${encodedBarcodeOrField583x.trim()}.` ? of('Barcode not found') : error)
+          )
+          .pipe(
+              tap(data => console.log(data)),
+              concatMap(response => response === 'Barcode not found' ? this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl) : of(''))
+          )
     }else{
       return this.getItemsFromBarcode(encodedBarcodeOrField583x);
     }
@@ -65,10 +72,13 @@ export class AlmaService {
   getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMarcrecordFromField583x(field583x, institution, almaUrl).pipe(
         concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
         concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
-        map(items => items.item?.length === 1 ? items.item[0] : throwError(() => new Error(`There are more than one item.`))),
+        map(items => items.item?.length === 1 ? items.item[0] : throwError(() => new Error(`There is no item or there are more than one item.`))),
     );
 
-  getMarcrecordFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`,'',
+  getMarcrecordFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
+
+        // Søg i mms_id og felt583x http://localhost:4200//view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==TUESUNIKKE_filnavnssyntax%20or%20alma.mms_id==99124929653105763
+        // Søg i alle marc felter plus barcode og mere   http://localhost:4200//view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=99122912149905763
         {
           responseType: 'text',
           withCredentials: false,

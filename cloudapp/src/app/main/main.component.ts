@@ -46,7 +46,7 @@ export class MainComponent implements OnInit {
           } else if (this.deskConfig == undefined) {
               this.alert.error(`The desk you are at ( with desk code: "${this.currentlyAtDeptCode}" ), is not defined in the app.`);
           }
-          this.inputLabel = this.deskConfig.useMarcField ? 'Barcode or field583x or MMSID' : 'Barcode';
+          this.inputLabel = this.deskConfig.useMarcField ? 'Barcode or field583x' : 'Barcode';
           this.loading = false;
       })
   }
