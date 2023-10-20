@@ -4,7 +4,7 @@ import {concatMap, map, tap} from "rxjs/operators";
 import { DigitizationService } from "../shared/digitization.service";
 import {AlmaService} from "../shared/alma.service";
 import {Result} from "../models/Result";
-import {Observable, of, throwError} from "rxjs";
+import {Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-receive-material',
@@ -39,14 +39,13 @@ export class ReceiveMaterialComponent{
             )
                 .subscribe(
                     () => {
-                    this.resetForm(new Result(true, "Received from digitization"));
-                },
-                error => {
-                    this.resetForm(new Result(false, error));
-                    console.log(error);
-                    throwError(() => new Error(error.message));
-                }
-            );
+                        this.resetForm(new Result(true, "Received from digitization"));
+                    },
+                    error => {
+                        let message = error.hasOwnProperty('message') ? error.message : error;
+                        this.resetForm(new Result(false, error.toString()));
+                    }
+                );
         }
     }
 
@@ -85,9 +84,7 @@ export class ReceiveMaterialComponent{
             .pipe(
                 tap(data => {
                     if (this.digitizationService.isBarcodeNew(data)){
-                        const message = `There is no document with this Barcode in Maestro.`;
-                        console.log(message);
-                        throw new Error(message);
+                        throw new Error(`There is no document with this Barcode in Maestro.`);
                     }
                 }),
                 map(data => {
@@ -95,10 +92,7 @@ export class ReceiveMaterialComponent{
                 }),
                 tap(isInFinishStep=> {
                     if (!isInFinishStep){
-                        const message = `Document is not in finish step in Maestro. Please contact digitization department.`;
-                        console.log(message);
-
-                        throw new Error(message);
+                        throw new Error(`Document is not in finish step in Maestro. Please contact digitization department.`);
                     }
                 })
             );
@@ -108,8 +102,8 @@ export class ReceiveMaterialComponent{
         return this.almaService.getItemFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl);
     }
 
-  resetForm(message) {
-      message.ok ? this.showSuccessMessage() : this.alert.error(message);
+  resetForm(status) {
+      status.ok ? this.showSuccessMessage() : this.alert.error(status.hasOwnProperty('message') ? status.message : status);
       this.loading.emit(false);
       this.isReceiving = false;
       this.itemFromAlma=null;

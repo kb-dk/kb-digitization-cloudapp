@@ -5,7 +5,7 @@ import {
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
 import {Observable, of, throwError} from "rxjs";
-import {catchError, concatMap, map, tap} from "rxjs/operators";
+import {catchError, concatMap, map} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 
 @Injectable({
@@ -57,11 +57,9 @@ export class AlmaService {
     if(useField583x){
       return this.getItemsFromBarcode(encodedBarcodeOrField583x)
           .pipe(
-              tap(data => console.log(data)),
               catchError(error => error.message === `No items found for barcode ${encodedBarcodeOrField583x.trim()}.` ? of('Barcode not found') : error)
           )
           .pipe(
-              tap(data => console.log(data)),
               concatMap(response => response === 'Barcode not found' ? this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl) : of(response))
           )
     }else{
