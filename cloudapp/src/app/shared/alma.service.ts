@@ -57,11 +57,12 @@ export class AlmaService {
     if(useField583x){
       return this.getItemsFromBarcode(encodedBarcodeOrField583x)
           .pipe(
+              tap(data => console.log(data)),
               catchError(error => error.message === `No items found for barcode ${encodedBarcodeOrField583x.trim()}.` ? of('Barcode not found') : error)
           )
           .pipe(
               tap(data => console.log(data)),
-              concatMap(response => response === 'Barcode not found' ? this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl) : of(''))
+              concatMap(response => response === 'Barcode not found' ? this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl) : of(response))
           )
     }else{
       return this.getItemsFromBarcode(encodedBarcodeOrField583x);

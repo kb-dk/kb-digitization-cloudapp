@@ -92,7 +92,7 @@ export class SendMaterialComponent{
       let inputText = this.barcode.nativeElement.value;
         return this.getItemFromAlma(inputText)
             .pipe(
-                tap(AlmaItem => this.itemFromAlma = AlmaItem),
+                tap(AlmaItem => this.itemFromAlma = AlmaItem),tap(data => console.log(data)),
                 concatMap(() => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
                 tap(barcodeForMaestro => this.barcodeForMaestro = barcodeForMaestro.toString()),
                 concatMap( barcodeForMaestro => barcodeForMaestro === inputText ? of('true') : this.almaService.isField583xUnique(barcodeForMaestro, this.institution, this.almaUrl)),
