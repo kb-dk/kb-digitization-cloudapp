@@ -5,7 +5,7 @@ import {
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
 import {Observable, of, throwError} from "rxjs";
-import {catchError, concatMap, map} from "rxjs/operators";
+import {catchError, concatMap, map, tap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 
 @Injectable({
@@ -96,7 +96,7 @@ export class AlmaService {
          let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
         return [xmlDoc, MMSID];
       case 0:
-        throw new Error(`Barcode or Field583x not exists.`);
+        throw new Error(`MMSID not exists.`);
       default:
         throw new Error(`Field583x is not unique.`);
     }
@@ -131,7 +131,12 @@ export class AlmaService {
         map(XMLText => new DOMParser().parseFromString(XMLText, "application/xml")),
         map(xmlDoc => {
           return this.getFieldContentFromXML(xmlDoc, '583', 'x');
-        })
+        }),
+        tap(field583x => {
+          if (!field583x) {
+            console.log("field583x has no value");
+          }
+        }),
       )
 
   private getFieldContentFromXML = (xmlDoc, tag, code): string => {
@@ -155,25 +160,6 @@ export class AlmaService {
       return this.restService.call(request);
     } else {
       return of('NoTemp');
-    }
-  }
-
-  getBarcodeOrField583x = (barcode, useMarcField, link): Observable<string> => {
-    let barcodeForMaestro = barcode;
-    if (useMarcField) {
-      return this.getField583x(link).pipe(
-          map(field583x => {
-                if (field583x) {
-                  barcodeForMaestro = field583x;
-                } else {
-                  console.log("field583x has no value");
-                }
-                return barcodeForMaestro;
-              }
-          )
-      )
-    } else {
-      return of(barcodeForMaestro);
     }
   }
 

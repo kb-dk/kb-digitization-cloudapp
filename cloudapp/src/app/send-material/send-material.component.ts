@@ -3,7 +3,7 @@ import {AlertService, CloudAppEventsService} from '@exlibris/exl-cloudapp-angula
 import {AlmaService} from "../shared/alma.service";
 import {DigitizationService} from "../shared/digitization.service";
 import {concatMap, map, tap} from "rxjs/operators";
-import {of, throwError} from "rxjs";
+import {Observable, of, throwError} from "rxjs";
 
 @Component({
   selector: 'app-send-material',
@@ -92,17 +92,27 @@ export class SendMaterialComponent{
         return this.getItemFromAlma(inputText)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
-                concatMap(() => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
-                tap(barcodeForMaestro => this.barcodeForMaestro = barcodeForMaestro.toString()),
-                concatMap( barcodeForMaestro => barcodeForMaestro === inputText ? of('true') : this.almaService.isField583xUnique(barcodeForMaestro, this.institution, this.almaUrl)),
-                map((isField583xUnique) => {
-                    if (!isField583xUnique && this.deskConfig.useMarcField){
-                        let message = "Field 583x is not unique.";
-                        throw new Error(message);
+                tap(AlmaItem => this.barcodeForMaestro = AlmaItem.item_data.barcode.toString()),
+                concatMap((AlmaItem): Observable<string> => {
+                    if (this.deskConfig.useMarcField){
+                        let field583x = '';
+                        return this.almaService.getField583x(AlmaItem.holding_data.link).pipe(
+                            tap(response => field583x = response),
+                            concatMap( response => response === '' ? of(true) : this.almaService.isField583xUnique(response, this.institution, this.almaUrl)),
+                            map((isField583xUnique: boolean): string => {
+                                if (!isField583xUnique){
+                                    let message = "Field 583x is not unique.";
+                                    throw new Error(message);
+                                }
+                                return field583x;
+                            }),
+                            tap(field583x => field583x ? this.barcodeForMaestro = field583x : null),
+                        )
                     }
-                    return of('ok');
-                }),
-                concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro))
+                    return of(this.barcodeForMaestro);
+                }
+                ),
+                concatMap(barcodeForMaestro => this.checkStatusInDigitization(barcodeForMaestro))
             );
     }
 

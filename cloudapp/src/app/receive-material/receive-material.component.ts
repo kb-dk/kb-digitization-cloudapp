@@ -73,8 +73,9 @@ export class ReceiveMaterialComponent{
         return this.getItemFromAlma(this.barcode.nativeElement.value)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
-                concatMap(() => this.almaService.getBarcodeOrField583x(this.itemFromAlma.item_data.barcode, this.deskConfig, this.itemFromAlma.holding_data.link)),
-                tap(barcodeForMaestro => this.barcodeForMaestro = barcodeForMaestro.toString()),
+                tap(AlmaItem => this.barcodeForMaestro = AlmaItem.item_data.barcode.toString()),
+                concatMap(AlmaItem => this.deskConfig.useMarcField ? this.almaService.getField583x(AlmaItem.holding_data.link) : of('')),
+                tap(field583x => field583x ? this.barcodeForMaestro = field583x : null),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
             );
     }
