@@ -74,10 +74,10 @@ export class AlmaService {
         map(items => items.item?.length === 1 ? items.item[0] : throwError(() => new Error(`There is no item or there are more than one item.`))),
     );
 
-  getMarcrecordFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
+  getMarcrecordFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
 
-        // Søg i mms_id og felt583x http://localhost:4200//view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==TUESUNIKKE_filnavnssyntax%20or%20alma.mms_id==99124929653105763
-        // Søg i alle marc felter plus barcode og mere   http://localhost:4200//view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=99122912149905763
+        // Søg i mms_id og felt583x http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==TUESUNIKKE_filnavnssyntax%20or%20alma.mms_id==99124929653105763
+        // Søg i alle marc felter plus barcode og mere   http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=99122912149905763
         {
           responseType: 'text',
           withCredentials: false,
@@ -89,6 +89,9 @@ export class AlmaService {
 
 
   private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
+    if ((xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML)){
+      console.error(xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML);
+    }
     let numberOfRecords: number;
     numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
     switch (numberOfRecords) {
@@ -112,7 +115,7 @@ export class AlmaService {
   getItemFromHolding = (link) => this.restService.call(`${link}`);
 
   isField583xUnique = (fieldContent, institution, almaUrl) : Observable<boolean> => {
-    const url = `${almaUrl}/view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`;
+    const url = `${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`;
     return this.http.post(url,'',
         {
           responseType: 'text',
