@@ -63,7 +63,7 @@ export class ReceiveMaterialComponent{
                     if (this.deskConfig.removeTempLocation) {
                         return this.almaService.removeTemporaryLocation(this.itemFromAlma);
                     }
-                    return of('');
+                    return of('NoTemp');
                 }),
                 tap(result => result !== 'NoTemp' ? this.successMessage.push('temporary location is removed.') : null),
             )
