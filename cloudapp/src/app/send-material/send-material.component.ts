@@ -107,6 +107,7 @@ export class SendMaterialComponent{
                                 return field583x;
                             }),
                             tap(field583x => field583x ? this.barcodeForMaestro = field583x : null),
+                            map(() => this.barcodeForMaestro),
                         )
                     }
                     return of(this.barcodeForMaestro);
