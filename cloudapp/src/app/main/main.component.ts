@@ -38,6 +38,7 @@ export class MainComponent implements OnInit {
           this.almaUrl = data.urls.alma;
       });
       this.configService.get().subscribe(config => {
+          console.log(config);
           if (config){
           if (config.desks && this.currentlyAtDeptCode) {
               this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
@@ -47,7 +48,7 @@ export class MainComponent implements OnInit {
           } else if (this.deskConfig == undefined) {
               this.alert.error(`The desk you are at ( with desk code: "${this.currentlyAtDeptCode}" ), is not defined in the app.`);
           }
-          this.inputLabel = this.deskConfig.useMarcField ? 'Barcode or field583x' : 'Barcode';
+          this.inputLabel = this.deskConfig?.useMarcField ? 'Barcode or field583x' : 'Barcode';
           } else {
               this.alert.error(`Please ask an Admin to configure this App.`);
           }
