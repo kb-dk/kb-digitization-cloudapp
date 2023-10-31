@@ -39,7 +39,6 @@ export class MainComponent implements OnInit {
           this.almaUrl = data.urls.alma;
       });
       this.configService.get().subscribe(config => {
-          console.log(config);
           if (Object.keys(config).length){
           if (config.desks && this.currentlyAtDeptCode) {
               this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
