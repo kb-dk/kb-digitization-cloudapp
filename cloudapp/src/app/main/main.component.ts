@@ -21,6 +21,7 @@ export class MainComponent implements OnInit {
   loading = false;
   inputLabel:string = '';
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
+  emptyConfig: boolean = false;
 
   constructor(
       private configService: CloudAppConfigService,
@@ -39,7 +40,7 @@ export class MainComponent implements OnInit {
       });
       this.configService.get().subscribe(config => {
           console.log(config);
-          if (config){
+          if (Object.keys(config).length){
           if (config.desks && this.currentlyAtDeptCode) {
               this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
           }
@@ -50,7 +51,7 @@ export class MainComponent implements OnInit {
           }
           this.inputLabel = this.deskConfig?.useMarcField ? 'Barcode or field583x' : 'Barcode';
           } else {
-              this.alert.error(`Please ask an Admin to configure this App.`);
+              this.emptyConfig = true;
           }
           this.loading = false;
       })
