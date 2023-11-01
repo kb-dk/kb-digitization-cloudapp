@@ -35,11 +35,27 @@ export class SendMaterialComponent{
   { }
 
   sendToDigitization() {
+
+      // TODO: Add this to desk config in configuration
+      let checkRequestBeforeSending: boolean = this.deskConfig.deskCode === 'DIGINAT';
+
       if (!this.isSending) {
           this.isSending = true;
           this.loading.emit(true);
-          this.checkBarcodeStatusInAlmaAndMaestro().pipe(
-              concatMap  (() => this.sendToDigi())
+          this.checkBarcodeStatusInAlmaAndMaestro()
+              .pipe(
+                  concatMap(() => this.almaService.getRequestsFromItem (this.itemFromAlma.link)),
+                  map((request) => checkRequestBeforeSending ? this.throwErrorIfDoNotHaveRequest(request) : request),
+                  map((request) => this.checkIfdeskCodeIsDestination(request)),
+                  map(isDeskCodeCorrect => {
+                      if (!isDeskCodeCorrect){
+                          throw new Error("Desk code doesn't match destination department of the request!");
+                      }
+                      return true
+                  })
+              )
+              .pipe(
+              concatMap  ((hasItemARequest) => this.sendToDigi())
           )
               .subscribe(
                   () => {
@@ -145,5 +161,19 @@ export class SendMaterialComponent{
         const title : string = this.itemFromAlma?.bib_data?.title;
         this.alert.success(`${this.barcodeForMaestro} ${title ? `with the title "${title}"` : ''} is successfully sent to ${this.successMessage.join(' and ')}.`, { delay: 5000});
         this.successMessage = [];
+    }
+
+    private throwErrorIfDoNotHaveRequest(request){
+      if (request.total_record_count < 1){
+          throw new Error("There is no request on this item!");
+      }
+      return request;
+    }
+
+    private checkIfdeskCodeIsDestination(request): boolean {
+      if (request.user_request && request.user_request[0]?.target_destination?.value){
+          return request.user_request[0]?.target_destination?.value === this.deskConfig?.deskCode;
+      }
+        return true;
     }
 }

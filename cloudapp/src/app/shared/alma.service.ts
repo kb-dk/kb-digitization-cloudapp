@@ -114,6 +114,8 @@ export class AlmaService {
 
   getItemFromHolding = (link) => this.restService.call(`${link}`);
 
+  getRequestsFromItem = (link) => this.restService.call(`${link}/requests`);
+
   isField583xUnique = (fieldContent, institution, almaUrl) : Observable<boolean> => {
     const url = `${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`;
     return this.http.post(url,'',
