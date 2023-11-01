@@ -45,6 +45,8 @@ export class SendMaterialComponent{
           this.checkBarcodeStatusInAlmaAndMaestro()
               .pipe(
                   concatMap(() => this.almaService.getRequestsFromItem (this.itemFromAlma.link)),
+                  // Check if there is a request (only for DIGINAT)
+                  // and if there is a request check if the destination department matches the current desk
                   map((request) => checkRequestBeforeSending ? this.throwErrorIfDoNotHaveRequest(request) : request),
                   map((request) => this.checkIfdeskCodeIsDestination(request)),
                   map(isDeskCodeCorrect => {
