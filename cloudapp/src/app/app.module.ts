@@ -13,15 +13,20 @@ import {DigitizationService} from "./shared/digitization.service";
 import { SendMaterialComponent } from './send-material/send-material.component';
 import { ReceiveMaterialComponent } from './receive-material/receive-material.component';
 import {ConfigComponent} from "./config/config.component";
+import {MatDialogModule} from '@angular/material/dialog';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 
-
+const materialModules = [
+  MatDialogModule
+];
 @NgModule({
   declarations: [
     AppComponent,
     MainComponent,
     ConfigComponent,
     SendMaterialComponent,
-    ReceiveMaterialComponent
+    ReceiveMaterialComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     MaterialModule,

@@ -5,12 +5,15 @@ import {DigitizationService} from "../shared/digitization.service";
 import {concatMap, map, tap} from "rxjs/operators";
 import {Observable, of, throwError} from "rxjs";
 
+import { MatDialog } from "@angular/material/dialog";
+import { ConfirmDialogComponent } from "../confirm-dialog/confirm-dialog.component";
+
 @Component({
-  selector: 'app-send-material',
-  templateUrl: './send-material.component.html',
-  styleUrls: ['./send-material.component.scss']
+    selector: 'app-send-material',
+    templateUrl: './send-material.component.html',
+    styleUrls: ['./send-material.component.scss']
 })
-export class SendMaterialComponent{
+export class SendMaterialComponent {
     itemFromAlma: any = null;
     barcodeForMaestro: string = null;
     isFraktur: boolean = false;
@@ -18,6 +21,7 @@ export class SendMaterialComponent{
     isSending: boolean = false;
     note: string = "";
     successMessage: string[] = [];
+    checkComments: boolean = false;
     @Input() inputLabel: string = '';
     @Input() libCode: string = null;
     @Input() institution: string = null;
@@ -26,55 +30,61 @@ export class SendMaterialComponent{
     @Output() loading = new EventEmitter<boolean>();
     @ViewChild('barcode', {static: false}) barcode: ElementRef;
 
-  constructor(
-      private eventService: CloudAppEventsService,
-      private almaService: AlmaService,
-      private alert: AlertService,
-      private digitizationService: DigitizationService
-  )
-  { }
+    constructor(
+        private eventService: CloudAppEventsService,
+        private almaService: AlmaService,
+        private alert: AlertService,
+        private digitizationService: DigitizationService,
+        public dialog: MatDialog
+    ) {
+    }
 
-  sendToDigitization() {
+    sendToDigitization() {
+        console.log(this.checkComments)
+        let inputText = this.barcode.nativeElement.value;
+        if (inputText) {
+            // TODO: Add this to desk config in configuration
+            let checkRequestBeforeSending: boolean = this.deskConfig.deskCode === 'DIGINAT';
 
-      // TODO: Add this to desk config in configuration
-      let checkRequestBeforeSending: boolean = this.deskConfig.deskCode === 'DIGINAT';
-
-      if (!this.isSending) {
-          this.isSending = true;
-          this.loading.emit(true);
-          this.checkBarcodeStatusInAlmaAndMaestro()
-              .pipe(
-                  concatMap(() => this.almaService.getRequestsFromItem (this.itemFromAlma.link)),
-                  // Check if there is a request (only for DIGINAT)
-                  // and if there is a request check if the destination department matches the current desk
-                  map((request) => checkRequestBeforeSending ? this.throwErrorIfDoNotHaveRequest(request) : request),
-                  map((request) => this.checkIfdeskCodeIsDestination(request)),
-                  map(isDeskCodeCorrect => {
-                      if (!isDeskCodeCorrect){
-                          throw new Error("Desk code doesn't match destination department of the request!");
-                      }
-                      return true
-                  })
-              )
-              .pipe(
-              concatMap  ((hasItemARequest) => this.sendToDigi())
-          )
-              .subscribe(
-                  () => {
-                  this.showSuccessMessage ();
-                  this.resetForm();
-              },
-              error => {
-                  if (error.message && error.message.includes ("Http failure response for") && error.message.includes(this.deskConfig.url)){
-                      error.message = "Cannot connect to digitization system. Please check your network connection!";
-                  }
-                  this.alert.error(error.message);
-                  this.resetForm();
-                  throwError(() => new Error(error.message));
-              }
-          );
-      }
-  }
+            if (!this.isSending) {
+                this.isSending = true;
+                this.loading.emit(true);
+                this.checkBarcodeStatusInAlmaAndMaestro(inputText)
+                    .pipe(
+                        concatMap(() => this.almaService.getRequestsFromItem(this.itemFromAlma.link)),
+                        // Check if there is a request (only for DIGINAT)
+                        // and if there is a request check if the destination department matches the current desk
+                        map((request) => checkRequestBeforeSending ? this.throwErrorIfDoNotHaveRequest(request) : request),
+                        map((request) => [request, this.checkIfdeskCodeIsDestination(request)]),
+                        map(([request, isDeskCodeCorrect]) => {
+                            if (!isDeskCodeCorrect) {
+                                throw new Error(`Desk code (${this.deskConfig.deskName}) doesn't match destination department of the request (${request.user_request[0]?.target_destination?.desc}).`);
+                            }
+                            return request
+                        }),
+                        tap(request => console.log(request)),
+                        concatMap(request => this.checkComments && request?.user_request[0]?.comment ? this.showCommentDialog(request.user_request[0].comment) : of(true)),
+                    )
+                    .pipe(
+                        concatMap((canContinue) => canContinue ? this.sendToDigi() : of("Canceled"))
+                    )
+                    .subscribe(
+                        (response) => {
+                            response === "Canceled" ? null : this.showSuccessMessage();
+                            this.resetForm();
+                        },
+                        error => {
+                            if (error.message && error.message.includes("Http failure response for") && error.message.includes(this.deskConfig.url)) {
+                                error.message = "Cannot connect to digitization system. Please check your network connection!";
+                            }
+                            this.alert.error(error.message);
+                            this.resetForm();
+                            throwError(() => new Error(error.message));
+                        }
+                    );
+            }
+        }
+    }
 
     // Three things happen here:
     // 1- Create the document in Maestro.
@@ -84,52 +94,51 @@ export class SendMaterialComponent{
         return this.digitizationService.send(this.barcodeForMaestro, this.deskConfig, this.isFraktur, this.isMultivolume, this.note)
             .pipe(
                 // Check if the document is created
-                concatMap (() => this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)),
-                concatMap (data => {
+                concatMap(() => this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)),
+                concatMap(data => {
                     // Set the document to next step in Maestro only if it is created
                     if (data.hasOwnProperty('barcode') && data.barcode === this.barcodeForMaestro) {
                         this.successMessage = ['Maestro'];
                         if (data.hasOwnProperty('step_title') && data['step_title'].trim() === this.deskConfig.maestroStartStep.trim()) {
                             return this.digitizationService.goToNextStep(this.barcodeForMaestro, this.deskConfig.maestroStartStep.trim())
-                        }else{
-                            this.alert.error( `Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk.`);
-                            return of({message:'Error setting the document in the next step in Maestro'});
+                        } else {
+                            this.alert.error(`Error setting record to the next step. Ask an admin to check "Maestro start step" in App configuration for current desk.`);
+                            return of({message: 'Error setting the document in the next step in Maestro'});
                         }
                     } else {
                         data.hasOwnProperty('error') ? this.alert.error('Error creating the document in Maestro. ', data.error) : null;
-                        return of({message:'Error creating the document in Maestro'});
+                        return of({message: 'Error creating the document in Maestro'});
                     }
                 }),
-                concatMap (() => this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
-                tap (() => this.successMessage.push (`Alma`))
+                concatMap(() => this.almaService.sendToDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
+                tap(() => this.successMessage.push(`Alma`))
             )
     }
 
-    private checkBarcodeStatusInAlmaAndMaestro() {
-      let inputText = this.barcode.nativeElement.value;
+    private checkBarcodeStatusInAlmaAndMaestro(inputText) {
         return this.getItemFromAlma(inputText)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
                 tap(AlmaItem => this.barcodeForMaestro = AlmaItem.item_data.barcode.toString()),
                 concatMap((AlmaItem): Observable<string> => {
-                    if (this.deskConfig.useMarcField){
-                        let field583x = '';
-                        return this.almaService.getField583x(AlmaItem.holding_data.link).pipe(
-                            tap(response => field583x = response),
-                            concatMap( response => response === '' ? of(true) : this.almaService.isField583xUnique(response, this.institution, this.almaUrl)),
-                            map((isField583xUnique: boolean): string => {
-                                if (!isField583xUnique){
-                                    let message = "Field 583x is not unique.";
-                                    throw new Error(message);
-                                }
-                                return field583x;
-                            }),
-                            tap(field583x => field583x ? this.barcodeForMaestro = field583x : null),
-                            map(() => this.barcodeForMaestro),
-                        )
+                        if (this.deskConfig.useMarcField) {
+                            let field583x = '';
+                            return this.almaService.getField583x(AlmaItem.holding_data.link).pipe(
+                                tap(response => field583x = response),
+                                concatMap(response => response === '' ? of(true) : this.almaService.isField583xUnique(response, this.institution, this.almaUrl)),
+                                map((isField583xUnique: boolean): string => {
+                                    if (!isField583xUnique) {
+                                        let message = "Field 583x is not unique.";
+                                        throw new Error(message);
+                                    }
+                                    return field583x;
+                                }),
+                                tap(field583x => field583x ? this.barcodeForMaestro = field583x : null),
+                                map(() => this.barcodeForMaestro),
+                            )
+                        }
+                        return of(this.barcodeForMaestro);
                     }
-                    return of(this.barcodeForMaestro);
-                }
                 ),
                 concatMap(barcodeForMaestro => this.checkStatusInDigitization(barcodeForMaestro))
             );
@@ -138,7 +147,7 @@ export class SendMaterialComponent{
     resetForm() {
         this.loading.emit(false);
         this.isSending = false;
-        this.itemFromAlma=null;
+        this.itemFromAlma = null;
         this.barcode.nativeElement.value = "";
         this.barcodeForMaestro = "";
     }
@@ -149,10 +158,10 @@ export class SendMaterialComponent{
     }
 
     private checkStatusInDigitization(barcode: string) {
-        return this.digitizationService.check(barcode,this.deskConfig)
+        return this.digitizationService.check(barcode, this.deskConfig)
             .pipe(
                 tap(data => {
-                    if(!this.digitizationService.isBarcodeNew(data)){
+                    if (!this.digitizationService.isBarcodeNew(data)) {
                         throw new Error(`Barcode "${barcode}" already exists in Maestro.`);
                     }
                 }),
@@ -160,22 +169,37 @@ export class SendMaterialComponent{
     }
 
     private showSuccessMessage() {
-        const title : string = this.itemFromAlma?.bib_data?.title;
-        this.alert.success(`${this.barcodeForMaestro} ${title ? `with the title "${title}"` : ''} is successfully sent to ${this.successMessage.join(' and ')}.`, { delay: 5000});
+        const title: string = this.itemFromAlma?.bib_data?.title;
+        this.alert.success(`${this.barcodeForMaestro} ${title ? `with the title "${title}"` : ''} is successfully sent to ${this.successMessage.join(' and ')}.`, {delay: 5000});
         this.successMessage = [];
     }
 
-    private throwErrorIfDoNotHaveRequest(request){
-      if (request.total_record_count < 1){
-          throw new Error("There is no request on this item!");
-      }
-      return request;
+    private throwErrorIfDoNotHaveRequest(request) {
+        if (request.total_record_count < 1) {
+            throw new Error("There is no request on this item!");
+        }
+        return request;
     }
 
     private checkIfdeskCodeIsDestination(request): boolean {
-      if (request.user_request && request.user_request[0]?.target_destination?.value){
-          return request.user_request[0]?.target_destination?.value === this.deskConfig?.deskCode;
-      }
+        console.log(request)
+        if (request.user_request && request.user_request[0]?.target_destination?.value) {
+            return request.user_request[0]?.target_destination?.value === this.deskConfig?.deskCode;
+        }
         return true;
+    }
+
+    private showCommentDialog(comment: string): Observable<boolean> {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            width: '26.5rem',
+            data: {
+                dialogTitle: 'Comment:',
+                dialogMessageLine1: `${comment}`,
+                yesButtonText: 'Send anyway',
+                noButtonText: "Don't send"
+            }
+        });
+
+        return dialogRef.afterClosed();
     }
 }

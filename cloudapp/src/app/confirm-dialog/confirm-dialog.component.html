@@ -1,0 +1,10 @@
+<div class="dialog-header accent-background">
+    <span class="dialog-header-title">{{data.dialogTitle}}</span>
+</div>
+<div class="dialog-content">
+    <p>{{data.dialogMessageLine1}}</p>
+</div>
+<div class="dialog-footer cloudapp-actions">
+    <button class="standard-button dialog-button" mat-raised-button [mat-dialog-close]="false">{{data.noButtonText}}</button>
+    <button mat-raised-button color="primary" [mat-dialog-close]="true">{{data.yesButtonText}}</button>
+</div>

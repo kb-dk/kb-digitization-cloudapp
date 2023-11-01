@@ -99,7 +99,7 @@ export class AlmaService {
          let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
         return [xmlDoc, MMSID];
       case 0:
-        throw new Error(`MMSID not exists.`);
+        throw new Error(`Barcode or MMSID not exists.`);
       default:
         throw new Error(`Field583x is not unique.`);
     }

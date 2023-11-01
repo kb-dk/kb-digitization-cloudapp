@@ -7,6 +7,11 @@
 </div>
 <h3><b>Desk code: </b> {{deskConfig.deskCode}} </h3>
 <div>
+    <mat-checkbox [(ngModel)]="checkComments">
+        <h3><b> Check comments</b></h3>
+    </mat-checkbox>
+</div>
+<div>
     <mat-checkbox [(ngModel)]="isFraktur" *ngIf="deskConfig.frakture">
         <h3><b> Fraktur</b></h3>
     </mat-checkbox>
