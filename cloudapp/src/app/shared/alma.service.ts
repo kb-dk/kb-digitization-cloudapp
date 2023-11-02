@@ -66,6 +66,7 @@ export class AlmaService {
       return this.getItemsFromBarcode(encodedBarcodeOrField583x);
     }
   }
+
   getItemsFromBarcode = (barcode:string) => this.restService.call(`/items?item_barcode=${barcode.trim()}`);
 
   getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMarcrecordFromField583x(field583x, institution, almaUrl).pipe(
@@ -86,26 +87,6 @@ export class AlmaService {
         map((xmlDoc: Document): [Document, string] => this.getMMSIDFromMarc(xmlDoc)),
         map(([xmlDoc, MMSID]): [string, string]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)])
     );
-
-
-  private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
-    if ((xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML)){
-      console.error(xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML);
-    }
-    let numberOfRecords: number;
-    numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
-    switch (numberOfRecords) {
-      case 1:
-         let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
-        return [xmlDoc, MMSID];
-      case 0:
-        throw new Error(`Barcode or MMSID not exists.`);
-      default:
-        throw new Error(`Field583x is not unique.`);
-    }
-  }
-
-  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromXML(xmlDoc, 'AVA', '8');
 
   getHoldingIdFromMMSID = (mmsid: string): Observable<[string, string]> => this.restService.call(`/bibs/${mmsid.trim()}/holdings`).pipe(
         map (holdings => holdings.hasOwnProperty('holding') && holdings['holding'][0] && holdings['holding'][0]['holding_id'] ? holdings['holding'][0]['holding_id'] : ''),
@@ -157,15 +138,6 @@ export class AlmaService {
     return true;
   }
 
-  private getFieldContentFromXML = (xmlDoc, tag, code): string => {
-    let fieldContent = xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
-    if (fieldContent.length === 1) {
-      return fieldContent[0].textContent;
-    } else {
-      return '';
-    }
-  }
-
   removeTemporaryLocation = (itemFromApi) => {
     let updatedItem = itemFromApi;
     if (updatedItem.holding_data.in_temp_location) {
@@ -180,6 +152,34 @@ export class AlmaService {
       return of('NoTemp');
     }
   }
+
+  private getFieldContentFromXML = (xmlDoc, tag, code): string => {
+    let fieldContent = xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
+    if (fieldContent.length === 1) {
+      return fieldContent[0].textContent;
+    } else {
+      return '';
+    }
+  }
+
+  private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
+    if ((xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML)){
+      console.error(xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML);
+    }
+    let numberOfRecords: number;
+    numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
+    switch (numberOfRecords) {
+      case 1:
+        let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
+        return [xmlDoc, MMSID];
+      case 0:
+        throw new Error(`Barcode or MMSID not exists.`);
+      default:
+        throw new Error(`Field583x is not unique.`);
+    }
+  }
+
+  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromXML(xmlDoc, 'AVA', '8');
 
   private libraryEqualsInstitution = (libCode: string, institution: string) => libCode === institution;
 }
