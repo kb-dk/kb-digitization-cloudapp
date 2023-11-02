@@ -77,6 +77,14 @@ export class ReceiveMaterialComponent{
                 concatMap(AlmaItem => this.deskConfig.useMarcField ? this.almaService.getField583x(AlmaItem.holding_data.link) : of('')),
                 tap(field583x => field583x ? this.barcodeForMaestro = field583x : null),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
+                concatMap(() => this.almaService.getRequestsFromItem(this.itemFromAlma.link)),
+                map((request) => [request, this.almaService.checkIfdeskCodeIsDestination(request, this.deskConfig?.deskCode)]),
+                map(([request, isDeskCodeCorrect]) => {
+                    if (!isDeskCodeCorrect) {
+                        throw new Error(`Desk code (${this.deskConfig.deskName}) doesn't match destination department of the request (${request.user_request[0]?.target_destination?.desc}).`);
+                    }
+                    return 'ok'
+                }),
             );
     }
 

@@ -131,18 +131,31 @@ export class AlmaService {
     );
 }
 
-  getField583x = (holdingLink) => this.restService.call(holdingLink).pipe(
-        map(response => response.hasOwnProperty('anies') && Array.isArray(response.anies) ? response.anies[0] : ''),
-        map(XMLText => new DOMParser().parseFromString(XMLText, "application/xml")),
-        map(xmlDoc => {
-          return this.getFieldContentFromXML(xmlDoc, '583', 'x');
-        }),
+  getHolding = (holdingLink) => this.restService.call(holdingLink);
+
+  getField583xFromHolding = (holding) => {
+    const XMLText = holding.hasOwnProperty('anies') && Array.isArray(holding.anies) ? holding.anies[0] : '';
+    const xmlDoc = new DOMParser().parseFromString(XMLText, "application/xml");
+    return this.getFieldContentFromXML(xmlDoc, '583', 'x');
+  }
+
+  getField583x(link) {
+    return this.getHolding(link).pipe(
+        map(holding => this.getField583xFromHolding(holding)),
         tap(field583x => {
           if (!field583x) {
             console.log("field583x has no value");
           }
         }),
-      )
+    )
+  }
+
+  checkIfdeskCodeIsDestination(request, deskCode): boolean {
+    if (request.user_request && request.user_request[0]?.target_destination?.value) {
+      return request.user_request[0]?.target_destination?.value === deskCode;
+    }
+    return true;
+  }
 
   private getFieldContentFromXML = (xmlDoc, tag, code): string => {
     let fieldContent = xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);

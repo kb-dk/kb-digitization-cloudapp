@@ -55,7 +55,7 @@ export class SendMaterialComponent {
                         // Check if there is a request (only for DIGINAT)
                         // and if there is a request check if the destination department matches the current desk
                         map((request) => checkRequestBeforeSending ? this.throwErrorIfDoNotHaveRequest(request) : request),
-                        map((request) => [request, this.checkIfdeskCodeIsDestination(request)]),
+                        map((request) => [request, this.almaService.checkIfdeskCodeIsDestination(request, this.deskConfig?.deskCode)]),
                         map(([request, isDeskCodeCorrect]) => {
                             if (!isDeskCodeCorrect) {
                                 throw new Error(`Desk code (${this.deskConfig.deskName}) doesn't match destination department of the request (${request.user_request[0]?.target_destination?.desc}).`);
@@ -179,14 +179,6 @@ export class SendMaterialComponent {
             throw new Error("There is no request on this item!");
         }
         return request;
-    }
-
-    private checkIfdeskCodeIsDestination(request): boolean {
-        console.log(request)
-        if (request.user_request && request.user_request[0]?.target_destination?.value) {
-            return request.user_request[0]?.target_destination?.value === this.deskConfig?.deskCode;
-        }
-        return true;
     }
 
     private showCommentDialog(comment: string): Observable<boolean> {
