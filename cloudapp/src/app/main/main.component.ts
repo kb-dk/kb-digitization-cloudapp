@@ -1,6 +1,5 @@
 import { Component, ElementRef,ViewChild, OnInit } from '@angular/core';
 import {
-    CloudAppRestService,
     CloudAppEventsService,
     AlertService,
     CloudAppConfigService,
@@ -25,7 +24,6 @@ export class MainComponent implements OnInit {
 
   constructor(
       private configService: CloudAppConfigService,
-      private restService: CloudAppRestService,
       private eventsService: CloudAppEventsService,
       private alert: AlertService,
   ) { }
@@ -33,6 +31,7 @@ export class MainComponent implements OnInit {
   ngOnInit() {
       this.loading = true;
       this.eventsService.getInitData().subscribe(data => {
+          console.log(data);
           this.currentlyAtLibCode = data.user.currentlyAtLibCode;
           this.currentlyAtDeptCode = data.user['currentlyAtDept'];
           this.institution = data.instCode;
