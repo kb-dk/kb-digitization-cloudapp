@@ -1,14 +1,20 @@
 import { waitForAsync, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MainComponent } from './main.component';
-import {AlertModule, MaterialModule} from '@exlibris/exl-cloudapp-angular-lib';
-import {BrowserModule} from "@angular/platform-browser";
+import {AlertModule, CloudAppEventsService, CloudAppConfigService, MaterialModule} from '@exlibris/exl-cloudapp-angular-lib';
+import {BrowserModule, By} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AppRoutingModule} from "../app-routing.module";
 import {HttpClientModule} from "@angular/common/http";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {EMPTY_CONFIG, INIT_DATA} from "../shared/test-data";
+import {of} from "rxjs";
 describe('MainComponent', () => {
     let component: MainComponent;
     let fixture: ComponentFixture<MainComponent>;
+    let eventsService: CloudAppEventsService;
+    let configService: CloudAppConfigService;
+    let spy: jasmine.Spy;
+
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             imports: [
@@ -22,15 +28,34 @@ describe('MainComponent', () => {
                 ReactiveFormsModule
             ],
             declarations: [ MainComponent ],
+            providers: [
+                CloudAppEventsService,
+                CloudAppConfigService
+            ]
         })
             .compileComponents();
     }));
     beforeEach(() => {
         fixture = TestBed.createComponent(MainComponent);
         component = fixture.componentInstance;
+
+        eventsService = fixture.debugElement.injector.get(CloudAppEventsService);
+        spy = spyOn<any>(eventsService, 'getInitData').and.callFake(() => {
+            return of(INIT_DATA);
+        });
+        configService = fixture.debugElement.injector.get(CloudAppConfigService);
+        spy = spyOn<any>(configService, 'get').and.callFake(() => {
+            return of(EMPTY_CONFIG);
+        });
         fixture.detectChanges();
     });
+
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should show a message if config is empty', fakeAsync(() => {
+        const emptyConfigMessage = fixture.debugElement.query(By.css(".empty-config"));
+        expect(emptyConfigMessage.nativeElement.innerText).toContain('Please ask an Admin to configure this App');
+    }));
 })
