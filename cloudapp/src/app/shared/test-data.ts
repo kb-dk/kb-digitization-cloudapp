@@ -73,3 +73,227 @@ export const INIT_DATA = {
 }
 
 export const EMPTY_CONFIG = {}
+
+export const CONFIG = {
+  "serviceUrl": "https://mae-api-test-01.kb.dk/api/",
+  "apiKey": "ff74e7fb2254dd3ce3703ae049432615cb7a8c9cf3d947c5b99d846e6ee5073149932f2eec7f1585a8dd72f712a2864b0037f17dbf59dd86dc7773e687602692",
+  "paramNames": [
+    "field[project_id]",
+    "field[customer_id]",
+    "field[job_id]",
+    "field[step_id]"
+  ],
+  "desks": [
+    {
+      "deskName": "Lindhardt og Ringhof - København",
+      "deskCode": "DIGI_L-og-R_Kbh",
+      "workOrderType": "Digiproj",
+      "maestroStartStep": "KBH bog oprettet",
+      "maestroFinishStep": "KBH Bog modtages (KAT)",
+      "multiform": "",
+      "frakture": "",
+      "showTitle": "",
+      "useMarcField": "",
+      "removeTempLocation": "",
+      "params": [
+        {
+          "key": null,
+          "value": "31"
+        },
+        {
+          "key": null,
+          "value": "7"
+        },
+        {
+          "key": null,
+          "value": "48"
+        },
+        {
+          "key": null,
+          "value": "25"
+        }
+      ]
+    },
+    {
+      "deskName": "Lindhardt og Ringhof uden Alma publicering_10068",
+      "deskCode": "Digiproj_10068",
+      "workOrderType": "Digiproj",
+      "maestroStartStep": "KBH bog oprettet",
+      "maestroFinishStep": "KBH Bog returnere",
+      "multiform": "",
+      "frakture": "",
+      "showTitle": "",
+      "useMarcField": "",
+      "removeTempLocation": "",
+      "params": [
+        {
+          "key": "field[project_id]",
+          "value": "9"
+        },
+        {
+          "key": "field[customer_id]",
+          "value": "7"
+        },
+        {
+          "key": "field[job_id]",
+          "value": "49"
+        },
+        {
+          "key": "field[step_id]",
+          "value": "25"
+        }
+      ]
+    },
+    {
+      "deskName": "The Black Diamond, Copenhagen - Nationalbibliotekets digitalisering",
+      "deskCode": "DIGINAT",
+      "workOrderType": "",
+      "maestroStartStep": "KBH bog oprettet",
+      "maestroFinishStep": "KBH Bog modtages (KAT)",
+      "multiform": true,
+      "frakture": true,
+      "showTitle": "",
+      "useMarcField": "",
+      "removeTempLocation": true,
+      "params": [
+        {
+          "key": "field[project_id]",
+          "value": "3"
+        },
+        {
+          "key": "field[customer_id]",
+          "value": "2"
+        },
+        {
+          "key": "field[job_id]",
+          "value": "32"
+        },
+        {
+          "key": "field[step_id]",
+          "value": "25"
+        }
+      ]
+    },
+    {
+      "deskName": "Arkitekturtegninger Adhoc_10020",
+      "deskCode": "Digiproj_10020",
+      "workOrderType": "Digiproj",
+      "maestroStartStep": "KBH billedværk oprettet",
+      "maestroFinishStep": "KBH billedværk modtages (SAMLINGS-EJER)",
+      "multiform": true,
+      "frakture": true,
+      "showTitle": true,
+      "useMarcField": true,
+      "removeTempLocation": "",
+      "params": [
+        {
+          "key": "field[project_id]",
+          "value": "37"
+        },
+        {
+          "key": "field[customer_id]",
+          "value": "20"
+        },
+        {
+          "key": "field[job_id]",
+          "value": "54"
+        },
+        {
+          "key": "field[step_id]",
+          "value": "69"
+        }
+      ]
+    },
+    {
+      "deskName": "Pligtafl. kort_10008",
+      "deskCode": "Digiproj_1008",
+      "workOrderType": "Digiproj",
+      "maestroStartStep": "KBH billedværk oprettet",
+      "maestroFinishStep": "KBH billedværk modtages (SAMLINGS-EJER)",
+      "multiform": "",
+      "frakture": "",
+      "showTitle": true,
+      "useMarcField": true,
+      "removeTempLocation": "",
+      "params": [
+        {
+          "key": "field[project_id]",
+          "value": "40"
+        },
+        {
+          "key": "field[customer_id]",
+          "value": "10"
+        },
+        {
+          "key": "field[job_id]",
+          "value": "59"
+        },
+        {
+          "key": "field[step_id]",
+          "value": "69"
+        }
+      ]
+    },
+    {
+      "deskName": "Atelierbestilling_Billeder_10006",
+      "deskCode": "Digiproj_10006_B",
+      "workOrderType": "Digiproj",
+      "maestroStartStep": "KBH billedværk oprettet",
+      "maestroFinishStep": "KBH billedværk modtages (SAMLINGS-EJER)",
+      "multiform": "",
+      "frakture": "",
+      "showTitle": true,
+      "useMarcField": true,
+      "removeTempLocation": "",
+      "params": [
+        {
+          "key": "field[project_id]",
+          "value": "32"
+        },
+        {
+          "key": "field[customer_id]",
+          "value": "18"
+        },
+        {
+          "key": "field[job_id]",
+          "value": "51"
+        },
+        {
+          "key": "field[step_id]",
+          "value": "69"
+        }
+      ]
+    },
+    {
+      "deskName": "Atelierbestilling_Kort_10006",
+      "deskCode": "Digiproj_10006",
+      "workOrderType": "Digiproj",
+      "maestroStartStep": "KBH billedværk oprettet",
+      "maestroFinishStep": "KBH billedværk modtages (SAMLINGS-EJER)",
+      "multiform": "",
+      "frakture": "",
+      "showTitle": true,
+      "useMarcField": true,
+      "removeTempLocation": false,
+      "params": [
+        {
+          "key": "field[project_id]",
+          "value": "32"
+        },
+        {
+          "key": "field[customer_id]",
+          "value": "18"
+        },
+        {
+          "key": "field[job_id]",
+          "value": "51"
+        },
+        {
+          "key": "field[step_id]",
+          "value": "69"
+        }
+      ]
+    }
+  ],
+  "institution": "45KBDK_KGL"
+}

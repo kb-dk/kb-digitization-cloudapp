@@ -6,14 +6,15 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AppRoutingModule} from "../app-routing.module";
 import {HttpClientModule} from "@angular/common/http";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {EMPTY_CONFIG, INIT_DATA} from "../shared/test-data";
+import {CONFIG, EMPTY_CONFIG, INIT_DATA} from "../shared/test-data";
 import {of} from "rxjs";
 describe('MainComponent', () => {
     let component: MainComponent;
     let fixture: ComponentFixture<MainComponent>;
     let eventsService: CloudAppEventsService;
     let configService: CloudAppConfigService;
-    let spy: jasmine.Spy;
+    let spyEvent: jasmine.Spy;
+    let spyConfig: jasmine.Spy;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
@@ -40,14 +41,14 @@ describe('MainComponent', () => {
         component = fixture.componentInstance;
 
         eventsService = fixture.debugElement.injector.get(CloudAppEventsService);
-        spy = spyOn<any>(eventsService, 'getInitData').and.callFake(() => {
+        spyEvent = spyOn<any>(eventsService, 'getInitData').and.callFake(() => {
             return of(INIT_DATA);
         });
         configService = fixture.debugElement.injector.get(CloudAppConfigService);
-        spy = spyOn<any>(configService, 'get').and.callFake(() => {
-            return of(EMPTY_CONFIG);
+        spyConfig = spyOn<any>(configService, 'get').and.callFake(() => {
+            return of(CONFIG);
         });
-        fixture.detectChanges();
+        // fixture.detectChanges();
     });
 
     it('should create', () => {
@@ -55,6 +56,9 @@ describe('MainComponent', () => {
     });
 
     it('should show a message if config is empty', fakeAsync(() => {
+        spyConfig.and.returnValue(of(EMPTY_CONFIG));
+        fixture.detectChanges();
+
         const emptyConfigMessage = fixture.debugElement.query(By.css(".empty-config"));
         expect(emptyConfigMessage.nativeElement.innerText).toContain('Please ask an Admin to configure this App');
     }));
