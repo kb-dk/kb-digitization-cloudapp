@@ -19,7 +19,7 @@ describe('MainComponent', () => {
     let fixture: ComponentFixture<MainComponent>;
     let eventsService: CloudAppEventsService;
     let configService: CloudAppConfigService;
-    let alertService: AlertService;
+    let alert: AlertService;
     let spyEvent: jasmine.Spy;
     let spyConfig: jasmine.Spy;
     let spyAlert: jasmine.Spy;
@@ -59,7 +59,7 @@ describe('MainComponent', () => {
             return of(CONFIG);
         });
 
-        alertService = fixture.debugElement.injector.get(AlertService);
+        alert = fixture.debugElement.injector.get(AlertService);
         // spyAlert = spyOn<any>(alertService, 'alert').and.callFake(() => {
         //     return of('');
         // });
@@ -75,8 +75,7 @@ describe('MainComponent', () => {
     describe('should show an alert with error if ', () => {
         // Problem with alertservice
 
-        xit('desk is not chosen in Alma', (() => {
-            // Problem with alertservice
+        xit('desk is not chosen in Alma', (done) => {
             let init_data = INIT_DATA;
             init_data.user.currentlyAtDept = undefined;
             spyEvent.and.returnValue(of(init_data));
@@ -84,7 +83,7 @@ describe('MainComponent', () => {
 
             const alertBox = fixture.debugElement.query(By.css(".alert-danger"));
             expect(alertBox?.nativeElement?.innerText).toContain('Please select a Desk in Alma first.');
-        }));
+        });
 
         xit('desk is not defined in App configuration', fakeAsync(() => {
             let init_data = INIT_DATA;
