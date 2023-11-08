@@ -14,6 +14,7 @@ import {HttpClientModule} from "@angular/common/http";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {CONFIG, EMPTY_CONFIG, INIT_DATA} from "../shared/test-data";
 import {of} from "rxjs";
+import {Component} from "@angular/core";
 describe('MainComponent', () => {
     let component: MainComponent;
     let fixture: ComponentFixture<MainComponent>;
@@ -60,9 +61,9 @@ describe('MainComponent', () => {
         });
 
         alert = fixture.debugElement.injector.get(AlertService);
-        // spyAlert = spyOn<any>(alertService, 'alert').and.callFake(() => {
-        //     return of('');
-        // });
+        spyAlert = spyOn<any>(alert, 'alert').and.callFake(() => {
+            return of('');
+        });
     });
 
     describe('should create ', () => {
@@ -73,40 +74,39 @@ describe('MainComponent', () => {
     });
 
     describe('should show an alert with error if ', () => {
-        // Problem with alertservice
 
-        xit('desk is not chosen in Alma', (done) => {
+        it('desk is not chosen in Alma', () => {
             let init_data = INIT_DATA;
             init_data.user.currentlyAtDept = undefined;
             spyEvent.and.returnValue(of(init_data));
+
             fixture.detectChanges();
 
-            const alertBox = fixture.debugElement.query(By.css(".alert-danger"));
-            expect(alertBox?.nativeElement?.innerText).toContain('Please select a Desk in Alma first.');
+            expect(spyAlert).toHaveBeenCalled();
         });
 
-        xit('desk is not defined in App configuration', fakeAsync(() => {
+        it('desk is not defined in App configuration', () => {
             let init_data = INIT_DATA;
             init_data.user.currentlyAtDept = 'NotDefinedInConfig';
             spyEvent.and.returnValue(of(init_data));
+
             fixture.detectChanges();
 
-            const alertBox = fixture.debugElement.query(By.css(".alert-danger"));
-            expect(alertBox?.nativeElement?.innerText).toContain(`The desk you are at ( with desk code: "${init_data.user.currentlyAtDept}" ), is not defined in the app.`);
-        }));
+            expect(spyAlert).toHaveBeenCalled();
+        });
 
-        xit('config is empty', fakeAsync(() => {
+        it('config is empty', () => {
             spyConfig.and.returnValue(of(EMPTY_CONFIG));
+
             fixture.detectChanges();
 
-            const emptyConfigMessage = fixture.debugElement.query(By.css(".alert-danger"));
-            expect(emptyConfigMessage.nativeElement.innerText).toContain('Please ask an Admin to configure this App');
-        }));
+            expect(spyAlert).toHaveBeenCalled();
+        });
 
     });
 
     describe('should input label ', () => {
-        it('be "Barcode" if "useMarcField" is "false".', (() => {
+        it('be "Barcode" if "useMarcField" is "false".', () => {
             let config = CONFIG;
             config.desks[4].useMarcField = false;
             spyConfig.and.returnValue(of(config));
@@ -114,9 +114,9 @@ describe('MainComponent', () => {
             fixture.detectChanges();
 
             expect(component.inputLabel).toBe(`Barcode`);
-        }));
+        });
 
-        it('be "Barcode or field583x" if "useMarcField" is "true".', (() => {
+        it('be "Barcode or field583x" if "useMarcField" is "true".', () => {
             let config = CONFIG;
             config.desks[4].useMarcField = true;
             spyConfig.and.returnValue(of(config));
@@ -124,6 +124,6 @@ describe('MainComponent', () => {
             fixture.detectChanges();
 
             expect(component.inputLabel).toBe(`Barcode or field583x`);
-        }));
+        });
     });
 })
