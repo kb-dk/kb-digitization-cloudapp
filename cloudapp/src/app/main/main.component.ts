@@ -30,7 +30,6 @@ export class MainComponent implements OnInit {
   ngOnInit() {
       this.loading = true;
       this.eventsService.getInitData().subscribe(data => {
-          console.log(data);
           this.currentlyAtLibCode = data.user.currentlyAtLibCode;
           this.currentlyAtDeptCode = data.user['currentlyAtDept'];
           this.institution = data.instCode;
