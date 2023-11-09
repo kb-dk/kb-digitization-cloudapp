@@ -82,8 +82,8 @@ describe('MainComponent', () => {
             spyEvent.and.returnValue(of(init_data));
 
             fixture.detectChanges();
-
-            expect(spyAlert).toHaveBeenCalled();
+            // jasmine.objectContaining({ message: "Please select a Desk in Alma first." })
+            expect(spyAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: "Please select a Desk in Alma first." }));
         });
 
         it('desk is not defined in App configuration', () => {
@@ -93,7 +93,7 @@ describe('MainComponent', () => {
 
             fixture.detectChanges();
 
-            expect(spyAlert).toHaveBeenCalled();
+            expect(spyAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: 'The desk you are at ( with desk code: "NotDefinedInConfig" ), is not defined in the app.' }));
         });
 
         it('config is empty', () => {
@@ -101,7 +101,7 @@ describe('MainComponent', () => {
 
             fixture.detectChanges();
 
-            expect(spyAlert).toHaveBeenCalled();
+            expect(spyAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: "Please ask an Admin to configure this App." }));
         });
 
     });
@@ -126,7 +126,8 @@ describe('MainComponent', () => {
 
             expect(component.inputLabel).toBe(`Barcode or field583x`);
         });
-    });
+    }
+    );
 
     afterEach(() => {
         spyEvent.calls.reset();
