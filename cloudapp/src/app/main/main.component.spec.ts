@@ -62,7 +62,7 @@ describe('MainComponent', () => {
         });
 
         mockAlertService = fixture.debugElement.injector.get(AlertService);
-        spyAlert = spyOn<any>(alert, 'alert').and.callFake(() => {
+        spyAlert = spyOn<any>(mockAlertService, 'alert').and.callFake(() => {
             return of('');
         });
     });
@@ -82,7 +82,6 @@ describe('MainComponent', () => {
             spyEvent.and.returnValue(of(init_data));
 
             fixture.detectChanges();
-            // jasmine.objectContaining({ message: "Please select a Desk in Alma first." })
             expect(spyAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: "Please select a Desk in Alma first." }));
         });
 
