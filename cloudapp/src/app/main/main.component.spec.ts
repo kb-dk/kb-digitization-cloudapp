@@ -18,9 +18,9 @@ import {Component} from "@angular/core";
 describe('MainComponent', () => {
     let component: MainComponent;
     let fixture: ComponentFixture<MainComponent>;
-    let eventsService: CloudAppEventsService;
-    let configService: CloudAppConfigService;
-    let alert: AlertService;
+    let mockEventsService: CloudAppEventsService;
+    let mockConfigService: CloudAppConfigService;
+    let mockAlertService: AlertService;
     let spyEvent: jasmine.Spy;
     let spyConfig: jasmine.Spy;
     let spyAlert: jasmine.Spy;
@@ -51,17 +51,17 @@ describe('MainComponent', () => {
         fixture = TestBed.createComponent(MainComponent);
         component = fixture.componentInstance;
 
-        eventsService = fixture.debugElement.injector.get(CloudAppEventsService);
-        spyEvent = spyOn<any>(eventsService, 'getInitData').and.callFake(() => {
+        mockEventsService = fixture.debugElement.injector.get(CloudAppEventsService);
+        spyEvent = spyOn<any>(mockEventsService, 'getInitData').and.callFake(() => {
             return of(INIT_DATA);
         });
 
-        configService = fixture.debugElement.injector.get(CloudAppConfigService);
-        spyConfig = spyOn<any>(configService, 'get').and.callFake(() => {
+        mockConfigService = fixture.debugElement.injector.get(CloudAppConfigService);
+        spyConfig = spyOn<any>(mockConfigService, 'get').and.callFake(() => {
             return of(CONFIG);
         });
 
-        alert = fixture.debugElement.injector.get(AlertService);
+        mockAlertService = fixture.debugElement.injector.get(AlertService);
         spyAlert = spyOn<any>(alert, 'alert').and.callFake(() => {
             return of('');
         });
