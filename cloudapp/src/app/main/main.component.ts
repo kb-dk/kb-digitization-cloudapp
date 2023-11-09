@@ -40,9 +40,9 @@ export class MainComponent implements OnInit {
               if (config.desks && this.currentlyAtDeptCode) {
                   this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
               }
-              if (this.currentlyAtDeptCode == undefined) {
+              if (this.currentlyAtDeptCode === undefined) {
                   this.alert.error(`Please select a Desk in Alma first.`);
-              } else if (this.deskConfig == undefined) {
+              } else if (this.deskConfig === undefined) {
                   this.alert.error(`The desk you are at ( with desk code: "${this.currentlyAtDeptCode}" ), is not defined in the app.`);
               }
               this.inputLabel = this.deskConfig?.useMarcField ? 'Barcode or field583x' : 'Barcode';
