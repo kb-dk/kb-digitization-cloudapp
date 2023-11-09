@@ -46,6 +46,7 @@ describe('MainComponent', () => {
         })
             .compileComponents();
     }));
+
     beforeEach(() => {
         fixture = TestBed.createComponent(MainComponent);
         component = fixture.componentInstance;
@@ -76,7 +77,7 @@ describe('MainComponent', () => {
     describe('should show an alert with error if ', () => {
 
         it('desk is not chosen in Alma', () => {
-            let init_data = INIT_DATA;
+            let init_data = JSON.parse(JSON.stringify(INIT_DATA));
             init_data.user.currentlyAtDept = undefined;
             spyEvent.and.returnValue(of(init_data));
 
@@ -86,7 +87,7 @@ describe('MainComponent', () => {
         });
 
         it('desk is not defined in App configuration', () => {
-            let init_data = INIT_DATA;
+            let init_data = JSON.parse(JSON.stringify(INIT_DATA));
             init_data.user.currentlyAtDept = 'NotDefinedInConfig';
             spyEvent.and.returnValue(of(init_data));
 
@@ -107,7 +108,7 @@ describe('MainComponent', () => {
 
     describe('should input label ', () => {
         it('be "Barcode" if "useMarcField" is "false".', () => {
-            let config = CONFIG;
+            let config = JSON.parse(JSON.stringify(CONFIG));
             config.desks[4].useMarcField = false;
             spyConfig.and.returnValue(of(config));
 
@@ -117,7 +118,7 @@ describe('MainComponent', () => {
         });
 
         it('be "Barcode or field583x" if "useMarcField" is "true".', () => {
-            let config = CONFIG;
+            let config = JSON.parse(JSON.stringify(CONFIG));
             config.desks[4].useMarcField = true;
             spyConfig.and.returnValue(of(config));
 
@@ -125,5 +126,12 @@ describe('MainComponent', () => {
 
             expect(component.inputLabel).toBe(`Barcode or field583x`);
         });
+    });
+
+    afterEach(() => {
+        spyEvent.calls.reset();
+        spyConfig.calls.reset();
+        spyAlert.calls.reset();
+
     });
 })
