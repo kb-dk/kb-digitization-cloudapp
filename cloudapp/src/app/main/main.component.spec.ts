@@ -25,7 +25,8 @@ describe('MainComponent', () => {
     let mockAlertService: AlertService;
     let spyEvent: jasmine.Spy;
     let spyConfig: jasmine.Spy;
-    let spyAlert: jasmine.Spy;
+    let spyAlertServiceAlert: jasmine.Spy;
+    let spyAlertServiceSuccess: jasmine.Spy;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
@@ -65,7 +66,10 @@ describe('MainComponent', () => {
         });
 
         mockAlertService = fixture.debugElement.injector.get(AlertService);
-        spyAlert = spyOn<any>(mockAlertService, 'alert').and.callFake(() => {
+        spyAlertServiceAlert = spyOn<any>(mockAlertService, 'alert').and.callFake(() => {
+            return of('');
+        });
+        spyAlertServiceSuccess = spyOn<any>(mockAlertService, 'success').and.callFake(() => {
             return of('');
         });
     });
@@ -95,7 +99,7 @@ describe('MainComponent', () => {
 
             fixture.detectChanges();
 
-            expect(spyAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: 'The desk you are at ( with desk code: "NotDefinedInConfig" ), is not defined in the app.' }));
+            expect(spyAlertServiceAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: 'The desk you are at ( with desk code: "NotDefinedInConfig" ), is not defined in the app.' }));
         });
 
         it('config is empty', () => {
@@ -103,7 +107,7 @@ describe('MainComponent', () => {
 
             fixture.detectChanges();
 
-            expect(spyAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: "Please ask an Admin to configure this App." }));
+            expect(spyAlertServiceAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: "Please ask an Admin to configure this App." }));
         });
 
     });
@@ -134,7 +138,7 @@ describe('MainComponent', () => {
     afterEach(() => {
         spyEvent.calls.reset();
         spyConfig.calls.reset();
-        spyAlert.calls.reset();
+        spyAlertServiceAlert.calls.reset();
 
     });
 })
