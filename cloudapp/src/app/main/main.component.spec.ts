@@ -14,7 +14,9 @@ import {HttpClientModule} from "@angular/common/http";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {CONFIG, EMPTY_CONFIG, INIT_DATA} from "../shared/test-data";
 import {of} from "rxjs";
-import {Component} from "@angular/core";
+import {Component, NO_ERRORS_SCHEMA} from "@angular/core";
+import {SendMaterialComponent} from "../send-material/send-material.component";
+import {ReceiveMaterialComponent} from "../receive-material/receive-material.component";
 describe('MainComponent', () => {
     let component: MainComponent;
     let fixture: ComponentFixture<MainComponent>;
@@ -38,6 +40,7 @@ describe('MainComponent', () => {
                 ReactiveFormsModule
             ],
             declarations: [ MainComponent ],
+            schemas: [NO_ERRORS_SCHEMA],
             providers: [
                 CloudAppEventsService,
                 CloudAppConfigService,
