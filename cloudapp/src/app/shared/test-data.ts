@@ -431,7 +431,7 @@ export const DOD_ITEM_WITH_REQUEST= {
     "link": "/almaws/v1/bibs/99124813044205763/holdings/222248397400005763/items/232248397380005763"
 }
 
-export const REQUEST_RESPONSE_DOD_WITH_REQUEST = {
+export const REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT = {
     "user_request": [
     {
         "title": "Engelsk Begynderbog : med Billeder og fuldstændig Udtalebetegnelse / Otto Jespersen og Chr. Sarauw.",
@@ -743,7 +743,7 @@ export const WORK_ORDER_ITEM_WITH_REQUEST = {
     "link": "/almaws/v1/bibs/99122132364105763/holdings/221701562620005763/items/231701562580005763"
 }
 
-export const REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST = {
+export const REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT = {
     "user_request": [
         {
             "title": "The homeland / by Hamida Na'na' ; translated by Martin Asser.",
