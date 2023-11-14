@@ -40,7 +40,6 @@ export class SendMaterialComponent {
     }
 
     sendToDigitization() {
-        console.log(this.checkComments)
         let inputText = this.barcode.nativeElement.value;
         if (inputText) {
             // TODO: Add this to desk config in configuration
@@ -62,7 +61,7 @@ export class SendMaterialComponent {
                             }
                             return request
                         }),
-                        tap(request => console.log(request)),
+                        tap(data => console.log('checkComments', this.checkComments , data?.user_request[0])),
                         concatMap(request => this.checkComments && request?.user_request[0]?.comment ? this.showCommentDialog(request.user_request[0].comment) : of(true)),
                     )
                     .pipe(
@@ -182,6 +181,7 @@ export class SendMaterialComponent {
     }
 
     private showCommentDialog(comment: string): Observable<boolean> {
+        console.log("in dialog")
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '26.5rem',
             data: {

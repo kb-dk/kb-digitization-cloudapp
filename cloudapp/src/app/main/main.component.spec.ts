@@ -89,7 +89,8 @@ describe('MainComponent', () => {
             spyEvent.and.returnValue(of(init_data));
 
             fixture.detectChanges();
-            expect(spyAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: "Please select a Desk in Alma first." }));
+
+            expect(spyAlertServiceAlert).toHaveBeenCalledWith(jasmine.objectContaining({ message: "Please select a Desk in Alma first." }));
         });
 
         it('desk is not defined in App configuration', () => {
