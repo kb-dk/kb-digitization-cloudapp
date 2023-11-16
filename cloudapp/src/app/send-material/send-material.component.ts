@@ -61,7 +61,6 @@ export class SendMaterialComponent {
                             }
                             return request
                         }),
-                        tap(data => console.log('checkComments', this.checkComments , data?.user_request[0])),
                         concatMap(request => this.checkComments && request?.user_request[0]?.comment ? this.showCommentDialog(request.user_request[0].comment) : of(true)),
                     )
                     .pipe(
@@ -114,7 +113,7 @@ export class SendMaterialComponent {
             )
     }
 
-    private checkBarcodeStatusInAlmaAndMaestro(inputText) {
+    checkBarcodeStatusInAlmaAndMaestro(inputText) {
         return this.getItemFromAlma(inputText)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
@@ -181,7 +180,6 @@ export class SendMaterialComponent {
     }
 
     private showCommentDialog(comment: string): Observable<boolean> {
-        console.log("in dialog")
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '26.5rem',
             data: {

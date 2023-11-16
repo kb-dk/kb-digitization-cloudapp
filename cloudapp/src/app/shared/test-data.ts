@@ -297,7 +297,7 @@ export const CONFIG = {
     "institution": "45KBDK_KGL"
 }
 
-export const DOD_ITEM_WITH_REQUEST= {
+export const DOD_ITEM_WITH_REQUEST = {
     "bib_data": {
         "title": "Engelsk Begynderbog : med Billeder og fuldstændig Udtalebetegnelse /",
         "author": "Jespersen, Otto.",
@@ -431,43 +431,186 @@ export const DOD_ITEM_WITH_REQUEST= {
     "link": "/almaws/v1/bibs/99124813044205763/holdings/222248397400005763/items/232248397380005763"
 }
 
-export const REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT = {
-    "user_request": [
-    {
-        "title": "Engelsk Begynderbog : med Billeder og fuldstændig Udtalebetegnelse / Otto Jespersen og Chr. Sarauw.",
-        "volume": "",
-        "issue": "",
-        "part": "",
-        "comment": "test DOD",
-        "user_primary_id": "user_id",
-        "request_id": "48739955550005763",
-        "additional_id": "5555",
-        "request_type": "DIGITIZATION",
-        "request_sub_type": {
+export const DOD_ITEM_WITH_REQUEST_AFTER_SCANNING = {
+    "bib_data": {
+        "title": "Engelsk Begynderbog : med Billeder og fuldstændig Udtalebetegnelse /",
+        "author": "Jespersen, Otto.",
+        "mms_id": "99124813044205763",
+        "bib_suppress_from_publishing": "false",
+        "complete_edition": "5. Oplag.",
+        "network_number": [
+            "(EXLNZ-45KBDK_NETWORK)996897453505761"
+        ],
+        "place_of_publication": "Kbh.,",
+        "date_of_publication": "1906.",
+        "link": "/almaws/v1/bibs/99124813044205763"
+    },
+    "holding_data": {
+        "holding_id": "222248397400005763",
+        "holding_suppress_from_publishing": "false",
+        "calculated_suppress_from_publishing": "false",
+        "permanent_call_number_type": {
+            "value": "8",
+            "desc": "Other scheme"
+        },
+        "permanent_call_number": "47,-382 8°",
+        "call_number_type": {
+            "value": "8",
+            "desc": "Other scheme"
+        },
+        "call_number": "47,-382 8°",
+        "accession_number": "",
+        "copy_id": "",
+        "in_temp_location": true,
+        "temp_library": {
+            "value": "KBL",
+            "desc": "The Black Diamond, Copenhagen"
+        },
+        "temp_location": {
+            "value": "LFDOD",
+            "desc": "Digitalisering eller læsesal"
+        },
+        "temp_call_number_type": {
+            "value": ""
+        },
+        "temp_call_number": "",
+        "temp_call_number_source": "",
+        "temp_policy": {
+            "value": ""
+        },
+        "link": "/almaws/v1/bibs/99124813044205763/holdings/222248397400005763"
+    },
+    "item_data": {
+        "pid": "232248397380005763",
+        "barcode": "KB756571",
+        "policy": {
+            "value": ""
+        },
+        "provenance": {
+            "value": ""
+        },
+        "description": "",
+        "library": {
+            "value": "KBL",
+            "desc": "The Black Diamond, Copenhagen"
+        },
+        "location": {
+            "value": "LFVINGEX",
+            "desc": "Generisk Vinge læsesalslån"
+        },
+        "pages": "",
+        "pieces": "",
+        "requested": true,
+        "creation_date": "2023-05-24Z",
+        "modification_date": "2023-05-24Z",
+        "base_status": {
+            "value": "0",
+            "desc": "Item not in place"
+        },
+        "awaiting_reshelving": false,
+        "physical_material_type": {
+            "value": "BOOK",
+            "desc": "Book"
+        },
+        "po_line": "",
+        "is_magnetic": false,
+        "year_of_issue": "",
+        "enumeration_a": "",
+        "enumeration_b": "",
+        "enumeration_c": "",
+        "enumeration_d": "",
+        "enumeration_e": "",
+        "enumeration_f": "",
+        "enumeration_g": "",
+        "enumeration_h": "",
+        "chronology_i": "",
+        "chronology_j": "",
+        "chronology_k": "",
+        "chronology_l": "",
+        "chronology_m": "",
+        "break_indicator": {
+            "value": ""
+        },
+        "pattern_type": {
+            "value": ""
+        },
+        "linking_number": "",
+        "type_of_unit": "",
+        "receiving_operator": "pma",
+        "process_type": {
+            "value": "WORK_ORDER_DEPARTMENT",
+            "desc": "In Process"
+        },
+        "work_order_type": {
             "value": "PHYSICAL_TO_DIGITIZATION",
             "desc": "Patron digitization request"
         },
-        "mms_id": "99124813044205763",
-        "holding_id": "439545770005763*25343461470005763*47,-382 8°",
-        "managed_by_library": "The Black Diamond, Copenhagen",
-        "managed_by_circulation_desk": "Forskningslæsesalen, Den Sorte Diamant",
-        "managed_by_library_code": "KBL",
-        "managed_by_circulation_desk_code": "DEFAULT_CIRC_DESK",
-        "target_destination": {
+        "work_order_at": {
             "value": "DIGINAT",
             "desc": "Nationalbibliotekets digitalisering"
         },
-        "material_type": {},
-        "partial_digitization": false,
-        "date_of_publication": "",
-        "request_status": "IN_PROCESS",
-        "request_date": "2023-11-06Z",
-        "request_time": "2023-11-06T10:07:48.076Z",
-        "task_name": "Pickup From Shelf",
-        "expiry_date": "2023-11-15Z",
-        "copyrights_declaration_signed_by_patron": false
-    }
-],
+        "inventory_number": "",
+        "inventory_price": "",
+        "alternative_call_number": "",
+        "alternative_call_number_type": {
+            "value": ""
+        },
+        "storage_location_id": "",
+        "public_note": "",
+        "fulfillment_note": "",
+        "internal_note_1": "",
+        "internal_note_2": "",
+        "internal_note_3": "",
+        "statistics_note_1": "",
+        "statistics_note_2": "",
+        "statistics_note_3": "",
+        "physical_condition": {},
+        "committed_to_retain": {},
+        "retention_reason": {
+            "value": ""
+        },
+        "retention_note": ""
+    },
+    "link": "/almaws/v1/bibs/99124813044205763/holdings/222248397400005763/items/232248397380005763"
+}
+
+export const REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT = {
+    "user_request": [
+        {
+            "title": "Engelsk Begynderbog : med Billeder og fuldstændig Udtalebetegnelse / Otto Jespersen og Chr. Sarauw.",
+            "volume": "",
+            "issue": "",
+            "part": "",
+            "comment": "test DOD",
+            "user_primary_id": "user_id",
+            "request_id": "48739955550005763",
+            "additional_id": "5555",
+            "request_type": "DIGITIZATION",
+            "request_sub_type": {
+                "value": "PHYSICAL_TO_DIGITIZATION",
+                "desc": "Patron digitization request"
+            },
+            "mms_id": "99124813044205763",
+            "holding_id": "439545770005763*25343461470005763*47,-382 8°",
+            "managed_by_library": "The Black Diamond, Copenhagen",
+            "managed_by_circulation_desk": "Forskningslæsesalen, Den Sorte Diamant",
+            "managed_by_library_code": "KBL",
+            "managed_by_circulation_desk_code": "DEFAULT_CIRC_DESK",
+            "target_destination": {
+                "value": "DIGINAT",
+                "desc": "Nationalbibliotekets digitalisering"
+            },
+            "material_type": {},
+            "partial_digitization": false,
+            "date_of_publication": "",
+            "request_status": "IN_PROCESS",
+            "request_date": "2023-11-06Z",
+            "request_time": "2023-11-06T10:07:48.076Z",
+            "task_name": "Pickup From Shelf",
+            "expiry_date": "2023-11-15Z",
+            "copyrights_declaration_signed_by_patron": false
+        }
+    ],
     "total_record_count": 1
 }
 
@@ -927,4 +1070,70 @@ export const WORK_ORDER_ITEM_WITHOUT_REQUEST = {
 
 export const REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST = {
     "total_record_count": 0
+}
+
+export const MAESTRO_CREATED_RECORD_BEFORE_NEXT_STEP = {
+    "id": "33249",
+    "barcode": "KB756571",
+    "reference": "KB756571",
+    "title": "",
+    "customer_id": "2",
+    "customer_title": "KBH-PLG",
+    "project_id": "3",
+    "project_title": "10001-DOD",
+    "job_id": "32",
+    "job_title": "10001-KBH-OCR-ALTO-PDF-ALMA",
+    "step_id": "25",
+    "step_title": "KBH bog oprettet",
+    "scanner_id": "0",
+    "working": "1",
+    "working_user_id": "4",
+    "working_user_name": "anthony",
+    "image_count": "0",
+    "foldout_count": "0",
+    "foldout_status": "none",
+    "alert_info": "",
+    "created_on": "2023-11-14 13:23:51",
+    "modified_on": "2023-11-14 13:24:13",
+    "custom_field": {
+        "61": {"title": "Multivolume", "value": ""},
+        "62": {"title": "Fraktur", "value": ""},
+        "64": {"title": "Kommentarer", "value": ""},
+        "65": {"title": "Lokation", "value": ""},
+        "66": {"title": "Initialer", "value": ""},
+        "74": {"title": "parts_of_physical_item", "value": ""}
+    }
+}
+
+export const MAESTRO_CREATED_RECORD_AFTER_NEXT_STEP = {
+    "id": "33249",
+    "barcode": "KB756571",
+    "reference": "KB756571",
+    "title": "",
+    "customer_id": "2",
+    "customer_title": "KBH-PLG",
+    "project_id": "3",
+    "project_title": "10001-DOD",
+    "job_id": "32",
+    "job_title": "10001-KBH-OCR-ALTO-PDF-ALMA",
+    "step_id": "57",
+    "step_title": "KBH bog modtages (DIGI)",
+    "scanner_id": "0",
+    "working": "1",
+    "working_user_id": "11",
+    "working_user_name": "tlr",
+    "image_count": "0",
+    "foldout_count": "0",
+    "foldout_status": "none",
+    "alert_info": "",
+    "created_on": "2023-11-14 13:23:51",
+    "modified_on": "2023-11-14 13:41:18",
+    "custom_field": {
+        "61": {"title": "Multivolume", "value": ""},
+        "62": {"title": "Fraktur", "value": ""},
+        "64": {"title": "Kommentarer", "value": ""},
+        "65": {"title": "Lokation", "value": ""},
+        "66": {"title": "Initialer", "value": ""},
+        "74": {"title": "parts_of_physical_item", "value": ""}
+    }
 }
