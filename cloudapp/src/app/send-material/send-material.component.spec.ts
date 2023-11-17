@@ -151,7 +151,7 @@ describe('SendMaterialComponent', () => {
 
         it('should not fail when there is at least one request:', () => {
             spyAlmaServiceGetItemFromAlma.and.returnValue(of(DOD_ITEM_WITH_REQUEST));
-            spyAlmaServiceGetItemFromAlma.and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
+            spyAlmaServiceGetRequestsFromItem.and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
 
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
             const sendButton = fixture.debugElement.nativeElement.querySelector("#send");
@@ -159,6 +159,7 @@ describe('SendMaterialComponent', () => {
             sendButton.click();
 
             fixture.detectChanges();
+
             expect(stubAlertService.error).not.toHaveBeenCalledWith( 'There is no request on this item!');
         });
 
@@ -231,7 +232,7 @@ describe('SendMaterialComponent', () => {
 
         afterEach(() => {
             spyAlmaServiceGetItemFromAlma.calls.reset();
-            spyAlmaServiceGetItemFromAlma.calls.reset();
+            spyAlmaServiceGetRequestsFromItem.calls.reset();
         })
     });
 
@@ -292,7 +293,7 @@ describe('SendMaterialComponent', () => {
         });
 
         it("should use field583x instead of barcode if 'use useMarcField' is true and there is a field583x in the marc record.", () => {
-            let SpyAlmaServiceScanInItem: jasmine.Spy = spyOn<any>(mockAlmaService, 'scanInItem');
+            let SpyAlmaServiceGetField583x: jasmine.Spy = spyOn<any>(mockAlmaService, 'getField583x');
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
             const sendButton = fixture.debugElement.nativeElement.querySelector("#send");
             inputBox.value = WorkOrderBarcode;
@@ -300,7 +301,16 @@ describe('SendMaterialComponent', () => {
 
             fixture.detectChanges();
 
-            expect(SpyAlmaServiceScanInItem).toHaveBeenCalledWith( '/almaws/v1/bibs/99122132364105763/holdings/221701562620005763/items/231701562580005763', Object({ op: 'scan', department: 'Digiproj_10068', work_order_type: 'Digiproj', status: 'digitaliseret1', library: 'Digiproj_10068' }));
+            expect(SpyAlmaServiceGetField583x).not.toHaveBeenCalled();
+
+            component.deskConfig.useMarcField = true;
+            inputBox.value = WorkOrderBarcode;
+            sendButton.click();
+
+            fixture.detectChanges();
+
+            expect(SpyAlmaServiceGetField583x).toHaveBeenCalled();
+
         });
 
         afterEach(() => {
