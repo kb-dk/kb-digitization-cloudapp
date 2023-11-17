@@ -1,13 +1,11 @@
-import { waitForAsync, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SendMaterialComponent } from './send-material.component';
 import {
     AlertModule,
-    CloudAppEventsService,
-    CloudAppConfigService,
     MaterialModule,
     AlertService
 } from '@exlibris/exl-cloudapp-angular-lib';
-import {BrowserModule, By} from "@angular/platform-browser";
+import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AppRoutingModule} from "../app-routing.module";
 import {HttpClientModule} from "@angular/common/http";
@@ -26,8 +24,7 @@ import {
     MAESTRO_CREATED_RECORD_AFTER_NEXT_STEP,
     DOD_ITEM_WITH_REQUEST_AFTER_SCANNING
 } from "../shared/test-data";
-import {of, Subject} from "rxjs";
-import {MainComponent} from "../main/main.component";
+import {Observable, of} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
 import {MatDialog} from "@angular/material/dialog";
 import {DigitizationService} from "../shared/digitization.service";
@@ -37,12 +34,8 @@ describe('SendMaterialComponent', () => {
     let component: SendMaterialComponent;
     let fixture: ComponentFixture<SendMaterialComponent>;
 
-    let mockAlmaService: AlmaService;
     let spyAlmaServiceGetItemFromAlma: jasmine.Spy;
-    let spyAlmaServiceGetField583x: jasmine.Spy;
     let spyAlmaServiceGetRequestsFromItem: jasmine.Spy;
-    let spyAlmaServiceSendToDigi: jasmine.Spy;
-    let spyAlmaServiceScanInItem: jasmine.Spy;
 
     let mockDigitizationService: DigitizationService;
     let spyDigitizationServiceSend: jasmine.Spy;
@@ -51,6 +44,7 @@ describe('SendMaterialComponent', () => {
     let spyDigitizationServiceGoToNextStep: jasmine.Spy;
 
     let stubAlertService: AlertService;
+    let mockAlmaService: AlmaService;
 
     stubAlertService = jasmine.createSpyObj<AlertService>(
         // @ts-ignore
@@ -61,6 +55,32 @@ describe('SendMaterialComponent', () => {
         }
     );
 
+    class MockAlmaService{
+            scanInItem = (itemLink: string, params: any): Observable<any> => { console.log(itemLink, params); return of('ok')};
+            getField583x = (link) => { console.log('getField583x:', link); return of('')};
+            getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => { console.log(useField583x, barcodeOrField583x, institution, almaUrl); return of('')};
+            getRequestsFromItem = (link) => { console.log(link); return of('')};
+            checkIfdeskCodeIsDestination = (request, deskCode): boolean => {
+                if (request.user_request && request.user_request[0]?.target_destination?.value) {
+                    return request.user_request[0]?.target_destination?.value === deskCode;
+                }
+                return true;
+            }
+            sendToDigi = (itemLink:string, library: string, department:string, work_order_type:string=null, institution: string) => {
+                let params = {'op': 'scan','department' : department};
+                if (work_order_type) {
+                    params['work_order_type'] = work_order_type;
+                    params['status'] = 'digitaliseret1';
+                }
+                if (!this.libraryEqualsInstitution(library, institution)) {
+                    params['library'] = library;
+                }
+                return this.scanInItem(itemLink,params);
+            }
+            private libraryEqualsInstitution = (libCode: string, institution: string) => libCode === institution;
+
+    }
+
     const stubDialogRef = {
         afterClosed: () => of(true)
     };
@@ -68,6 +88,7 @@ describe('SendMaterialComponent', () => {
     const stubDialog = { open: () => stubDialogRef };
 
     beforeEach(waitForAsync(() => {
+
         TestBed.configureTestingModule({
             imports: [
                 MaterialModule,
@@ -82,9 +103,9 @@ describe('SendMaterialComponent', () => {
             declarations: [ SendMaterialComponent ],
             schemas: [NO_ERRORS_SCHEMA],
             providers: [
-                AlmaService,
                 DigitizationService,
                 {provide: AlertService, useValue: stubAlertService},
+                {provide: AlmaService, useClass: MockAlmaService},
                 { provide: MatDialog,  useValue: stubDialog }
             ]
         })
@@ -96,9 +117,6 @@ describe('SendMaterialComponent', () => {
         component = fixture.componentInstance;
 
         mockAlmaService = fixture.debugElement.injector.get(AlmaService);
-        spyAlmaServiceScanInItem = spyOn<any>(mockAlmaService, 'scanInItem').and.callFake(() => {
-            return of('');
-        });
 
         mockDigitizationService = fixture.debugElement.injector.get(DigitizationService);
         spyDigitizationServiceSend = spyOn<any>(mockDigitizationService, 'send').and.callFake(() => {
@@ -136,20 +154,12 @@ describe('SendMaterialComponent', () => {
             component.libCode= "DIGINAT";
             component.inputLabel= 'Barcode';
 
-            spyAlmaServiceGetField583x = spyOn<any>(mockAlmaService, 'getField583x').and.callFake(() => {
-                return of('');
-            });
-
             fixture.detectChanges();
         })
 
         it('should not fail when there is at least one request:', () => {
-            spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.callFake(() => {
-                return of(DOD_ITEM_WITH_REQUEST);
-            });
-            spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.callFake(() => {
-                return of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT);
-            });
+            spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
+            spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
 
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
             const sendButton = fixture.debugElement.nativeElement.querySelector("#send");
@@ -161,12 +171,8 @@ describe('SendMaterialComponent', () => {
         });
 
         it('should throw error if there is no request:', () => {
-            spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.callFake(() => {
-                return of(DOD_ITEM_WITHOUT_REQUEST);
-            });
-            spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.callFake(() => {
-                return of(REQUEST_RESPONSE_DOD_WITHOUT_REQUEST);
-            });
+            spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITHOUT_REQUEST));
+            spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITHOUT_REQUEST));
 
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
             const sendButton = fixture.debugElement.nativeElement.querySelector("#send");
@@ -179,12 +185,10 @@ describe('SendMaterialComponent', () => {
         });
 
         it("should throw error if current desk is not matching destination department of the request (if there is a request) .", () => {
-            spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.callFake(() => {
-                return of(WORK_ORDER_ITEM_WITH_REQUEST);
-            });
-            spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.callFake(() => {
-                return of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT);
-            });
+
+            spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
+            spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
+
 
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
             const sendButton = fixture.debugElement.nativeElement.querySelector("#send");
@@ -197,12 +201,9 @@ describe('SendMaterialComponent', () => {
         });
 
         it("should show a confirm-dialog box if there is a comment", () => {
-            spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.callFake(() => {
-                return of(DOD_ITEM_WITH_REQUEST);
-            });
-            spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.callFake(() => {
-                return of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT);
-            });
+            spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
+            spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
+
             let SpyDialogServiceOpen: jasmine.Spy = spyOn<any>(stubDialog, 'open');
             component.checkComments = true;
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
@@ -221,12 +222,10 @@ describe('SendMaterialComponent', () => {
             // happens in the Alma with call for Scan-in api
             // We check that the API is called with the correct parameters
 
-            spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.callFake(() => {
-                return of(DOD_ITEM_WITH_REQUEST);
-            });
-            spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.callFake(() => {
-                return of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT);
-            });
+            spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
+            spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
+
+            let SpyAlmaServiceScanInItem: jasmine.Spy = spyOn<any>(mockAlmaService, 'scanInItem');
 
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
             const sendButton = fixture.debugElement.nativeElement.querySelector("#send");
@@ -235,16 +234,11 @@ describe('SendMaterialComponent', () => {
 
             fixture.detectChanges();
 
-            expect(spyAlmaServiceScanInItem).toHaveBeenCalledWith( '/almaws/v1/bibs/99124813044205763/holdings/222248397400005763/items/232248397380005763', Object({ op: 'scan', department: 'DIGINAT', library: 'DIGINAT' }));
+            expect(SpyAlmaServiceScanInItem).toHaveBeenCalledWith( '/almaws/v1/bibs/99124813044205763/holdings/222248397400005763/items/232248397380005763', Object({ op: 'scan', department: 'DIGINAT', library: 'DIGINAT' }));
 
-            // expect(spyDigitizationServiceSend).toHaveBeenCalled();
-            // expect(spyDigitizationServiceCheck).toHaveBeenCalled();
-            // expect(spyDigitizationServiceGoToNextStep).toHaveBeenCalled();
         });
 
         afterEach(() => {
-            spyAlmaServiceGetItemFromAlma.calls.reset();
-            spyAlmaServiceGetRequestsFromItem.calls.reset();
         });
     });
 
@@ -255,17 +249,8 @@ describe('SendMaterialComponent', () => {
             component.libCode= "Digiproj_10068";
             component.inputLabel= 'Barcode';
 
-            spyAlmaServiceGetField583x = spyOn<any>(mockAlmaService, 'getField583x').and.callFake(() => {
-                return of('');
-            });
-
-            spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.callFake(() => {
-                return of(WORK_ORDER_ITEM_WITH_REQUEST);
-            });
-
-            spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.callFake(() => {
-                return of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT);
-            });
+            spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
+            spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
 
             fixture.detectChanges();
         })
@@ -301,6 +286,7 @@ describe('SendMaterialComponent', () => {
             // Status cannot really be tested in a unit test, since it is something that
             // happens in the Alma with call for Scan-in api
             // We check that the API is called with the correct parameters
+            let SpyAlmaServiceScanInItem: jasmine.Spy = spyOn<any>(mockAlmaService, 'scanInItem');
 
             const inputBox = fixture.debugElement.nativeElement.querySelector("input");
             const sendButton = fixture.debugElement.nativeElement.querySelector("#send");
@@ -309,12 +295,10 @@ describe('SendMaterialComponent', () => {
 
             fixture.detectChanges();
 
-            expect(spyAlmaServiceScanInItem).toHaveBeenCalledWith( '/almaws/v1/bibs/99122132364105763/holdings/221701562620005763/items/231701562580005763', Object({ op: 'scan', department: 'Digiproj_10068', work_order_type: 'Digiproj', status: 'digitaliseret1', library: 'Digiproj_10068' }));
+            expect(SpyAlmaServiceScanInItem).toHaveBeenCalledWith( '/almaws/v1/bibs/99122132364105763/holdings/221701562620005763/items/231701562580005763', Object({ op: 'scan', department: 'Digiproj_10068', work_order_type: 'Digiproj', status: 'digitaliseret1', library: 'Digiproj_10068' }));
         });
 
         afterEach(() => {
-            spyAlmaServiceGetItemFromAlma.calls.reset();
-            spyAlmaServiceGetRequestsFromItem.calls.reset();
         });
     });
 });
