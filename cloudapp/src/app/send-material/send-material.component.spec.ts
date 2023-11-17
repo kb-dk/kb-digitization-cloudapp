@@ -19,10 +19,7 @@ import {
     DOD_ITEM_WITHOUT_REQUEST,
     WORK_ORDER_ITEM_WITH_REQUEST,
     REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT,
-    REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST,
     MAESTRO_CREATED_RECORD_BEFORE_NEXT_STEP,
-    MAESTRO_CREATED_RECORD_AFTER_NEXT_STEP,
-    DOD_ITEM_WITH_REQUEST_AFTER_SCANNING
 } from "../shared/test-data";
 import {Observable, of} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
@@ -37,12 +34,6 @@ describe('SendMaterialComponent', () => {
     let spyAlmaServiceGetItemFromAlma: jasmine.Spy;
     let spyAlmaServiceGetRequestsFromItem: jasmine.Spy;
 
-    let mockDigitizationService: DigitizationService;
-    let spyDigitizationServiceSend: jasmine.Spy;
-    let spyDigitizationServiceCheck: jasmine.Spy;
-    let spyDigitizationServiceCallApi: jasmine.Spy;
-    let spyDigitizationServiceGoToNextStep: jasmine.Spy;
-
     let stubAlertService: AlertService;
     let mockAlmaService: AlmaService;
 
@@ -50,16 +41,16 @@ describe('SendMaterialComponent', () => {
         // @ts-ignore
         'AlertService',
         {
-            success: (alert: Alert) => { console.log('success');},
-            error: (message: string, options?: Partial<Alert>) => { console.log('error')},
+            success: (alert: Alert) => {},
+            error: (message: string, options?: Partial<Alert>) => {},
         }
     );
 
     class MockAlmaService{
-            scanInItem = (itemLink: string, params: any): Observable<any> => { console.log(itemLink, params); return of('ok')};
-            getField583x = (link) => { console.log('getField583x:', link); return of('')};
-            getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => { console.log(useField583x, barcodeOrField583x, institution, almaUrl); return of('')};
-            getRequestsFromItem = (link) => { console.log(link); return of('')};
+            scanInItem = (itemLink: string, params: any): Observable<any> => of('ok');
+            getField583x = (link) => of('');
+            getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => of('');
+            getRequestsFromItem = (link) => of('');
             checkIfdeskCodeIsDestination = (request, deskCode): boolean => {
                 if (request.user_request && request.user_request[0]?.target_destination?.value) {
                     return request.user_request[0]?.target_destination?.value === deskCode;
@@ -81,9 +72,14 @@ describe('SendMaterialComponent', () => {
 
     }
 
-    const stubDialogRef = {
-        afterClosed: () => of(true)
-    };
+    class MockDigitizationService{
+            send = (barcode:string, deskConfig:any, fraktur:boolean, multiVolume:boolean, title: string) => of('{"message":"Add document ok"}');
+            check = (barcode:string,deskConfig:any):Observable<any> => of(MAESTRO_CREATED_RECORD_BEFORE_NEXT_STEP);
+            goToNextStep = (barcode: string, currentStep: any) => of('{"message":"Action ok"}');
+            isBarcodeNew = (data) => true;
+    }
+
+    const stubDialogRef = { afterClosed: () => of(true)};
 
     const stubDialog = { open: () => stubDialogRef };
 
@@ -103,10 +99,10 @@ describe('SendMaterialComponent', () => {
             declarations: [ SendMaterialComponent ],
             schemas: [NO_ERRORS_SCHEMA],
             providers: [
-                DigitizationService,
                 {provide: AlertService, useValue: stubAlertService},
                 {provide: AlmaService, useClass: MockAlmaService},
-                { provide: MatDialog,  useValue: stubDialog }
+                {provide: DigitizationService, useClass: MockDigitizationService},
+                {provide: MatDialog,  useValue: stubDialog}
             ]
         })
             .compileComponents();
@@ -117,18 +113,6 @@ describe('SendMaterialComponent', () => {
         component = fixture.componentInstance;
 
         mockAlmaService = fixture.debugElement.injector.get(AlmaService);
-
-        mockDigitizationService = fixture.debugElement.injector.get(DigitizationService);
-        spyDigitizationServiceSend = spyOn<any>(mockDigitizationService, 'send').and.callFake(() => {
-            return of('{"message":"Add document ok"}');
-        });
-        spyDigitizationServiceCheck = spyOn<any>(mockDigitizationService, 'check').and.callFake(() => {
-            return of(MAESTRO_CREATED_RECORD_BEFORE_NEXT_STEP);
-        });
-
-        spyDigitizationServiceGoToNextStep = spyOn<any>(mockDigitizationService, 'goToNextStep').and.callFake(() => {
-            return of('{"message":"Action ok"}');
-        });
 
         component.institution= INIT_DATA.instCode;
         component.almaUrl= INIT_DATA.urls.alma;
@@ -212,7 +196,6 @@ describe('SendMaterialComponent', () => {
             sendButton.click();
 
             fixture.detectChanges();
-            console.log(component);
 
             expect(SpyDialogServiceOpen).toHaveBeenCalled();
         });
@@ -236,9 +219,6 @@ describe('SendMaterialComponent', () => {
 
             expect(SpyAlmaServiceScanInItem).toHaveBeenCalledWith( '/almaws/v1/bibs/99124813044205763/holdings/222248397400005763/items/232248397380005763', Object({ op: 'scan', department: 'DIGINAT', library: 'DIGINAT' }));
 
-        });
-
-        afterEach(() => {
         });
     });
 
@@ -296,9 +276,6 @@ describe('SendMaterialComponent', () => {
             fixture.detectChanges();
 
             expect(SpyAlmaServiceScanInItem).toHaveBeenCalledWith( '/almaws/v1/bibs/99122132364105763/holdings/221701562620005763/items/231701562580005763', Object({ op: 'scan', department: 'Digiproj_10068', work_order_type: 'Digiproj', status: 'digitaliseret1', library: 'Digiproj_10068' }));
-        });
-
-        afterEach(() => {
         });
     });
 });
