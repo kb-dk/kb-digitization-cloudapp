@@ -40,12 +40,11 @@ describe('SendMaterialComponent', () => {
     let DODBarcode: string;
     let WorkOrderBarcode: string;
 
-    stubAlertService = jasmine.createSpyObj<AlertService>(
-        // @ts-ignore
+        stubAlertService = jasmine.createSpyObj<AlertService>(
         'AlertService',
         {
-            success: (alert: Alert) => {},
-            error: (message: string, options?: Partial<Alert>) => {},
+            success: undefined,
+            error: undefined,
         }
     );
 
