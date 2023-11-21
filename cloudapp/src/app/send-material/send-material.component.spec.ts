@@ -43,6 +43,11 @@ describe('SendMaterialComponent', () => {
         const element = findElement(query);
         element.click();
     }
+    let startWith = (barcode) => {
+        const inputBox = findElement("input");
+        inputBox.value = barcode;
+        click("#send");
+    }
 
         fakeAlertService = jasmine.createSpyObj<AlertService>(
         'AlertService',
@@ -51,6 +56,19 @@ describe('SendMaterialComponent', () => {
             error: undefined,
         }
     );
+    //
+    //     fakeAlmaService = jasmine.createSpyObj<AlmaService>(
+    //     'AlertService',
+    //     {
+    //         scanInItem: undefined,
+    //         getField583x: undefined,
+    //         isField583xUnique: undefined,
+    //         getItemFromAlma: undefined,
+    //         getRequestsFromItem: undefined,
+    //         checkIfdeskCodeIsDestination: undefined,
+    //         sendToDigi: undefined,
+    //     }
+    // );
 
     class MockAlmaService{
             scanInItem = (itemLink: string, params: any): Observable<any> => of('ok');
@@ -149,9 +167,7 @@ describe('SendMaterialComponent', () => {
             let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
             let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
 
-            const inputBox = findElement("input");
-            inputBox.value = DODBarcode;
-            click("#send");
+            startWith(DODBarcode);
 
             fixture.detectChanges();
 
@@ -166,9 +182,7 @@ describe('SendMaterialComponent', () => {
             let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITHOUT_REQUEST));
             let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITHOUT_REQUEST));
 
-            const inputBox = findElement("input");
-            inputBox.value = DODBarcode;
-            click("#send");
+            startWith(DODBarcode);
 
             fixture.detectChanges();
 
@@ -198,9 +212,7 @@ describe('SendMaterialComponent', () => {
             let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
             let SpyDialogServiceOpen: jasmine.Spy = spyOn<any>(stubDialog, 'open');
             component.checkComments = true;
-            const inputBox = findElement("input");
-            inputBox.value = DODBarcode;
-             click("#send");
+            startWith(DODBarcode);
 
             fixture.detectChanges();
 
@@ -219,9 +231,7 @@ describe('SendMaterialComponent', () => {
             let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
             let SpyAlmaServiceScanInItem: jasmine.Spy = spyOn<any>(mockAlmaService, 'scanInItem').and.returnValue(of('ok'));
 
-            const inputBox = findElement("input");
-            inputBox.value = DODBarcode;
-             click("#send");
+            startWith(DODBarcode);
 
             fixture.detectChanges();
 
@@ -256,9 +266,7 @@ describe('SendMaterialComponent', () => {
             let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
             let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
 
-            const inputBox = findElement("input");
-            inputBox.value = DODBarcode;
-             click("#send");
+            startWith(DODBarcode);
 
             fixture.detectChanges();
 
@@ -273,9 +281,7 @@ describe('SendMaterialComponent', () => {
             let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
             let SpyDialogServiceOpen: jasmine.Spy = spyOn<any>(stubDialog, 'open');
             component.checkComments = true;
-            const inputBox = findElement("input");
-            inputBox.value = WorkOrderBarcode;
-             click("#send");
+            startWith(WorkOrderBarcode);
 
             fixture.detectChanges();
 
@@ -293,9 +299,7 @@ describe('SendMaterialComponent', () => {
             let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
             let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
 
-            const inputBox = findElement("input");
-            inputBox.value = WorkOrderBarcode;
-             click("#send");
+            startWith(WorkOrderBarcode);
 
             fixture.detectChanges();
 
@@ -313,9 +317,7 @@ describe('SendMaterialComponent', () => {
             let SpyAlmaServiceGetField583x= spyOn<any>(mockAlmaService, 'getField583x');
             let SpyDigitizationServiceCheck= spyOn<any>(mockDigitizationService, 'check').and.returnValue(of(MAESTRO_CREATED_RECORD_BEFORE_NEXT_STEP));
 
-            const inputBox = findElement("input");
-            inputBox.value = WorkOrderBarcode;
-             click("#send");
+            startWith(WorkOrderBarcode);
             fixture.detectChanges();
 
             expect(SpyAlmaServiceGetField583x).not.toHaveBeenCalled();
@@ -324,8 +326,7 @@ describe('SendMaterialComponent', () => {
             let field583x = 'xxx';
             SpyAlmaServiceGetField583x.and.returnValue(of(field583x));
             component.deskConfig.useMarcField = true;
-            inputBox.value = WorkOrderBarcode;
-             click("#send");
+            startWith(WorkOrderBarcode);
             fixture.detectChanges();
 
             expect(SpyAlmaServiceGetField583x).toHaveBeenCalled();
