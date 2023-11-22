@@ -282,6 +282,7 @@ describe('SendMaterialComponent:', () => {
     });
 
     describe('Integration test:', () => {
+        let SpyAlmaServiceScanInItem: jasmine.Spy;
 
         beforeEach(waitForAsync(() => {
 
@@ -321,6 +322,8 @@ describe('SendMaterialComponent:', () => {
 
             DODBarcode = "KB756571";
             WorkOrderBarcode = "400021689597";
+
+            SpyAlmaServiceScanInItem = spyOn<any>(mockAlmaService, 'scanInItem').and.returnValue (of('ok'));
         });
 
         describe('DOD: ', () => {
@@ -337,7 +340,7 @@ describe('SendMaterialComponent:', () => {
 
                 let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
                 let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
-                let spyAlertServiceError = spyOn<any>(fakeAlertService, 'error').and.callThrough();
+                let spyAlertServiceError = spyOn<any>(fakeAlertService, 'error');
 
                 const inputBox = findElement("input");
                 inputBox.value = WorkOrderBarcode;
@@ -353,6 +356,31 @@ describe('SendMaterialComponent:', () => {
 
             });
 
+            it("should change the item status from 'Item in place' to 'Not Available' after sending to Alma", () => {
+                // Status cannot really be tested in a unit test, since it is something that
+                // happens in the Alma with call for Scan-in api
+                // We check that the API is called with the correct parameters
+
+                let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
+                let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
+
+                startWith(DODBarcode);
+
+                fixture.detectChanges();
+
+                expect(SpyAlmaServiceScanInItem).toHaveBeenCalledWith('/almaws/v1/bibs/99124813044205763/holdings/222248397400005763/items/232248397380005763', Object({
+                    op: 'scan',
+                    department: 'DIGINAT',
+                    library: 'DIGINAT'
+                }));
+
+                spyAlmaServiceGetItemFromAlma.calls.reset();
+                spyAlmaServiceGetRequestsFromItem.calls.reset();
+                SpyAlmaServiceScanInItem.calls.reset();
+
+                console.log('finished');
+            });
+
         });
 
         describe("Work orders: ", () => {
@@ -363,10 +391,11 @@ describe('SendMaterialComponent:', () => {
 
                 fixture.detectChanges();
             })
+
             it("should throw error if current desk is not matching destination department of the request (if there is a request)", () => {
                 let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
                 let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
-                let spyAlertServiceError = spyOn<any>(fakeAlertService, 'error').and.callThrough();
+                let spyAlertServiceError = spyOn<any>(fakeAlertService, 'error');
 
                 startWith(DODBarcode);
 
@@ -377,7 +406,34 @@ describe('SendMaterialComponent:', () => {
                 spyAlmaServiceGetItemFromAlma.calls.reset();
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
                 spyAlertServiceError.calls.reset();
+
             });
+
+            it("should change the item status from 'Item in place' to 'Not Available' after sending to Alma", () => {
+                // Status cannot really be tested in a unit test, since it is something that
+                // happens in the Alma with call for Scan-in api
+                // We check that the API is called with the correct parameters
+                let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
+                let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
+
+                startWith(WorkOrderBarcode);
+
+                fixture.detectChanges();
+
+                expect(SpyAlmaServiceScanInItem).toHaveBeenCalledWith('/almaws/v1/bibs/99122132364105763/holdings/221701562620005763/items/231701562580005763', Object({
+                    op: 'scan',
+                    department: 'Digiproj_10068',
+                    work_order_type: 'Digiproj',
+                    status: 'digitaliseret1',
+                    library: 'Digiproj_10068'
+                }));
+
+                spyAlmaServiceGetItemFromAlma.calls.reset();
+                spyAlmaServiceGetRequestsFromItem.calls.reset();
+                SpyAlmaServiceScanInItem.calls.reset();
+
+            });
+
         });
     });
 
