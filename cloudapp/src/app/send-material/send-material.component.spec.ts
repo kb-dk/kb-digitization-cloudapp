@@ -48,14 +48,15 @@ describe('SendMaterialComponent:', () => {
     let spyAlmaServiceGetRequestsFromItem: jasmine.Spy;
     let spyAlmaServiceScanInItem: jasmine.Spy;
     let spyDigitizationServiceCheck: jasmine.Spy;
-    let spyAlmaServiceGetHolding: jasmine.Spy;
     let spyAlertServiceError: jasmine.Spy;
 
     let findElement = (query) => fixture.debugElement.nativeElement.querySelector(query);
+
     let click = (query) => {
         const element = findElement(query);
         element.click();
     }
+
     let startWith = (barcode) => {
         const inputBox = findElement("input");
         inputBox.value = barcode;
@@ -69,7 +70,7 @@ describe('SendMaterialComponent:', () => {
         };
     }
 
-    class MockAlmaService {
+    class FakeAlmaService {
         getField583x = (link) => of('');
         isField583xUnique = (fieldContent, institution, almaUrl): Observable<boolean> => of(true);
         getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
@@ -108,7 +109,7 @@ describe('SendMaterialComponent:', () => {
         sendToDigi = (itemLink: string, library: string, department: string, work_order_type: string = null, institution: string) => of('ok');
     }
 
-    class MockDigitizationService {
+    class FakeDigitizationService {
         send = (barcode: string, deskConfig: any, fraktur: boolean, multiVolume: boolean, title: string) => of('{"message":"Add document ok"}');
         check = (barcode: string, deskConfig: any): Observable<any> => {
             if (isDod){
@@ -121,9 +122,9 @@ describe('SendMaterialComponent:', () => {
         isBarcodeNew = (data) => true;
     }
 
-    const stubDialogRef = {afterClosed: () => of(true)};
+    const FakeDialogRef = {afterClosed: () => of(true)};
 
-    const stubDialog = {open: () => stubDialogRef};
+    const FakeDialog = {open: () => FakeDialogRef};
 
     describe('Unit test:', () => {
         beforeEach(waitForAsync(() => {
@@ -143,9 +144,9 @@ describe('SendMaterialComponent:', () => {
                 schemas: [NO_ERRORS_SCHEMA],
                 providers: [
                     {provide: AlertService, useClass: FakeAlertService},
-                    {provide: AlmaService, useClass: MockAlmaService},
-                    {provide: DigitizationService, useClass: MockDigitizationService},
-                    {provide: MatDialog, useValue: stubDialog}
+                    {provide: AlmaService, useClass: FakeAlmaService},
+                    {provide: DigitizationService, useClass: FakeDigitizationService},
+                    {provide: MatDialog, useValue: FakeDialog}
                 ]
             })
                 .compileComponents();
@@ -209,7 +210,7 @@ describe('SendMaterialComponent:', () => {
             });
 
             it("should show a confirm-dialog box if there is a comment", () => {
-                let SpyDialogServiceOpen: jasmine.Spy = spyOn<any>(stubDialog, 'open');
+                let SpyDialogServiceOpen: jasmine.Spy = spyOn<any>(FakeDialog, 'open');
                 component.checkComments = true;
                 startWith(DODBarcode);
 
@@ -244,7 +245,7 @@ describe('SendMaterialComponent:', () => {
 
             it("should show a confirm-dialog box if there is a comment", () => {
                 hasRequestAndComment = true;
-                let SpyDialogServiceOpen: jasmine.Spy = spyOn<any>(stubDialog, 'open');
+                let SpyDialogServiceOpen: jasmine.Spy = spyOn<any>(FakeDialog, 'open');
                 component.checkComments = true;
                 startWith(WorkOrderBarcode);
 
@@ -257,7 +258,7 @@ describe('SendMaterialComponent:', () => {
             it("should use field583x instead of barcode if 'use useMarcField' is true and there is a field583x in the marc record", () => {
                 let SpyAlmaServiceIsField583xUnique = spyOn<any>(mockAlmaService, 'isField583xUnique').and.callThrough();
                 let SpyAlmaServiceGetField583x = spyOn<any>(mockAlmaService, 'getField583x');
-                let SpyDigitizationServiceCheck = spyOn<any>(mockDigitizationService, 'check').and.callThrough();
+                spyDigitizationServiceCheck = spyOn<any>(mockDigitizationService, 'check').and.callThrough();
 
                 startWith(WorkOrderBarcode);
                 fixture.detectChanges();
@@ -273,11 +274,11 @@ describe('SendMaterialComponent:', () => {
 
                 expect(SpyAlmaServiceGetField583x).toHaveBeenCalled();
                 expect(SpyAlmaServiceIsField583xUnique).toHaveBeenCalled();
-                expect(SpyDigitizationServiceCheck).toHaveBeenCalledWith(field583x, component.deskConfig);
+                expect(spyDigitizationServiceCheck).toHaveBeenCalledWith(field583x, component.deskConfig);
 
                 SpyAlmaServiceIsField583xUnique.calls.reset();
                 SpyAlmaServiceGetField583x.calls.reset();
-                SpyDigitizationServiceCheck.calls.reset();
+                spyDigitizationServiceCheck.calls.reset();
             });
 
             afterEach(() => {
@@ -306,8 +307,8 @@ describe('SendMaterialComponent:', () => {
                 providers: [
                     {provide: AlertService, useClass: FakeAlertService},
                     AlmaService, // Using the real AlmaService
-                    {provide: DigitizationService, useClass: MockDigitizationService},
-                    {provide: MatDialog, useValue: stubDialog}
+                    {provide: DigitizationService, useClass: FakeDigitizationService},
+                    {provide: MatDialog, useValue: FakeDialog}
                 ]
             })
                 .compileComponents();
@@ -399,7 +400,6 @@ describe('SendMaterialComponent:', () => {
                 component.libCode = "Digiproj_10068";
                 component.inputLabel = 'Barcode';
                 fixture.detectChanges();
-                console.log('start');
                 spyDigitizationServiceCheck = spyOn<any>(mockDigitizationService, 'check').and.returnValue(of(MAESTRO_CREATED_WORK_ORDER_BEFORE_NEXT_STEP));
             })
 
@@ -412,8 +412,6 @@ describe('SendMaterialComponent:', () => {
                 fixture.detectChanges();
 
                 expect(spyAlertServiceError).toHaveBeenCalledWith("Desk code (Lindhardt og Ringhof uden Alma publicering_10068) doesn't match destination department of the request (Nationalbibliotekets digitalisering).");
-
-                console.log(component);
 
                 spyAlmaServiceGetItemFromAlma.calls.reset();
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
@@ -432,8 +430,6 @@ describe('SendMaterialComponent:', () => {
 
                 fixture.detectChanges();
 
-                console.log(component);
-
                 expect(spyAlmaServiceScanInItem).toHaveBeenCalledWith('/almaws/v1/bibs/99122132364105763/holdings/221701562620005763/items/231701562580005763', Object({
                     op: 'scan',
                     department: 'Digiproj_10068',
@@ -448,8 +444,6 @@ describe('SendMaterialComponent:', () => {
 
             afterEach(() => {
                 spyAlmaServiceScanInItem.calls.reset();
-                console.log('end');
-
             })
         });
     });
