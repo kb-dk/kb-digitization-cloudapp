@@ -69,13 +69,13 @@ export class AlmaService {
 
   getItemsFromBarcode = (barcode:string) => this.restService.call(`/items?item_barcode=${barcode.trim()}`);
 
-  getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMarcrecordFromField583x(field583x, institution, almaUrl).pipe(
+  getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMmsIdAndHoldingIdFromField583x(field583x, institution, almaUrl).pipe(
         concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
         concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
         map(items => items.item?.length === 1 ? items.item[0] : throwError(() => new Error(`There is no item or there are more than one item.`))),
     );
 
-  getMarcrecordFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
+  getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
 
         // Søg i mms_id og felt583x http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==TUESUNIKKE_filnavnssyntax%20or%20alma.mms_id==99124929653105763
         // Søg i alle marc felter plus barcode og mere   http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=99122912149905763
