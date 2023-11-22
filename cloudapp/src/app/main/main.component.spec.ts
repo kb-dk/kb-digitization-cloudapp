@@ -18,6 +18,7 @@ import {Component, NO_ERRORS_SCHEMA} from "@angular/core";
 import {SendMaterialComponent} from "../send-material/send-material.component";
 import {ReceiveMaterialComponent} from "../receive-material/receive-material.component";
 import {DigitizationService} from "../shared/digitization.service";
+import {Alert} from "@exlibris/exl-cloudapp-angular-lib/angular/ui/components/alerts/alert.model";
 
 describe('MainComponent', () => {
     let component: MainComponent;
@@ -27,11 +28,19 @@ describe('MainComponent', () => {
     let mockAlertService: AlertService;
     let spyEvent: jasmine.Spy;
     let spyConfig: jasmine.Spy;
-    let spyAlertServiceAlert: jasmine.Spy;
-    let spyAlertServiceSuccess: jasmine.Spy;
+    let spyAlertServiceError: jasmine.Spy;
 
-    class MockEventsService {
+    class FakeEventsService {
         getInitData = () => of(INIT_DATA);
+    }
+
+    class FakeConfigService {
+        get = () => of(CONFIG);
+    }
+
+    class FakeAlertService {
+        success = (message: string, options?: Partial<Alert>) => {};
+        error = (message: string, options?: Partial<Alert>) => {};
     }
 
     beforeEach(waitForAsync(() => {
@@ -49,9 +58,9 @@ describe('MainComponent', () => {
             declarations: [MainComponent],
             schemas: [NO_ERRORS_SCHEMA],
             providers: [
-                {provide: CloudAppEventsService, useClass: MockEventsService},
-                CloudAppConfigService,
-                AlertService
+                {provide: CloudAppEventsService, useClass: FakeEventsService},
+                {provide: CloudAppConfigService, useClass: FakeConfigService},
+                {provide: AlertService, useClass: FakeAlertService}
             ]
         })
             .compileComponents();
@@ -65,17 +74,10 @@ describe('MainComponent', () => {
         spyEvent = spyOn<any>(mockEventsService, 'getInitData').and.callThrough();
 
         mockConfigService = fixture.debugElement.injector.get(CloudAppConfigService);
-        spyConfig = spyOn<any>(mockConfigService, 'get').and.callFake(() => {
-            return of(CONFIG);
-        });
+        spyConfig = spyOn<any>(mockConfigService, 'get').and.callThrough();
 
         mockAlertService = fixture.debugElement.injector.get(AlertService);
-        spyAlertServiceAlert = spyOn<any>(mockAlertService, 'alert').and.callFake(() => {
-            return of('');
-        });
-        spyAlertServiceSuccess = spyOn<any>(mockAlertService, 'success').and.callFake(() => {
-            return of('');
-        });
+        spyAlertServiceError = spyOn<any>(mockAlertService, 'error').and.callThrough();
     });
 
     it('should create main component', () => {
@@ -90,7 +92,7 @@ describe('MainComponent', () => {
 
         fixture.detectChanges();
 
-        expect(spyAlertServiceAlert).toHaveBeenCalledWith(jasmine.objectContaining({message: "Please select a Desk in Alma first."}));
+        expect(spyAlertServiceError).toHaveBeenCalledWith("Please select a Desk in Alma first.");
     });
 
     it('should show an alert with error if desk is not defined in App configuration', () => {
@@ -100,7 +102,7 @@ describe('MainComponent', () => {
 
         fixture.detectChanges();
 
-        expect(spyAlertServiceAlert).toHaveBeenCalledWith(jasmine.objectContaining({message: 'The desk you are at ( with desk code: "NotDefinedInConfig" ), is not defined in the app.'}));
+        expect(spyAlertServiceError).toHaveBeenCalledWith('The desk you are at ( with desk code: "NotDefinedInConfig" ), is not defined in the app.');
     });
 
     it('should show an alert with error if config is empty', () => {
@@ -108,7 +110,7 @@ describe('MainComponent', () => {
 
         fixture.detectChanges();
 
-        expect(spyAlertServiceAlert).toHaveBeenCalledWith(jasmine.objectContaining({message: "Please ask an Admin to configure this App."}));
+        expect(spyAlertServiceError).toHaveBeenCalledWith("Please ask an Admin to configure this App.");
     });
 
     it('should input label be "Barcode" if "useMarcField" is "false".', () => {
@@ -133,7 +135,7 @@ describe('MainComponent', () => {
 
     afterEach(() => {
         spyConfig.calls.reset();
-        spyAlertServiceAlert.calls.reset();
-
+        spyAlertServiceError.calls.reset();
+        spyEvent.calls.reset();
     });
 })
