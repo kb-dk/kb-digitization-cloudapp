@@ -1072,7 +1072,7 @@ export const REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST = {
     "total_record_count": 0
 }
 
-export const MAESTRO_CREATED_RECORD_BEFORE_NEXT_STEP = {
+export const MAESTRO_CREATED_DOD_BEFORE_NEXT_STEP = {
     "id": "33249",
     "barcode": "KB756571",
     "reference": "KB756571",
@@ -1082,6 +1082,39 @@ export const MAESTRO_CREATED_RECORD_BEFORE_NEXT_STEP = {
     "project_id": "3",
     "project_title": "10001-DOD",
     "job_id": "32",
+    "job_title": "10001-KBH-OCR-ALTO-PDF-ALMA",
+    "step_id": "25",
+    "step_title": "KBH bog oprettet",
+    "scanner_id": "0",
+    "working": "1",
+    "working_user_id": "4",
+    "working_user_name": "anthony",
+    "image_count": "0",
+    "foldout_count": "0",
+    "foldout_status": "none",
+    "alert_info": "",
+    "created_on": "2023-11-14 13:23:51",
+    "modified_on": "2023-11-14 13:24:13",
+    "custom_field": {
+        "61": {"title": "Multivolume", "value": ""},
+        "62": {"title": "Fraktur", "value": ""},
+        "64": {"title": "Kommentarer", "value": ""},
+        "65": {"title": "Lokation", "value": ""},
+        "66": {"title": "Initialer", "value": ""},
+        "74": {"title": "parts_of_physical_item", "value": ""}
+    }
+}
+
+export const MAESTRO_CREATED_WORK_ORDER_BEFORE_NEXT_STEP = {
+    "id": "33249",
+    "barcode": "400021689597",
+    "reference": "400021689597",
+    "title": "",
+    "customer_id": "7",
+    "customer_title": "KBH-PLG",
+    "project_id": "9",
+    "project_title": "10001-DOD",
+    "job_id": "49",
     "job_title": "10001-KBH-OCR-ALTO-PDF-ALMA",
     "step_id": "25",
     "step_title": "KBH bog oprettet",
