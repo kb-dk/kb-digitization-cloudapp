@@ -47,9 +47,11 @@ describe('ReceiveMaterialComponent:', () => {
     let spyAlmaServiceGetItemFromAlma: jasmine.Spy;
     let spyAlmaServiceGetRequestsFromItem: jasmine.Spy;
     let spyAlmaServiceScanInItem: jasmine.Spy;
+    let spyAlmaServiceRemoveTemporaryLocation: jasmine.Spy;
     let spyAlertServiceError: jasmine.Spy;
     let spyDigitizationServiceCheck: jasmine.Spy;
     let spyDigitizationServiceIsBarcodeNew: jasmine.Spy;
+    let spyDigitizationServiceReceive: jasmine.Spy;
 
     let findElement = (query) => fixture.debugElement.nativeElement.querySelector(query);
 
@@ -185,6 +187,23 @@ describe('ReceiveMaterialComponent:', () => {
                 expect(component).toBeTruthy();
             });
 
+            it("should remove temporary location if it is true in the desk config", () => {
+                let spyAlmaServiceRemoveTemporaryLocation = spyOn<any>(mockAlmaService, 'removeTemporaryLocation').and.callThrough();
+
+                component.deskConfig.removeTempLocation = false;
+                startWith(WorkOrderBarcode);
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
+
+                component.deskConfig.removeTempLocation = true;
+                startWith(WorkOrderBarcode);
+
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).toHaveBeenCalled();
+            });
+
             afterEach(() => {
                 spyAlmaServiceGetItemFromAlma.calls.reset();
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
@@ -231,6 +250,23 @@ describe('ReceiveMaterialComponent:', () => {
 
                 SpyAlmaServiceGetField583x.calls.reset();
                 spyDigitizationServiceCheck.calls.reset();
+            });
+
+            it("should remove temporary location if it is true in the desk config", () => {
+                let spyAlmaServiceRemoveTemporaryLocation = spyOn<any>(mockAlmaService, 'removeTemporaryLocation').and.callThrough();
+
+                component.deskConfig.removeTempLocation = false;
+                startWith(WorkOrderBarcode);
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
+
+                component.deskConfig.removeTempLocation = true;
+                startWith(WorkOrderBarcode);
+
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).toHaveBeenCalled();
             });
 
             afterEach(() => {
@@ -284,6 +320,10 @@ describe('ReceiveMaterialComponent:', () => {
             spyOn<any>(mockAlmaService, 'getHolding').and.returnValue (of(HOLDING));
             spyOn<any>(mockAlmaService, 'getMmsIdAndHoldingIdFromField583x').and.returnValue(of(['1111', '1111']));
             spyOn<any>(mockAlmaService, 'isField583xUnique').and.returnValue(of(true));
+            spyAlmaServiceRemoveTemporaryLocation = spyOn<any>(mockAlmaService, 'removeTemporaryLocation').and.returnValue(of('ok'));
+            spyDigitizationServiceReceive = spyOn<any>(mockDigitizationService, 'receive').and.returnValue(of('ok'));
+            spyDigitizationServiceIsBarcodeNew = spyOn<any>(mockDigitizationService, 'isBarcodeNew').and.returnValue(false);
+
             spyAlertServiceError = spyOn<any>(fakeAlertService, 'error').and.callThrough();
         });
 
@@ -296,7 +336,6 @@ describe('ReceiveMaterialComponent:', () => {
                 fixture.detectChanges();
 
                 spyDigitizationServiceCheck = spyOn<any>(mockDigitizationService, 'check').and.returnValue(of(MAESTRO_CREATED_DOD_BEFORE_NEXT_STEP));
-                spyDigitizationServiceIsBarcodeNew = spyOn<any>(mockDigitizationService, 'isBarcodeNew').and.returnValue(false);
             })
 
             it("should throw error if current desk is not matching destination department of the request (if there is a request)", () => {
@@ -353,7 +392,6 @@ describe('ReceiveMaterialComponent:', () => {
                 component.inputLabel = 'Barcode';
                 fixture.detectChanges();
                 spyDigitizationServiceCheck = spyOn<any>(mockDigitizationService, 'check').and.returnValue(of(MAESTRO_CREATED_WORK_ORDER_BEFORE_NEXT_STEP));
-                spyDigitizationServiceIsBarcodeNew = spyOn<any>(mockDigitizationService, 'isBarcodeNew').and.returnValue(false);
             })
 
             it("should throw error if current desk is not matching destination department of the request (if there is a request)", () => {
