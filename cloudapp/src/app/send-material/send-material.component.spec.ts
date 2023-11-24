@@ -259,6 +259,7 @@ describe('SendMaterialComponent:', () => {
                 let SpyAlmaServiceIsField583xUnique = spyOn<any>(mockAlmaService, 'isField583xUnique').and.callThrough();
                 let SpyAlmaServiceGetField583x = spyOn<any>(mockAlmaService, 'getField583x');
                 spyDigitizationServiceCheck = spyOn<any>(mockDigitizationService, 'check').and.callThrough();
+                component.deskConfig.useMarcField = false;
 
                 startWith(WorkOrderBarcode);
                 fixture.detectChanges();
