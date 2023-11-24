@@ -352,9 +352,7 @@ describe('SendMaterialComponent:', () => {
                 let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
                 let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
 
-                const inputBox = findElement("input");
-                inputBox.value = WorkOrderBarcode;
-                click("#send");
+                startWith(WorkOrderBarcode);
 
                 fixture.detectChanges();
 
