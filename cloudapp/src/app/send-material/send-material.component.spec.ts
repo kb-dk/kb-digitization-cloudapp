@@ -442,7 +442,7 @@ describe('SendMaterialComponent:', () => {
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
             });
 
-            it("should use input-box content as Maestro-barcode, if 'use useMarcField' is true and there are multiple field583x", () => {
+            it("should use input-box content as Maestro-barcode, if 'use useMarcField' is true and there is one item but multiple field583x", () => {
                 let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
                 let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
                 let SpyAlmaServiceGetField583x = spyOn<any>(mockAlmaService, 'getField583x').and.callThrough();

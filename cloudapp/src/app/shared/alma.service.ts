@@ -121,7 +121,6 @@ export class AlmaService {
 
   getField583x(link, inputText) {
     return this.getHolding(link).pipe(
-        tap(data => console.log('getHolding', data)),
         map(holding => this.getXmlDocFromHolding(holding)),
         map(xmlDoc => this.getFieldContentArrayFromXML(xmlDoc, '583', 'x')),
         map(fieldContentArray => this.hasMultipleField583x(fieldContentArray) ? inputText : this.getFieldContentFromArray(fieldContentArray)),

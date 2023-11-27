@@ -22,7 +22,7 @@ import {
     MAESTRO_CREATED_DOD_BEFORE_NEXT_STEP,
     WORK_ORDER_ITEM_WITHOUT_REQUEST,
     MAESTRO_CREATED_WORK_ORDER_BEFORE_NEXT_STEP,
-    REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST, HOLDING,
+    REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST, HOLDING, HOLDINGWITHMULTI583X,
 } from "../shared/test-data";
 import {Observable, of} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
@@ -48,6 +48,7 @@ describe('ReceiveMaterialComponent:', () => {
     let spyAlmaServiceGetRequestsFromItem: jasmine.Spy;
     let spyAlmaServiceScanInItem: jasmine.Spy;
     let spyAlmaServiceRemoveTemporaryLocation: jasmine.Spy;
+    let SpyAlmaServiceGetHolding: jasmine.Spy;
     let spyAlertServiceError: jasmine.Spy;
     let spyDigitizationServiceCheck: jasmine.Spy;
     let spyDigitizationServiceIsBarcodeNew: jasmine.Spy;
@@ -316,9 +317,9 @@ describe('ReceiveMaterialComponent:', () => {
             WorkOrderBarcode = "400021689597";
 
             spyAlmaServiceScanInItem = spyOn<any>(mockAlmaService, 'scanInItem').and.returnValue (of('ok'));
-            spyOn<any>(mockAlmaService, 'getHolding').and.returnValue (of(HOLDING));
             spyOn<any>(mockAlmaService, 'getMmsIdAndHoldingIdFromField583x').and.returnValue(of(['1111', '1111']));
             spyOn<any>(mockAlmaService, 'isField583xUnique').and.returnValue(of(true));
+            SpyAlmaServiceGetHolding = spyOn<any>(mockAlmaService, 'getHolding').and.returnValue (of(HOLDING));
             spyAlmaServiceRemoveTemporaryLocation = spyOn<any>(mockAlmaService, 'removeTemporaryLocation').and.returnValue(of('ok'));
             spyDigitizationServiceReceive = spyOn<any>(mockDigitizationService, 'receive').and.returnValue(of('ok'));
             spyDigitizationServiceIsBarcodeNew = spyOn<any>(mockDigitizationService, 'isBarcodeNew').and.returnValue(false);
@@ -431,6 +432,27 @@ describe('ReceiveMaterialComponent:', () => {
 
                 spyAlmaServiceGetItemFromAlma.calls.reset();
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
+            });
+
+            it("should use input-box content as Maestro-barcode, if 'use useMarcField' is true and there is one item but multiple field583x", () => {
+                let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
+                let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
+                let SpyAlmaServiceGetField583x = spyOn<any>(mockAlmaService, 'getField583x').and.callThrough();
+                SpyAlmaServiceGetHolding.and.returnValue(of(HOLDINGWITHMULTI583X));
+
+                let field583x = new DOMParser().parseFromString(HOLDINGWITHMULTI583X.anies[0], "application/xml").querySelectorAll(`datafield[tag='583'] subfield[code='x']`)[1].textContent;
+                component.deskConfig.useMarcField = true;
+                startWith(field583x);
+
+                fixture.detectChanges();
+
+                expect(SpyAlmaServiceGetField583x).toHaveBeenCalled();
+                expect(spyDigitizationServiceCheck).toHaveBeenCalledWith(field583x, component.deskConfig);
+
+                SpyAlmaServiceGetField583x.calls.reset();
+                spyAlmaServiceGetItemFromAlma.calls.reset();
+                spyAlmaServiceGetRequestsFromItem.calls.reset();
+
             });
 
             afterEach(() => {
