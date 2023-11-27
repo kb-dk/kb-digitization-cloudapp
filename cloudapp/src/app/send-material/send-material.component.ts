@@ -40,7 +40,6 @@ export class SendMaterialComponent {
     }
 
     sendToDigitization() {
-        console.log(this.checkComments)
         let inputText = this.barcode.nativeElement.value;
         if (inputText) {
             // TODO: Add this to desk config in configuration
@@ -62,7 +61,6 @@ export class SendMaterialComponent {
                             }
                             return request
                         }),
-                        tap(request => console.log(request)),
                         concatMap(request => this.checkComments && request?.user_request[0]?.comment ? this.showCommentDialog(request.user_request[0].comment) : of(true)),
                     )
                     .pipe(
@@ -115,15 +113,15 @@ export class SendMaterialComponent {
             )
     }
 
-    private checkBarcodeStatusInAlmaAndMaestro(inputText) {
+    checkBarcodeStatusInAlmaAndMaestro(inputText) {
         return this.getItemFromAlma(inputText)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
                 tap(AlmaItem => this.barcodeForMaestro = AlmaItem.item_data.barcode.toString()),
                 concatMap((AlmaItem): Observable<string> => {
-                        if (this.deskConfig.useMarcField) {
-                            let field583x = '';
-                            return this.almaService.getField583x(AlmaItem.holding_data.link).pipe(
+                    if (this.deskConfig.useMarcField) {
+                        let field583x = '';
+                            return this.almaService.getField583x(AlmaItem.holding_data.link, inputText).pipe(
                                 tap(response => field583x = response),
                                 concatMap(response => response === '' ? of(true) : this.almaService.isField583xUnique(response, this.institution, this.almaUrl)),
                                 map((isField583xUnique: boolean): string => {

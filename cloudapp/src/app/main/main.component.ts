@@ -1,6 +1,5 @@
 import { Component, ElementRef,ViewChild, OnInit } from '@angular/core';
 import {
-    CloudAppRestService,
     CloudAppEventsService,
     AlertService,
     CloudAppConfigService,
@@ -21,11 +20,9 @@ export class MainComponent implements OnInit {
   loading = false;
   inputLabel:string = '';
   @ViewChild('barcode', {static: false}) barcode: ElementRef;
-  emptyConfig: boolean = false;
 
   constructor(
       private configService: CloudAppConfigService,
-      private restService: CloudAppRestService,
       private eventsService: CloudAppEventsService,
       private alert: AlertService,
   ) { }
@@ -39,18 +36,18 @@ export class MainComponent implements OnInit {
           this.almaUrl = data.urls.alma;
       });
       this.configService.get().subscribe(config => {
-          if (Object.keys(config).length){
-          if (config.desks && this.currentlyAtDeptCode) {
-              this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
-          }
-          if (this.currentlyAtDeptCode == undefined) {
-              this.alert.error(`Please select a Desk in Alma first.`);
-          } else if (this.deskConfig == undefined) {
-              this.alert.error(`The desk you are at ( with desk code: "${this.currentlyAtDeptCode}" ), is not defined in the app.`);
-          }
-          this.inputLabel = this.deskConfig?.useMarcField ? 'Barcode or field583x' : 'Barcode';
+          if (Object.keys(config).length) {
+              if (config.desks && this.currentlyAtDeptCode) {
+                  this.deskConfig = config.desks.find(desk => desk.deskCode.trim() == this.currentlyAtDeptCode.trim());
+              }
+              if (this.currentlyAtDeptCode === undefined) {
+                  this.alert.error(`Please select a Desk in Alma first.`);
+              } else if (this.deskConfig === undefined) {
+                  this.alert.error(`The desk you are at ( with desk code: "${this.currentlyAtDeptCode}" ), is not defined in the app.`);
+              }
+              this.inputLabel = this.deskConfig?.useMarcField ? 'Barcode or field583x' : 'Barcode';
           } else {
-              this.emptyConfig = true;
+              this.alert.error(`Please ask an Admin to configure this App.`);
           }
           this.loading = false;
       })

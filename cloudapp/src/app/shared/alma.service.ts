@@ -66,15 +66,16 @@ export class AlmaService {
       return this.getItemsFromBarcode(encodedBarcodeOrField583x);
     }
   }
+
   getItemsFromBarcode = (barcode:string) => this.restService.call(`/items?item_barcode=${barcode.trim()}`);
 
-  getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMarcrecordFromField583x(field583x, institution, almaUrl).pipe(
+  getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMmsIdAndHoldingIdFromField583x(field583x, institution, almaUrl).pipe(
         concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
         concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
         map(items => items.item?.length === 1 ? items.item[0] : throwError(() => new Error(`There is no item or there are more than one item.`))),
     );
 
-  getMarcrecordFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
+  getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
 
         // Søg i mms_id og felt583x http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==TUESUNIKKE_filnavnssyntax%20or%20alma.mms_id==99124929653105763
         // Søg i alle marc felter plus barcode og mere   http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=99122912149905763
@@ -86,26 +87,6 @@ export class AlmaService {
         map((xmlDoc: Document): [Document, string] => this.getMMSIDFromMarc(xmlDoc)),
         map(([xmlDoc, MMSID]): [string, string]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)])
     );
-
-
-  private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
-    if ((xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML)){
-      console.error(xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML);
-    }
-    let numberOfRecords: number;
-    numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
-    switch (numberOfRecords) {
-      case 1:
-         let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
-        return [xmlDoc, MMSID];
-      case 0:
-        throw new Error(`Barcode or MMSID not exists.`);
-      default:
-        throw new Error(`Field583x is not unique.`);
-    }
-  }
-
-  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromXML(xmlDoc, 'AVA', '8');
 
   getHoldingIdFromMMSID = (mmsid: string): Observable<[string, string]> => this.restService.call(`/bibs/${mmsid.trim()}/holdings`).pipe(
         map (holdings => holdings.hasOwnProperty('holding') && holdings['holding'][0] && holdings['holding'][0]['holding_id'] ? holdings['holding'][0]['holding_id'] : ''),
@@ -133,15 +114,17 @@ export class AlmaService {
 
   getHolding = (holdingLink) => this.restService.call(holdingLink);
 
-  getField583xFromHolding = (holding) => {
+  getXmlDocFromHolding = (holding) => {
     const XMLText = holding.hasOwnProperty('anies') && Array.isArray(holding.anies) ? holding.anies[0] : '';
-    const xmlDoc = new DOMParser().parseFromString(XMLText, "application/xml");
-    return this.getFieldContentFromXML(xmlDoc, '583', 'x');
+    return new DOMParser().parseFromString(XMLText, "application/xml");
   }
 
-  getField583x(link) {
+  getField583x(link, inputText) {
     return this.getHolding(link).pipe(
-        map(holding => this.getField583xFromHolding(holding)),
+        tap(data => console.log('getHolding', data)),
+        map(holding => this.getXmlDocFromHolding(holding)),
+        map(xmlDoc => this.getFieldContentArrayFromXML(xmlDoc, '583', 'x')),
+        map(fieldContentArray => this.hasMultipleField583x(fieldContentArray) ? inputText : this.getFieldContentFromArray(fieldContentArray)),
         tap(field583x => {
           if (!field583x) {
             console.log("field583x has no value");
@@ -155,15 +138,6 @@ export class AlmaService {
       return request.user_request[0]?.target_destination?.value === deskCode;
     }
     return true;
-  }
-
-  private getFieldContentFromXML = (xmlDoc, tag, code): string => {
-    let fieldContent = xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
-    if (fieldContent.length === 1) {
-      return fieldContent[0].textContent;
-    } else {
-      return '';
-    }
   }
 
   removeTemporaryLocation = (itemFromApi) => {
@@ -181,5 +155,40 @@ export class AlmaService {
     }
   }
 
+  hasMultipleField583x = (xmlDoc) => {
+    return xmlDoc.length > 1;
+  }
+
+  private getFieldContentArrayFromXML = (xmlDoc, tag, code): string[] => {
+    return xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
+  }
+
+  private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
+    if ((xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML)){
+      console.error(xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML);
+    }
+    let numberOfRecords: number;
+    numberOfRecords = parseInt(xmlDoc.getElementsByTagName("numberOfRecords")[0]?.innerHTML);
+    switch (numberOfRecords) {
+      case 1:
+        let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
+        return [xmlDoc, MMSID];
+      case 0:
+        throw new Error(`Barcode or MMSID not exists.`);
+      default:
+        throw new Error(`Field583x is not unique.`);
+    }
+  }
+
+  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromArray(this.getFieldContentArrayFromXML(xmlDoc, 'AVA', '8'));
+
   private libraryEqualsInstitution = (libCode: string, institution: string) => libCode === institution;
+
+  private getFieldContentFromArray(fieldContent) {
+    if (fieldContent.length === 1) {
+      return fieldContent[0].textContent;
+    } else {
+      return '';
+    }
+  }
 }

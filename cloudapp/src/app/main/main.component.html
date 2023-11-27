@@ -2,10 +2,6 @@
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
 </div>
 
-<div *ngIf="emptyConfig">
-    <h3><b>Please ask an Admin to configure this App.</b></h3>
-</div>
-
 <div *ngIf="deskConfig">
     <h3><b>Your current Desk: </b> {{deskConfig.deskName}} </h3>
     <mat-tab-group>
