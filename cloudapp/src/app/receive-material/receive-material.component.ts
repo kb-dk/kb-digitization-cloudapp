@@ -70,11 +70,12 @@ export class ReceiveMaterialComponent{
     }
 
     private checkBarcodeStatusInAlmaAndMaestro() {
+        let inputText = this.barcode.nativeElement.value;
         return this.getItemFromAlma(this.barcode.nativeElement.value)
             .pipe(
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
                 tap(AlmaItem => this.barcodeForMaestro = AlmaItem.item_data.barcode.toString()),
-                concatMap(AlmaItem => this.deskConfig.useMarcField ? this.almaService.getField583x(AlmaItem.holding_data.link) : of('')),
+                concatMap(AlmaItem => this.deskConfig.useMarcField ? this.almaService.getField583x(AlmaItem.holding_data.link, inputText) : of('')),
                 tap(field583x => field583x ? this.barcodeForMaestro = field583x : null),
                 concatMap(() => this.checkStatusInDigitization(this.barcodeForMaestro)),
                 concatMap(() => this.almaService.getRequestsFromItem(this.itemFromAlma.link)),

@@ -13,6 +13,21 @@ export const HOLDING = {
     ]
 }
 
+export const HOLDINGWITHMULTI583X = {
+    "holding_id": "222099563260005763",
+    "created_by": "System",
+    "created_date": "2019-12-16Z",
+    "last_modified_by": "TLR",
+    "last_modified_date": "2023-09-21Z",
+    "originating_system": "ILS",
+    "originating_system_id": "012053104000010-HOL-KGL50",
+    "suppress_from_publishing": "false",
+    "calculated_suppress_from_publishing": "false",
+    "anies": [
+        "<?xml version=\"1.0\" encoding=\"UTF-16\"?><record><leader>00213nx  a22000731i 4500</leader><controlfield tag=\"008\">1910192u    8   4001uueng0000000</controlfield><controlfield tag=\"005\">20230921105412.0</controlfield><datafield ind1=\" \" ind2=\" \" tag=\"583\"><subfield code=\"x\">NKS-4_2740_1</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"583\"><subfield code=\"x\">NKS-4_2740_2</subfield></datafield><datafield ind1=\"8\" ind2=\" \" tag=\"852\"><subfield code=\"b\">KBL</subfield><subfield code=\"c\">LFKOBKBS</subfield><subfield code=\"h\">KBK 1111,251,3-22a-1979-1983 1984-24/17</subfield></datafield></record>"
+    ]
+}
+
 export const USER_REQUEST = {
     "user_request": [
         {

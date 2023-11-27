@@ -119,9 +119,9 @@ export class SendMaterialComponent {
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
                 tap(AlmaItem => this.barcodeForMaestro = AlmaItem.item_data.barcode.toString()),
                 concatMap((AlmaItem): Observable<string> => {
-                        if (this.deskConfig.useMarcField) {
-                            let field583x = '';
-                            return this.almaService.getField583x(AlmaItem.holding_data.link).pipe(
+                    if (this.deskConfig.useMarcField) {
+                        let field583x = '';
+                            return this.almaService.getField583x(AlmaItem.holding_data.link, inputText).pipe(
                                 tap(response => field583x = response),
                                 concatMap(response => response === '' ? of(true) : this.almaService.isField583xUnique(response, this.institution, this.almaUrl)),
                                 map((isField583xUnique: boolean): string => {

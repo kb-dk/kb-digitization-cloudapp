@@ -77,7 +77,6 @@ describe('ReceiveMaterialComponent:', () => {
         receiveFromDigi = (itemLink:string, library: string, department:string,work_order_type:string=null, institution: string) => of('ok');
         removeTemporaryLocation = (itemFromApi) => of('ok');
         getField583x = (link) => {
-            console.log('here');
             return of('');
         };
         getRequestsFromItem = (link) => {

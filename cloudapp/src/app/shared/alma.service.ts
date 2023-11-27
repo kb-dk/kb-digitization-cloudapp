@@ -114,15 +114,17 @@ export class AlmaService {
 
   getHolding = (holdingLink) => this.restService.call(holdingLink);
 
-  getField583xFromHolding = (holding) => {
+  getXmlDocFromHolding = (holding) => {
     const XMLText = holding.hasOwnProperty('anies') && Array.isArray(holding.anies) ? holding.anies[0] : '';
-    const xmlDoc = new DOMParser().parseFromString(XMLText, "application/xml");
-    return this.getFieldContentFromXML(xmlDoc, '583', 'x');
+    return new DOMParser().parseFromString(XMLText, "application/xml");
   }
 
-  getField583x(link) {
+  getField583x(link, inputText) {
     return this.getHolding(link).pipe(
-        map(holding => this.getField583xFromHolding(holding)),
+        tap(data => console.log('getHolding', data)),
+        map(holding => this.getXmlDocFromHolding(holding)),
+        map(xmlDoc => this.getFieldContentArrayFromXML(xmlDoc, '583', 'x')),
+        map(fieldContentArray => this.hasMultipleField583x(fieldContentArray) ? inputText : this.getFieldContentFromArray(fieldContentArray)),
         tap(field583x => {
           if (!field583x) {
             console.log("field583x has no value");
@@ -153,13 +155,12 @@ export class AlmaService {
     }
   }
 
-  private getFieldContentFromXML = (xmlDoc, tag, code): string => {
-    let fieldContent = xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
-    if (fieldContent.length === 1) {
-      return fieldContent[0].textContent;
-    } else {
-      return '';
-    }
+  hasMultipleField583x = (xmlDoc) => {
+    return xmlDoc.length > 1;
+  }
+
+  private getFieldContentArrayFromXML = (xmlDoc, tag, code): string[] => {
+    return xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
   }
 
   private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
@@ -179,7 +180,15 @@ export class AlmaService {
     }
   }
 
-  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromXML(xmlDoc, 'AVA', '8');
+  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromArray(this.getFieldContentArrayFromXML(xmlDoc, 'AVA', '8'));
 
   private libraryEqualsInstitution = (libCode: string, institution: string) => libCode === institution;
+
+  private getFieldContentFromArray(fieldContent) {
+    if (fieldContent.length === 1) {
+      return fieldContent[0].textContent;
+    } else {
+      return '';
+    }
+  }
 }
