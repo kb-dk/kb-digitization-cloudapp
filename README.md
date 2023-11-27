@@ -8,3 +8,4 @@ eca test
 
 ## Run the tests with code coverage report
 eca test --code-coverage
+
