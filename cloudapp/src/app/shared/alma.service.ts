@@ -139,10 +139,13 @@ export class AlmaService {
     return true;
   }
 
+  isInLFDODTempLocation = (itemFromApi) => itemFromApi.holding_data?.temp_location?.value?.toString().trim().startsWith('LFDOD');
+
   removeTemporaryLocation = (itemFromApi) => {
     let updatedItem = itemFromApi;
     if (updatedItem.holding_data.in_temp_location) {
       updatedItem.holding_data.in_temp_location = false;
+      updatedItem.holding_data.temp_location = {};
       let request: Request = {
         url: itemFromApi.link,
         method: HttpMethod.PUT,

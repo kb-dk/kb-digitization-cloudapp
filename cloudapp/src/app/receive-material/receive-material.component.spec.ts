@@ -187,23 +187,6 @@ describe('ReceiveMaterialComponent:', () => {
                 expect(component).toBeTruthy();
             });
 
-            it("should remove temporary location if it is true in the desk config", () => {
-                let spyAlmaServiceRemoveTemporaryLocation = spyOn<any>(mockAlmaService, 'removeTemporaryLocation').and.callThrough();
-
-                component.deskConfig.removeTempLocation = false;
-                startWith(WorkOrderBarcode);
-                fixture.detectChanges();
-
-                expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
-
-                component.deskConfig.removeTempLocation = true;
-                startWith(WorkOrderBarcode);
-
-                fixture.detectChanges();
-
-                expect(spyAlmaServiceRemoveTemporaryLocation).toHaveBeenCalled();
-            });
-
             afterEach(() => {
                 spyAlmaServiceGetItemFromAlma.calls.reset();
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
@@ -250,23 +233,6 @@ describe('ReceiveMaterialComponent:', () => {
 
                 SpyAlmaServiceGetField583x.calls.reset();
                 spyDigitizationServiceCheck.calls.reset();
-            });
-
-            it("should remove temporary location if it is true in the desk config", () => {
-                let spyAlmaServiceRemoveTemporaryLocation = spyOn<any>(mockAlmaService, 'removeTemporaryLocation').and.callThrough();
-
-                component.deskConfig.removeTempLocation = false;
-                startWith(WorkOrderBarcode);
-                fixture.detectChanges();
-
-                expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
-
-                component.deskConfig.removeTempLocation = true;
-                startWith(WorkOrderBarcode);
-
-                fixture.detectChanges();
-
-                expect(spyAlmaServiceRemoveTemporaryLocation).toHaveBeenCalled();
             });
 
             afterEach(() => {
@@ -380,6 +346,28 @@ describe('ReceiveMaterialComponent:', () => {
 
             });
 
+            it("should remove temporary location if it is true in the desk config", () => {
+                let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(DOD_ITEM_WITH_REQUEST));
+                let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_DOD_WITH_REQUEST_AND_COMMENT));
+                spyAlmaServiceRemoveTemporaryLocation.and.callThrough();
+
+                component.deskConfig.removeTempLocation = false;
+                startWith(DODBarcode);
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
+
+                component.deskConfig.removeTempLocation = true;
+                startWith(DODBarcode);
+
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).toHaveBeenCalled();
+
+                spyAlmaServiceGetItemFromAlma.calls.reset();
+                spyAlmaServiceGetRequestsFromItem.calls.reset();
+            });
+
             afterEach(() => {
                 spyAlmaServiceScanInItem.calls.reset();
             })
@@ -453,6 +441,29 @@ describe('ReceiveMaterialComponent:', () => {
                 spyAlmaServiceGetItemFromAlma.calls.reset();
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
 
+            });
+
+            it("should remove temporary location if removeTempLocation is true in desk-config and item's temp_location starts with LFDOD, eg. LFDOD, LFDODMUS, LFDODKAT", () => {
+                let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
+                let spyAlmaServiceGetRequestsFromItem = spyOn<any>(mockAlmaService, 'getRequestsFromItem').and.returnValue(of(REQUEST_RESPONSE_WORK_ORDER_WITH_REQUEST_AND_COMMENT));
+
+                spyAlmaServiceRemoveTemporaryLocation.and.callThrough();
+
+                component.deskConfig.removeTempLocation = false;
+                startWith(WorkOrderBarcode);
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
+
+                component.deskConfig.removeTempLocation = true;
+                startWith(WorkOrderBarcode);
+
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).toHaveBeenCalled();
+
+                spyAlmaServiceGetItemFromAlma.calls.reset();
+                spyAlmaServiceGetRequestsFromItem.calls.reset();
             });
 
             afterEach(() => {

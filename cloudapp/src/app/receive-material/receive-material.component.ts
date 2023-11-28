@@ -59,9 +59,11 @@ export class ReceiveMaterialComponent{
                 tap(() => this.successMessage = ['Maestro']),
                 concatMap (() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
                 tap(() => this.successMessage.push('Alma')),
-                concatMap ((): Observable<any> => {
+                concatMap((): Observable<any> => {
                     if (this.deskConfig.removeTempLocation) {
-                        return this.almaService.removeTemporaryLocation(this.itemFromAlma);
+                        if (this.almaService.isInLFDODTempLocation(this.itemFromAlma)) {
+                            return this.almaService.removeTemporaryLocation(this.itemFromAlma);
+                        }
                     }
                     return of('NoTemp');
                 }),

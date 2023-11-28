@@ -348,7 +348,7 @@ export const DOD_ITEM_WITH_REQUEST = {
             "desc": "The Black Diamond, Copenhagen"
         },
         "temp_location": {
-            "value": "LFDOD",
+            "value": " LFDODMUBOX",
             "desc": "Digitalisering eller læsesal"
         },
         "temp_call_number_type": {
@@ -801,9 +801,12 @@ export const WORK_ORDER_ITEM_WITH_REQUEST = {
         "call_number": "51-466945",
         "accession_number": "",
         "copy_id": "",
-        "in_temp_location": false,
+        "in_temp_location": true,
         "temp_library": {},
-        "temp_location": {},
+        "temp_location": {
+            "value": "LFDODX",
+            "desc": "Digitalisering eller læsesal"
+        },
         "temp_call_number_type": {
             "value": ""
         },
