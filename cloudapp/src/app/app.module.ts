@@ -15,6 +15,7 @@ import { ReceiveMaterialComponent } from './receive-material/receive-material.co
 import {ConfigComponent} from "./config/config.component";
 import {MatDialogModule} from '@angular/material/dialog';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
+import { ItemListDialogComponent } from './item-list-dialog/item-list-dialog.component';
 
 const materialModules = [
   MatDialogModule
@@ -26,7 +27,8 @@ const materialModules = [
     ConfigComponent,
     SendMaterialComponent,
     ReceiveMaterialComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    ItemListDialogComponent
   ],
   imports: [
     MaterialModule,
