@@ -151,7 +151,7 @@ export class SendMaterialComponent {
     }
 
     getItemFromAlma(barcodeOrField583x) {
-        return this.almaService.getItemsFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl).pipe(
+        return this.almaService.getItemFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl).pipe(
         );
     }
 

@@ -111,7 +111,7 @@ export class ReceiveMaterialComponent{
     }
 
     getItemFromAlma(barcodeOrField583x) {
-        return this.almaService.getItemsFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl);
+        return this.almaService.getItemFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl);
     }
 
   resetForm(status) {

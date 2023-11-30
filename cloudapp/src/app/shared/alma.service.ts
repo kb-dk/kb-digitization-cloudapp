@@ -55,7 +55,7 @@ export class AlmaService {
     return this.restService.call(request);
   }
 
-  getItemsFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
+  getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
     const encodedBarcodeOrField583x = encodeURIComponent(barcodeOrField583x).trim();
     if(useField583x){
       return this.getItemsFromBarcode(encodedBarcodeOrField583x)
