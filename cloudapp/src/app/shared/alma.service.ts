@@ -52,7 +52,7 @@ export class AlmaService {
     return this.restService.call(request);
   }
 
-  getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
+  getItemsFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
     const encodedBarcodeOrField583x = encodeURIComponent(barcodeOrField583x).trim();
     if(useField583x){
       return this.getItemsFromBarcode(encodedBarcodeOrField583x)
@@ -72,7 +72,7 @@ export class AlmaService {
   getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMmsIdAndHoldingIdFromField583x(field583x, institution, almaUrl).pipe(
         concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
         concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
-        map(items => items.item?.length === 1 ? items.item[0] : throwError(() => new Error(`There is no item or there are more than one item.`))),
+        map(data => data.item),
     );
 
   getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',

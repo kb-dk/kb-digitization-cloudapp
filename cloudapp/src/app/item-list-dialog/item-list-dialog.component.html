@@ -1,1 +1,19 @@
-<p>item-list-dialog works!</p>
+<div class="dialog-header accent-background">
+    <span class="dialog-header-title">{{data.dialogTitle}}</span>
+</div>
+<div class="dialog-content">
+    <mat-radio-group [(ngModel)]="chosenItem" [ngModelOptions]="{standalone: true}" aria-label="{{data.dialogTitle}}">
+        <div *ngFor="let item of data.items; index as i;">
+            <mat-radio-button value="{{i}}">
+                <b>Title: </b>{{item.bib_data.title}} <br/>
+                <b>Call number: </b>{{item.holding_data.call_number}}
+            </mat-radio-button>
+        </div>
+    </mat-radio-group>
+</div>
+<div class="dialog-footer cloudapp-actions">
+    <button class="standard-button dialog-button" mat-raised-button
+            [mat-dialog-close]="false">{{data.noButtonText}}</button>
+    <button mat-raised-button color="primary" (click)="continueButtonClicked()" [mat-dialog-close]="true">{{data.yesButtonText}}</button>
+</div>
+

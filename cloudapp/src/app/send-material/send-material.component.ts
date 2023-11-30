@@ -119,8 +119,8 @@ export class SendMaterialComponent {
                 tap(AlmaItem => this.itemFromAlma = AlmaItem),
                 tap(AlmaItem => this.barcodeForMaestro = AlmaItem.item_data.barcode.toString()),
                 concatMap((AlmaItem): Observable<string> => {
-                    if (this.deskConfig.useMarcField) {
-                        let field583x = '';
+                        if (this.deskConfig.useMarcField) {
+                            let field583x = '';
                             return this.almaService.getField583x(AlmaItem.holding_data.link, inputText).pipe(
                                 tap(response => field583x = response),
                                 concatMap(response => response === '' ? of(true) : this.almaService.isField583xUnique(response, this.institution, this.almaUrl)),
@@ -151,7 +151,26 @@ export class SendMaterialComponent {
     }
 
     getItemFromAlma(barcodeOrField583x) {
-        return this.almaService.getItemFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl).pipe(
+        return this.almaService.getItemsFromAlma(this.deskConfig.useMarcField, barcodeOrField583x, this.institution, this.almaUrl).pipe(
+            tap(data => console.log('getItemsFromAlma', data)),
+            concatMap(items => {
+                if (items?.length === 1) {
+                    return of(items[0]);
+                } else if (items?.length === 0) {
+                    throw new Error(`There is no item.`);
+                } else if (items?.length > 1) {
+                    return this.showItemListDialog(items);
+                } else {
+                    return of(items);
+                }
+            }),
+            map(item => {
+                if (!item) {
+                    throw new Error(`No item is selected.`);
+                } else {
+                    return item;
+                }
+            }),
         );
     }
 
@@ -177,6 +196,20 @@ export class SendMaterialComponent {
             throw new Error("There is no request on this item!");
         }
         return request;
+    }
+
+    private async showItemListDialog(itemList: any[]) {
+        const dialogRef = this.dialog.open(ItemListDialogComponent, {
+            width: '26.5rem',
+            data: {
+                dialogTitle: 'Choose an item:',
+                items: itemList,
+                yesButtonText: 'Continue',
+                noButtonText: 'Cancel'
+            }
+        });
+
+        return await dialogRef.afterClosed().toPromise();
     }
 
     private showCommentDialog(comment: string): Observable<boolean> {
