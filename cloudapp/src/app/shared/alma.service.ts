@@ -222,7 +222,7 @@ export class AlmaService {
     const dialogRef = this.dialog.open(ItemListDialogComponent, {
       width: '26.5rem',
       data: {
-        dialogTitle: 'Choose an item:',
+        dialogTitle: 'Please choose an item:',
         items: itemList,
         yesButtonText: 'Continue',
         noButtonText: 'Cancel'
