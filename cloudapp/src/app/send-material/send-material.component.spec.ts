@@ -22,7 +22,7 @@ import {
     MAESTRO_CREATED_DOD_BEFORE_NEXT_STEP,
     WORK_ORDER_ITEM_WITHOUT_REQUEST,
     MAESTRO_CREATED_WORK_ORDER_BEFORE_NEXT_STEP,
-    REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST, HOLDING, HOLDINGWITHMULTI583X,
+    REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST, HOLDING, HOLDINGWITHMULTI583X, TWOITEMSFROMONEHOLDING,
 } from "../shared/test-data";
 import {Observable, of} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
@@ -126,6 +126,10 @@ describe('SendMaterialComponent:', () => {
     const FakeDialogRef = {afterClosed: () => of(true)};
 
     const FakeDialog = {open: () => FakeDialogRef};
+
+    const FakeItemListDialogRef = {afterClosed: () => of(false)};
+
+    const FakeItemListDialog = {open: () => FakeItemListDialogRef};
 
     describe('Unit test:', () => {
         beforeEach(waitForAsync(() => {
@@ -461,6 +465,19 @@ describe('SendMaterialComponent:', () => {
                 spyAlmaServiceGetItemFromAlma.calls.reset();
                 spyAlmaServiceGetRequestsFromItem.calls.reset();
 
+            });
+
+            it("should show a list of the items to choose from, if there are multiple items on one holding", () => {
+                hasRequestAndComment = true;
+                spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(of('Barcode not found'));
+                spyOn<any>(mockAlmaService, 'getItemFromHolding').and.returnValue(of(TWOITEMSFROMONEHOLDING));
+
+                let SpyAlmaServiceItemShowItemListDialog: jasmine.Spy = spyOn<any>(mockAlmaService, 'showItemListDialog');
+
+                startWith(WorkOrderBarcode);
+                fixture.detectChanges();
+
+                expect(SpyAlmaServiceItemShowItemListDialog).toHaveBeenCalled();
             });
 
             afterEach(() => {

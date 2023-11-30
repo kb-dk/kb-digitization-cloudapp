@@ -13,6 +13,276 @@ export const HOLDING = {
     ]
 }
 
+export const TWOITEMSFROMONEHOLDING = {
+    "item": [
+        {
+            "bib_data": {
+                "title": "Biblia Graeca : fragmentum versionis LXX interpretum (V. T., prophetæ).",
+                "author": "Molderhawer, D. G.,",
+                "mms_id": "99122282206105763",
+                "bib_suppress_from_publishing": "false",
+                "complete_edition": "",
+                "network_number": [
+                    "(EXLNZ-45KBDK_NETWORK)995735689205761",
+                    "(DK-810010)000014219KBH01",
+                    "x510106209"
+                ],
+                "date_of_publication": "[10??]",
+                "link": "/almaws/v1/bibs/99122282206105763"
+            },
+            "holding_data": {
+                "holding_id": "222075033350005763",
+                "holding_suppress_from_publishing": "false",
+                "calculated_suppress_from_publishing": "false",
+                "permanent_call_number_type": {
+                    "value": "8",
+                    "desc": "Other scheme"
+                },
+                "permanent_call_number": "NKS 5 kvart",
+                "call_number_type": {
+                    "value": "8",
+                    "desc": "Other scheme"
+                },
+                "call_number": "NKS 5 kvart",
+                "accession_number": "NKS 5 kvart",
+                "copy_id": "",
+                "in_temp_location": false,
+                "temp_library": {},
+                "temp_location": {},
+                "temp_call_number_type": {
+                    "value": ""
+                },
+                "temp_call_number": "",
+                "temp_call_number_source": "",
+                "temp_policy": {
+                    "value": ""
+                },
+                "link": "/almaws/v1/bibs/99122282206105763/holdings/222075033350005763"
+            },
+            "item_data": {
+                "pid": "232075052990005763",
+                "barcode": "130023940958",
+                "policy": {
+                    "value": "Læsesal ID",
+                    "desc": "- Læsesal ID"
+                },
+                "provenance": {
+                    "value": ""
+                },
+                "description": "Æske 1: Biblia Graeca",
+                "library": {
+                    "value": "KBL",
+                    "desc": "The Black Diamond, Copenhagen"
+                },
+                "location": {
+                    "value": "LFHABBOX",
+                    "desc": "Manus og Boghistorie, box materiale 55"
+                },
+                "pages": "",
+                "pieces": "",
+                "requested": false,
+                "creation_date": "2019-11-18Z",
+                "modification_date": "2022-10-28Z",
+                "base_status": {
+                    "value": "1",
+                    "desc": "Item in place"
+                },
+                "awaiting_reshelving": false,
+                "physical_material_type": {
+                    "value": "MANUSCRIPT",
+                    "desc": "Manuscript"
+                },
+                "po_line": "",
+                "year_of_issue": "",
+                "enumeration_a": "1",
+                "enumeration_b": "",
+                "enumeration_c": "",
+                "enumeration_d": "",
+                "enumeration_e": "",
+                "enumeration_f": "",
+                "enumeration_g": "",
+                "enumeration_h": "",
+                "chronology_i": "",
+                "chronology_j": "",
+                "chronology_k": "",
+                "chronology_l": "",
+                "chronology_m": "",
+                "break_indicator": {
+                    "value": ""
+                },
+                "pattern_type": {
+                    "value": ""
+                },
+                "linking_number": "",
+                "type_of_unit": "",
+                "receiving_operator": "",
+                "process_type": {
+                    "value": ""
+                },
+                "inventory_number": "",
+                "inventory_price": "",
+                "alternative_call_number": "",
+                "alternative_call_number_type": {
+                    "value": ""
+                },
+                "storage_location_id": "",
+                "public_note": "",
+                "fulfillment_note": "Box materiale",
+                "internal_note_1": "",
+                "internal_note_2": "",
+                "internal_note_3": "",
+                "statistics_note_1": "",
+                "statistics_note_2": "",
+                "statistics_note_3": "",
+                "physical_condition": {},
+                "committed_to_retain": {
+                    "value": "true",
+                    "desc": "Yes"
+                },
+                "retention_reason": {
+                    "value": "Bevaringsværdig",
+                    "desc": "Bevaringsværdig"
+                },
+                "retention_note": ""
+            },
+            "link": "/almaws/v1/bibs/99122282206105763/holdings/222075033350005763/items/232075052990005763"
+        },
+        {
+            "bib_data": {
+                "title": "Biblia Graeca : fragmentum versionis LXX interpretum (V. T., prophetæ).",
+                "author": "Molderhawer, D. G.,",
+                "mms_id": "99122282206105763",
+                "bib_suppress_from_publishing": "false",
+                "complete_edition": "",
+                "network_number": [
+                    "(EXLNZ-45KBDK_NETWORK)995735689205761",
+                    "(DK-810010)000014219KBH01",
+                    "x510106209"
+                ],
+                "date_of_publication": "[10??]",
+                "link": "/almaws/v1/bibs/99122282206105763"
+            },
+            "holding_data": {
+                "holding_id": "222075033350005763",
+                "holding_suppress_from_publishing": "false",
+                "calculated_suppress_from_publishing": "false",
+                "permanent_call_number_type": {
+                    "value": "8",
+                    "desc": "Other scheme"
+                },
+                "permanent_call_number": "NKS 5 kvart",
+                "call_number_type": {
+                    "value": "8",
+                    "desc": "Other scheme"
+                },
+                "call_number": "NKS 5 kvart",
+                "accession_number": "NKS 5 kvart",
+                "copy_id": "",
+                "in_temp_location": false,
+                "temp_library": {},
+                "temp_location": {},
+                "temp_call_number_type": {
+                    "value": ""
+                },
+                "temp_call_number": "",
+                "temp_call_number_source": "",
+                "temp_policy": {
+                    "value": ""
+                },
+                "link": "/almaws/v1/bibs/99122282206105763/holdings/222075033350005763"
+            },
+            "item_data": {
+                "pid": "232149089130005763",
+                "barcode": "130023940591",
+                "policy": {
+                    "value": "Læsesal ID",
+                    "desc": "- Læsesal ID"
+                },
+                "provenance": {
+                    "value": ""
+                },
+                "description": "Æske 2: Tidligere indbinding",
+                "library": {
+                    "value": "KBL",
+                    "desc": "The Black Diamond, Copenhagen"
+                },
+                "location": {
+                    "value": "LFHABBOX",
+                    "desc": "Manus og Boghistorie, box materiale 55"
+                },
+                "pages": "",
+                "pieces": "",
+                "requested": false,
+                "creation_date": "2021-04-26Z",
+                "modification_date": "2022-10-28Z",
+                "base_status": {
+                    "value": "1",
+                    "desc": "Item in place"
+                },
+                "awaiting_reshelving": false,
+                "physical_material_type": {
+                    "value": "REALIA",
+                    "desc": "Realia"
+                },
+                "po_line": "",
+                "year_of_issue": "",
+                "enumeration_a": "2",
+                "enumeration_b": "",
+                "enumeration_c": "",
+                "enumeration_d": "",
+                "enumeration_e": "",
+                "enumeration_f": "",
+                "enumeration_g": "",
+                "enumeration_h": "",
+                "chronology_i": "",
+                "chronology_j": "",
+                "chronology_k": "",
+                "chronology_l": "",
+                "chronology_m": "",
+                "break_indicator": {
+                    "value": ""
+                },
+                "pattern_type": {
+                    "value": ""
+                },
+                "linking_number": "",
+                "type_of_unit": "",
+                "receiving_operator": "",
+                "process_type": {
+                    "value": ""
+                },
+                "inventory_number": "",
+                "inventory_price": "",
+                "alternative_call_number": "",
+                "alternative_call_number_type": {
+                    "value": ""
+                },
+                "storage_location_id": "",
+                "public_note": "",
+                "fulfillment_note": "Box materiale",
+                "internal_note_1": "",
+                "internal_note_2": "",
+                "internal_note_3": "",
+                "statistics_note_1": "",
+                "statistics_note_2": "",
+                "statistics_note_3": "",
+                "physical_condition": {},
+                "committed_to_retain": {
+                    "value": "true",
+                    "desc": "Yes"
+                },
+                "retention_reason": {
+                    "value": "Bevaringsværdig",
+                    "desc": "Bevaringsværdig"
+                },
+                "retention_note": ""
+            },
+            "link": "/almaws/v1/bibs/99122282206105763/holdings/222075033350005763/items/232149089130005763"
+        }
+    ],
+    "total_record_count": 2
+}
+
 export const HOLDINGWITHMULTI583X = {
     "holding_id": "222099563260005763",
     "created_by": "System",
@@ -1188,3 +1458,5 @@ export const MAESTRO_CREATED_RECORD_AFTER_NEXT_STEP = {
         "74": {"title": "parts_of_physical_item", "value": ""}
     }
 }
+
+
