@@ -2,7 +2,7 @@
     <span class="dialog-header-title">{{data.dialogTitle}}</span>
 </div>
 <div class="dialog-content">
-    <mat-radio-group [(ngModel)]="chosenItem" [ngModelOptions]="{standalone: true}" aria-label="{{data.dialogTitle}}">
+    <mat-radio-group [(ngModel)]="chosenItem" [ngModelOptions]="{standalone: true}">
         <div *ngFor="let item of data.items; index as i;">
             <mat-radio-button value="{{i}}">
                 <b>Title: </b>{{item.bib_data.title}} <br/>
