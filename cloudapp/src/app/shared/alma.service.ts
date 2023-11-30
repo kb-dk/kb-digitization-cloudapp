@@ -7,6 +7,8 @@ import {
 import {Observable, of, throwError} from "rxjs";
 import {catchError, concatMap, map, tap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
+import {MatDialog} from "@angular/material/dialog";
+import {ItemListDialogComponent} from "../item-list-dialog/item-list-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,7 @@ export class AlmaService {
   constructor(
       private restService: CloudAppRestService,
       private http: HttpClient,
+      public dialog: MatDialog
   ) { }
 
 
@@ -70,10 +73,31 @@ export class AlmaService {
   getItemsFromBarcode = (barcode:string) => this.restService.call(`/items?item_barcode=${barcode.trim()}`);
 
   getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMmsIdAndHoldingIdFromField583x(field583x, institution, almaUrl).pipe(
-        concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
-        concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
-        map(data => data.item),
-    );
+      concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
+      concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
+      concatMap(items => {
+        if (items.hasOwnProperty('item')) {
+          items = items.item;
+          switch (items.length) {
+            case 0:
+              throw new Error(`There is no item.`);
+            case 1:
+              return of(items[0]);
+            default:
+              return this.showItemListDialog(items);
+          }
+        } else {
+          throw new Error(`There is no item.`);
+        }
+      }),
+      map(item => {
+        if (!item) {
+          throw new Error(`No item is selected.`);
+        } else {
+          return item;
+        }
+      }),
+  );
 
   getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
 
@@ -176,7 +200,7 @@ export class AlmaService {
         let MMSID = xmlDoc.getElementsByTagName("recordIdentifier")[0]?.innerHTML;
         return [xmlDoc, MMSID];
       case 0:
-        throw new Error(`Barcode or MMSID not exists.`);
+        throw new Error(`Barcode or field 583x doesn't exist.`);
       default:
         throw new Error(`Field583x is not unique.`);
     }
@@ -192,5 +216,19 @@ export class AlmaService {
     } else {
       return '';
     }
+  }
+
+  private async showItemListDialog(itemList: any[]) {
+    const dialogRef = this.dialog.open(ItemListDialogComponent, {
+      width: '26.5rem',
+      data: {
+        dialogTitle: 'Choose an item:',
+        items: itemList,
+        yesButtonText: 'Continue',
+        noButtonText: 'Cancel'
+      }
+    });
+
+    return await dialogRef.afterClosed().toPromise();
   }
 }
