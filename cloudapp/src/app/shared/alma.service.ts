@@ -4,8 +4,8 @@ import {
   HttpMethod,
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
-import {Observable, of, throwError} from "rxjs";
-import {catchError, concatMap, map, tap} from "rxjs/operators";
+import {forkJoin, Observable, of, throwError} from "rxjs";
+import {catchError, concatMap, map, mergeMap, tap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ItemListDialogComponent} from "../item-list-dialog/item-list-dialog.component";
@@ -14,6 +14,8 @@ import {ItemListDialogComponent} from "../item-list-dialog/item-list-dialog.comp
   providedIn: 'root'
 })
 export class AlmaService {
+
+  inputIsBarcode: boolean;
 
   constructor(
       private restService: CloudAppRestService,
@@ -58,11 +60,13 @@ export class AlmaService {
   getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
     const encodedBarcodeOrField583x = encodeURIComponent(barcodeOrField583x).trim();
     if(useField583x){
+      this.inputIsBarcode = true;
       return this.getItemsFromBarcode(encodedBarcodeOrField583x)
           .pipe(
               catchError(error => error.message === `No items found for barcode ${encodedBarcodeOrField583x.trim()}.` ? of('Barcode not found') : error)
           )
           .pipe(
+              tap(response => response === 'Barcode not found' ? this.inputIsBarcode = false : null),
               concatMap(response => response === 'Barcode not found' ? this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl) : of(response))
           )
     }else{
@@ -109,12 +113,13 @@ export class AlmaService {
         }).pipe(
         map(data => new DOMParser().parseFromString(data,"text/xml")),
         map((xmlDoc: Document): [Document, string] => this.getMMSIDFromMarc(xmlDoc)),
-        map(([xmlDoc, MMSID]): [string, string]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)])
+        map(([xmlDoc, MMSID]): [string, string[]]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)]),
+        concatMap(([MMSID, holdings]) => this.hasMultipleField(holdings) ? this.getRelevantHolding(holdings, MMSID, fieldContent) : of([MMSID, this.getFieldContentFromArray(holdings)])),
     );
 
   getHoldingIdFromMMSID = (mmsid: string): Observable<[string, string]> => this.restService.call(`/bibs/${mmsid.trim()}/holdings`).pipe(
-        map (holdings => holdings.hasOwnProperty('holding') && holdings['holding'][0] && holdings['holding'][0]['holding_id'] ? holdings['holding'][0]['holding_id'] : ''),
-        map (holdingId => [mmsid, holdingId])
+      map (holdings => holdings.hasOwnProperty('holding') && holdings['holding'][0] && holdings['holding'][0]['holding_id'] ? holdings['holding'][0]['holding_id'] : ''),
+      map (holdingId => [mmsid, holdingId])
     );
 
   getItemFromHolding = (link) => this.restService.call(`${link}`);
@@ -147,7 +152,7 @@ export class AlmaService {
     return this.getHolding(link).pipe(
         map(holding => this.getXmlDocFromHolding(holding)),
         map(xmlDoc => this.getFieldContentArrayFromXML(xmlDoc, '583', 'x')),
-        map(fieldContentArray => this.hasMultipleField583x(fieldContentArray) ? inputText : this.getFieldContentFromArray(fieldContentArray)),
+        map(fieldContentArray => this.hasMultipleField(fieldContentArray) ? inputText : this.getFieldContentFromArray(fieldContentArray)),
         tap(field583x => {
           if (!field583x) {
             console.log("field583x has no value");
@@ -181,13 +186,9 @@ export class AlmaService {
     }
   }
 
-  hasMultipleField583x = (xmlDoc) => {
-    return xmlDoc.length > 1;
-  }
+  hasMultipleField = (fields) => fields.length > 1;
 
-  private getFieldContentArrayFromXML = (xmlDoc, tag, code): string[] => {
-    return xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
-  }
+  private getFieldContentArrayFromXML = (xmlDoc, tag, code): any[] => xmlDoc.querySelectorAll(`datafield[tag='${tag}'] subfield[code='${code}']`);
 
   private getMMSIDFromMarc = (xmlDoc: Document): [Document, string] => {
     if ((xmlDoc.getElementsByTagName("diagnostics")[0]?.innerHTML)){
@@ -206,11 +207,14 @@ export class AlmaService {
     }
   }
 
-  private getHoldingNrFromMarc = (xmlDoc: Document): string => this.getFieldContentFromArray(this.getFieldContentArrayFromXML(xmlDoc, 'AVA', '8'));
+  private getHoldingNrFromMarc = (xmlDoc: Document) => {
+    return this.getFieldContentArrayFromXML(xmlDoc, 'AVA', '8');
+    // return this.hasMultipleField(fieldContentArray) ? this.findRelevantHolding(fieldContentArray, MMSID) : of(this.getFieldContentFromArray(fieldContentArray));
+  }
 
   private libraryEqualsInstitution = (libCode: string, institution: string) => libCode === institution;
 
-  private getFieldContentFromArray(fieldContent) {
+  private getFieldContentFromArray(fieldContent): string {
     if (fieldContent.length === 1) {
       return fieldContent[0].textContent;
     } else {
@@ -230,5 +234,36 @@ export class AlmaService {
     });
 
     return await dialogRef.afterClosed().toPromise();
+  }
+
+  getRelevantHolding(fieldContentArray: any[], MMSID: string, input): Observable<[string, string]> {
+    if (this.inputIsBarcode){
+      throw new Error(`Cannot find the relevant item, since there are multiple holdings.`);
+    }
+
+    let holdings: string[] = Array.from(fieldContentArray, fieldContent => fieldContent.textContent);
+
+    return of(holdings).pipe(
+        mergeMap(holdings =>
+            forkJoin( ...holdings.map(holding => this.getHoldingIfRelevant(MMSID, holding, input)))
+        ),
+        map(holdings => holdings.filter(Boolean)),
+        map(holdings => {
+          if(holdings.length === 1){
+              return [MMSID, holdings[0]];
+          } else {
+            throw new Error(`Cannot find the relevant item.`)
+          }
+        }),
+    );
+  }
+
+  getHoldingIfRelevant = (MMSID, holding, input) => {
+    return this.getHolding(`/almaws/v1/bibs/${MMSID}/holdings/${holding}`).pipe(
+        map(holding => this.getXmlDocFromHolding(holding)),
+        map(xmlDoc => this.getFieldContentArrayFromXML(xmlDoc, '583', 'x')),
+        map(fieldContentArray => Array.from(fieldContentArray, fieldContent => fieldContent.textContent).includes(input)),
+        map(isRelevant => isRelevant ? holding : ''),
+    )
   }
 }
