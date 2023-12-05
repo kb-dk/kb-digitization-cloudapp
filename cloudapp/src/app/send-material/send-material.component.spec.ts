@@ -22,7 +22,11 @@ import {
     MAESTRO_CREATED_DOD_BEFORE_NEXT_STEP,
     WORK_ORDER_ITEM_WITHOUT_REQUEST,
     MAESTRO_CREATED_WORK_ORDER_BEFORE_NEXT_STEP,
-    REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST, HOLDING, HOLDINGWITHMULTI583X, TWOITEMSFROMONEHOLDING,
+    REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST,
+    HOLDING,
+    HOLDINGWITHMULTI583X,
+    TWOITEMSFROMONEHOLDING,
+    HOLDING_222233636110005763, HOLDING_222233636140005763, BIBRECORDWITHMULTIPLEHOLDING,
 } from "../shared/test-data";
 import {Observable, of} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
@@ -48,6 +52,7 @@ describe('SendMaterialComponent:', () => {
     let spyAlmaServiceGetRequestsFromItem: jasmine.Spy;
     let spyAlmaServiceScanInItem: jasmine.Spy;
     let SpyAlmaServiceGetHolding: jasmine.Spy;
+    let SpyAlmaServiceGetMmsIdAndHoldingIdFromField583x: jasmine.Spy;
     let spyDigitizationServiceCheck: jasmine.Spy;
     let spyAlertServiceError: jasmine.Spy;
 
@@ -58,9 +63,9 @@ describe('SendMaterialComponent:', () => {
         element.click();
     }
 
-    let startWith = (barcode) => {
+    let startWith = (barcodeOrField583x) => {
         const inputBox = findElement("input");
-        inputBox.value = barcode;
+        inputBox.value = barcodeOrField583x;
         click("#send");
     }
 
@@ -336,7 +341,7 @@ describe('SendMaterialComponent:', () => {
 
             spyAlmaServiceScanInItem = spyOn<any>(mockAlmaService, 'scanInItem').and.returnValue (of('ok'));
             SpyAlmaServiceGetHolding = spyOn<any>(mockAlmaService, 'getHolding').and.returnValue (of(HOLDING));
-            spyOn<any>(mockAlmaService, 'getMmsIdAndHoldingIdFromField583x').and.returnValue(of(['1111', '1111']));
+            SpyAlmaServiceGetMmsIdAndHoldingIdFromField583x = spyOn<any>(mockAlmaService, 'getMmsIdAndHoldingIdFromField583x').and.returnValue(of(['1111', '1111']));
             spyOn<any>(mockAlmaService, 'isField583xUnique').and.returnValue(of(true));
             spyAlertServiceError = spyOn<any>(fakeAlertService, 'error').and.callThrough();
         });
@@ -478,6 +483,39 @@ describe('SendMaterialComponent:', () => {
                 fixture.detectChanges();
 
                 expect(SpyAlmaServiceItemShowItemListDialog).toHaveBeenCalled();
+            });
+
+            it("should choose the relevant holding, if there are multiple holdings on one bib-record.", () => {
+                // Call for SRU api with field583x gives you a marc record, which contains a list of holdings,
+                // but no indication of which holding have this field content.
+                // So after getting a list of the holdings, another call is needed to check which one is relevant.
+
+                hasRequestAndComment = true;
+                spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(of('Barcode not found'));
+                spyOn<any>(mockAlmaService, 'getItemsFromField583x').and.callThrough();
+                SpyAlmaServiceGetMmsIdAndHoldingIdFromField583x.and.callThrough();
+                spyOn<any>(mockAlmaService, 'getBibRecordFromField583x').and.returnValue(of(BIBRECORDWITHMULTIPLEHOLDING));
+                let SpyAlmaServiceGetItemFromHolding = spyOn<any>(mockAlmaService, 'getItemFromHolding');
+                SpyAlmaServiceGetHolding.and.callFake((holdingLink) => {
+                    if (holdingLink === `/almaws/v1/bibs/99124397539805763/holdings/222233636110005763`){
+                        return of(HOLDING_222233636110005763);
+                    }
+                    if (holdingLink === `/almaws/v1/bibs/99124397539805763/holdings/222233636140005763`){
+                        return of(HOLDING_222233636140005763);
+                    }
+                });
+
+                let SpyAlmaServiceItemShowItemListDialog: jasmine.Spy = spyOn<any>(mockAlmaService, 'showItemListDialog');
+
+                startWith('ark_59701');
+                fixture.detectChanges();
+
+                expect(SpyAlmaServiceGetHolding).toHaveBeenCalledWith('/almaws/v1/bibs/99124397539805763/holdings/222233636110005763');
+                expect(SpyAlmaServiceGetHolding).toHaveBeenCalledWith('/almaws/v1/bibs/99124397539805763/holdings/222233636140005763');
+                expect(SpyAlmaServiceGetItemFromHolding).toHaveBeenCalledWith('/almaws/v1/bibs/99124397539805763/holdings/222233636140005763/items');
+
+                SpyAlmaServiceGetHolding.calls.reset();
+
             });
 
             afterEach(() => {

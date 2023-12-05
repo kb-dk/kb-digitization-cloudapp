@@ -1,3 +1,122 @@
+export const BIBRECORDWITHMULTIPLEHOLDING = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><searchRetrieveResponse xmlns="http://www.loc.gov/zing/srw/">
+    <version>1.2</version>
+<numberOfRecords>1</numberOfRecords>
+<records>
+<record>
+    <recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00540nkc a2200169 u 4500</leader>
+<controlfield tag="001">99124397539805763</controlfield>
+    <controlfield tag="005">20230303113558.0</controlfield>
+    <controlfield tag="008">200305s1987uuuudk ---  r      00 k|dan d</controlfield>
+<datafield ind1=" " ind2=" " tag="035">
+<subfield code="a">(EXLNZ-45KBDK_NETWORK)996846049205761</subfield>
+</datafield>
+<datafield ind1="1" ind2="0" tag="245">
+<subfield code="a">Hus for Johan Christensen og søn, Gøngehusvej, Trørød</subfield>
+</datafield>
+<datafield ind1=" " ind2=" " tag="300">
+<subfield code="a">12 arkitekturtegninger og forretningsarkiv</subfield>
+</datafield>
+<datafield ind1="0" ind2=" " tag="505">
+<subfield code="a">Forretningsarkiv: korrespondance</subfield>
+</datafield>
+<datafield ind1="0" ind2=" " tag="561">
+<subfield code="a">Donation fra Tage Lyneborgs arvinger 2020</subfield>
+</datafield>
+<datafield ind1="0" ind2=" " tag="505">
+<subfield code="a">Sagsnr. 75</subfield>
+</datafield>
+<datafield ind1="1" ind2="4" tag="600">
+<subfield code="a">Lyneborg, Tage</subfield>
+<subfield code="d">1946-2020</subfield>
+    <subfield code="c">arkitekt</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="4" tag="650">
+<subfield code="a">villaer</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="4" tag="650">
+<subfield code="a">enfamiliehuse</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+<subfield code="a">Lyneborg, Tage</subfield>
+</datafield>
+<datafield ind1=" " ind2=" " tag="AVA">
+<subfield code="0">99124397539805763</subfield>
+    <subfield code="8">222233636110005763</subfield>
+    <subfield code="a">45KBDK_KGL</subfield>
+<subfield code="b">SOB</subfield>
+    <subfield code="c">Forretningsarkiv, fjernmagasin, Loan collection (place request)</subfield>
+<subfield code="d">FA 772</subfield>
+<subfield code="e">available</subfield>
+    <subfield code="f">1</subfield>
+    <subfield code="g">0</subfield>
+    <subfield code="i">KBH</subfield>
+    <subfield code="j">LFFOA</subfield>
+    <subfield code="k">8</subfield>
+    <subfield code="p">1</subfield>
+    <subfield code="q">KB Kunstbiblioteket, Søborg</subfield>
+</datafield>
+<datafield ind1=" " ind2=" " tag="AVA">
+<subfield code="0">99124397539805763</subfield>
+    <subfield code="8">222233636140005763</subfield>
+    <subfield code="a">45KBDK_KGL</subfield>
+<subfield code="b">SOB</subfield>
+    <subfield code="c">Arkitekturtegninger, fjernmagasin, Reading room only (place request)</subfield>
+<subfield code="d">T152, mappe 4</subfield>
+<subfield code="e">unavailable</subfield>
+    <subfield code="f">1</subfield>
+    <subfield code="g">1</subfield>
+    <subfield code="i">KBH</subfield>
+    <subfield code="j">LFARK</subfield>
+    <subfield code="k">8</subfield>
+    <subfield code="p">2</subfield>
+    <subfield code="q">KB Kunstbiblioteket, Søborg</subfield>
+</datafield>
+</record>
+</recordData>
+<recordIdentifier>99124397539805763</recordIdentifier>
+<recordPosition>1</recordPosition>
+</record>
+</records>
+<extraResponseData xmlns:xb="http://www.exlibris.com/repository/search/xmlbeans/">
+    <xb:exact>true</xb:exact>
+<xb:responseDate>2023-12-05T11:20:14+0100</xb:responseDate>
+</extraResponseData>
+</searchRetrieveResponse>`
+
+export const HOLDING_222233636110005763 = {
+    "holding_id": "222233636110005763",
+    "created_by": "rura",
+    "created_date": "2023-03-03Z",
+    "last_modified_by": "bimo",
+    "last_modified_date": "2023-12-01Z",
+    "originating_system": "45KBDK_KGL",
+    "originating_system_id": "222233636110005763",
+    "suppress_from_publishing": "false",
+    "calculated_suppress_from_publishing": "false",
+    "anies": [
+        "<?xml version=\"1.0\" encoding=\"UTF-16\"?><record><leader>00175nx  a22000731n 4500</leader><controlfield tag=\"008\">1011252u    8   4001uueng0000000</controlfield><controlfield tag=\"005\">20231201092606.0</controlfield><datafield ind1=\" \" ind2=\" \" tag=\"583\"><subfield code=\"x\">flere_holding_post_583x</subfield></datafield><datafield ind1=\"8\" ind2=\" \" tag=\"852\"><subfield code=\"b\">SOB</subfield><subfield code=\"c\">LFFOA</subfield><subfield code=\"h\">FA 772</subfield></datafield></record>"
+    ]
+}
+
+export const HOLDING_222233636140005763 = {
+    "holding_id": "222233636140005763",
+    "created_by": "rura",
+    "created_date": "2023-03-03Z",
+    "last_modified_by": "rura",
+    "last_modified_date": "2023-12-01Z",
+    "originating_system": "45KBDK_KGL",
+    "originating_system_id": "222233636140005763",
+    "suppress_from_publishing": "false",
+    "calculated_suppress_from_publishing": "false",
+    "anies": [
+        "<?xml version=\"1.0\" encoding=\"UTF-16\"?><record><leader>00168nx  a22000731n 4500</leader><controlfield tag=\"008\">1011252u    8   4001uueng0000000</controlfield><controlfield tag=\"005\">20231201104001.0</controlfield><datafield ind1=\" \" ind2=\" \" tag=\"583\"><subfield code=\"x\">ark_59701</subfield></datafield><datafield ind1=\"8\" ind2=\" \" tag=\"852\"><subfield code=\"b\">SOB</subfield><subfield code=\"c\">LFARK</subfield><subfield code=\"h\">T152, mappe 4</subfield></datafield></record>"
+    ]
+}
+
 export const HOLDING = {
     "holding_id": "222078730910005763",
     "created_by": "System",

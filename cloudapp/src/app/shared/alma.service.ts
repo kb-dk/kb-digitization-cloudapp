@@ -103,14 +103,7 @@ export class AlmaService {
       }),
   );
 
-  getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution, almaUrl) => this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
-
-        // Søg i mms_id og felt583x http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==TUESUNIKKE_filnavnssyntax%20or%20alma.mms_id==99124929653105763
-        // Søg i alle marc felter plus barcode og mere   http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=99122912149905763
-        {
-          responseType: 'text',
-          withCredentials: false,
-        }).pipe(
+  getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution, almaUrl) => this.getBibRecordFromField583x(fieldContent, institution, almaUrl).pipe(
         map(data => new DOMParser().parseFromString(data,"text/xml")),
         map((xmlDoc: Document): [Document, string] => this.getMMSIDFromMarc(xmlDoc)),
         map(([xmlDoc, MMSID]): [string, string[]]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)]),
@@ -155,7 +148,7 @@ export class AlmaService {
         map(fieldContentArray => this.hasMultipleField(fieldContentArray) ? inputText : this.getFieldContentFromArray(fieldContentArray)),
         tap(field583x => {
           if (!field583x) {
-            console.log("field583x has no value");
+            console.error("field583x has no value");
           }
         }),
     )
@@ -209,7 +202,6 @@ export class AlmaService {
 
   private getHoldingNrFromMarc = (xmlDoc: Document) => {
     return this.getFieldContentArrayFromXML(xmlDoc, 'AVA', '8');
-    // return this.hasMultipleField(fieldContentArray) ? this.findRelevantHolding(fieldContentArray, MMSID) : of(this.getFieldContentFromArray(fieldContentArray));
   }
 
   private libraryEqualsInstitution = (libCode: string, institution: string) => libCode === institution;
@@ -242,7 +234,6 @@ export class AlmaService {
     }
 
     let holdings: string[] = Array.from(fieldContentArray, fieldContent => fieldContent.textContent);
-
     return of(holdings).pipe(
         mergeMap(holdings =>
             forkJoin( ...holdings.map(holding => this.getHoldingIfRelevant(MMSID, holding, input)))
@@ -265,5 +256,16 @@ export class AlmaService {
         map(fieldContentArray => Array.from(fieldContentArray, fieldContent => fieldContent.textContent).includes(input)),
         map(isRelevant => isRelevant ? holding : ''),
     )
+  }
+
+  getBibRecordFromField583x(fieldContent, institution, almaUrl) {
+    return this.http.post(`${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==${fieldContent}`,'',
+
+        // Søg i mms_id og felt583x http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.action_note_note==TUESUNIKKE_filnavnssyntax%20or%20alma.mms_id==99124929653105763
+        // Søg i alle marc felter plus barcode og mere   http://localhost:4200/view/sru/45KBDK_KGL?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=99122912149905763
+        {
+          responseType: 'text',
+          withCredentials: false,
+        })
   }
 }
