@@ -42,6 +42,7 @@ export class ConfigComponent implements OnInit {
     load() {
         this.configService.getAsFormGroup().subscribe(
             config => {
+                console.log(config);
                 if (Object.keys(config.value).length!=0) {
                     this.form = config;
                 }
