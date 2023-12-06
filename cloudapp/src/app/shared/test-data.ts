@@ -493,14 +493,15 @@ export const CONFIG = {
             "workOrderType": "Digiproj",
             "maestroStartStep": "KBH bog oprettet",
             "maestroFinishStep": "KBH Bog modtages (KAT)",
-            "multiform": "",
-            "frakture": "",
-            "showTitle": "",
+            "multiform": true,
+            "frakture": true,
+            "showTitle": true,
+            "checkRequests": false,
             "useMarcField": "",
-            "removeTempLocation": "",
+            "removeTempLocation": true,
             "params": [
                 {
-                    "key": null,
+                    "key": "",
                     "value": "31"
                 },
                 {
@@ -522,10 +523,11 @@ export const CONFIG = {
             "deskCode": "Digiproj_10068",
             "workOrderType": "Digiproj",
             "maestroStartStep": "KBH bog oprettet",
-            "maestroFinishStep": "KBH Bog returnere",
-            "multiform": "",
-            "frakture": "",
-            "showTitle": "",
+            "maestroFinishStep": "KBH Bog modtages (PROJEKT-EJER)",
+            "multiform": true,
+            "frakture": true,
+            "showTitle": true,
+            "checkRequests": false,
             "useMarcField": "",
             "removeTempLocation": "",
             "params": [
@@ -555,7 +557,8 @@ export const CONFIG = {
             "maestroFinishStep": "KBH Bog modtages (KAT)",
             "multiform": true,
             "frakture": true,
-            "showTitle": "",
+            "showTitle": true,
+            "checkRequests": true,
             "useMarcField": "",
             "removeTempLocation": true,
             "params": [
@@ -583,9 +586,10 @@ export const CONFIG = {
             "workOrderType": "Digiproj",
             "maestroStartStep": "KBH billedværk oprettet",
             "maestroFinishStep": "KBH billedværk modtages (SAMLINGS-EJER)",
-            "multiform": true,
-            "frakture": true,
+            "multiform": false,
+            "frakture": false,
             "showTitle": true,
+            "checkRequests": false,
             "useMarcField": true,
             "removeTempLocation": "",
             "params": [
@@ -616,6 +620,7 @@ export const CONFIG = {
             "multiform": "",
             "frakture": "",
             "showTitle": true,
+            "checkRequests": false,
             "useMarcField": true,
             "removeTempLocation": "",
             "params": [
@@ -646,12 +651,13 @@ export const CONFIG = {
             "multiform": "",
             "frakture": "",
             "showTitle": true,
+            "checkRequests": false,
             "useMarcField": true,
             "removeTempLocation": "",
             "params": [
                 {
                     "key": "field[project_id]",
-                    "value": "32"
+                    "value": "33"
                 },
                 {
                     "key": "field[customer_id]",
@@ -676,8 +682,9 @@ export const CONFIG = {
             "multiform": "",
             "frakture": "",
             "showTitle": true,
+            "checkRequests": false,
             "useMarcField": true,
-            "removeTempLocation": false,
+            "removeTempLocation": "",
             "params": [
                 {
                     "key": "field[project_id]",
@@ -696,9 +703,70 @@ export const CONFIG = {
                     "value": "69"
                 }
             ]
+        },
+        {
+            "deskName": "Atelierbestilling_Håndskrifter og breve_10006",
+            "deskCode": "Digiproj_100062",
+            "workOrderType": "Digiproj",
+            "maestroStartStep": "KBH billedværk oprettet",
+            "maestroFinishStep": "KBH billedværk modtages (SAMLINGS-EJER)",
+            "multiform": "",
+            "frakture": "",
+            "showTitle": true,
+            "checkRequests": false,
+            "useMarcField": true,
+            "removeTempLocation": "",
+            "params": [
+                {
+                    "key": "field[project_id]",
+                    "value": "34"
+                },
+                {
+                    "key": "field[customer_id]",
+                    "value": "18"
+                },
+                {
+                    "key": "field[job_id]",
+                    "value": "53"
+                },
+                {
+                    "key": "field[step_id]",
+                    "value": "69"
+                }
+            ]
+        },
+        {
+            "deskName": "Store formater_10025",
+            "deskCode": "Digiproj_10025",
+            "workOrderType": "Digiproj",
+            "maestroStartStep": "KBH billedværk oprettet",
+            "maestroFinishStep": " KBH billedværk modtages (SAMLINGS-EJER)",
+            "multiform": "",
+            "frakture": "",
+            "showTitle": true,
+            "checkRequests": false,
+            "useMarcField": true,
+            "removeTempLocation": "",
+            "params": [
+                {
+                    "key": "field[project_id]",
+                    "value": "35"
+                },
+                {
+                    "key": "field[customer_id]",
+                    "value": "12"
+                },
+                {
+                    "key": "field[job_id]",
+                    "value": "56"
+                },
+                {
+                    "key": "field[step_id]",
+                    "value": "69"
+                }
+            ]
         }
-    ],
-    "institution": "45KBDK_KGL"
+    ]
 }
 
 export const DOD_ITEM_WITH_REQUEST = {
@@ -1577,5 +1645,3 @@ export const MAESTRO_CREATED_RECORD_AFTER_NEXT_STEP = {
         "74": {"title": "parts_of_physical_item", "value": ""}
     }
 }
-
-

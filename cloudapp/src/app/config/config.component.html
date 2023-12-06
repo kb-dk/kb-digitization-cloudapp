@@ -1,4 +1,11 @@
 <div class="cloudapp-actions">
+    <mat-label>Update with json: </mat-label>
+    <textarea id="updateConfigWithJason" [(ngModel)]="jasonConfig"></textarea>
+    <button mat-flat-button type="button" color="primary" (click)="updateConfigFromJson()">Update
+    </button>
+</div>
+
+<div class="cloudapp-actions">
     <a [routerLink]="['']">
         <button mat-raised-button>
             <mat-icon>arrow_back</mat-icon>
@@ -75,6 +82,7 @@
                         </mat-form-field>
                         <p></p>
                         <mat-checkbox formControlName="showTitle">Show title&nbsp;&nbsp;</mat-checkbox>
+                        <mat-checkbox formControlName="checkRequests">Check requests&nbsp;&nbsp;</mat-checkbox>
                         <mat-checkbox formControlName="frakture">Fraktur allowed&nbsp;&nbsp;</mat-checkbox>
                         <mat-checkbox formControlName="multiform">Multi-Volume allowed&nbsp;&nbsp;</mat-checkbox>
                         <mat-checkbox formControlName="useMarcField">Use Marc field instead of barcode</mat-checkbox>
@@ -107,7 +115,6 @@
         </mat-tab>
     </mat-tab-group>
 </form>
-
 
 <!--<pre>{{ form.value | json }}</pre>-->
 

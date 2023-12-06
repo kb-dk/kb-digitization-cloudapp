@@ -17,6 +17,7 @@ import {map, switchMap} from 'rxjs/operators';
     styleUrls: ['./config.component.scss']
 })
 export class ConfigComponent implements OnInit {
+    jasonConfig: string;
     form: FormGroup;
     isSaving: boolean;
     rawValue = "";
@@ -42,7 +43,6 @@ export class ConfigComponent implements OnInit {
     load() {
         this.configService.getAsFormGroup().subscribe(
             config => {
-                console.log(config);
                 if (Object.keys(config.value).length!=0) {
                     this.form = config;
                 }
@@ -53,6 +53,22 @@ export class ConfigComponent implements OnInit {
         this.isSaving = true;
         console.log(this.form.value);
         this.configService.set(this.form.value).subscribe(
+            () => {
+                this.alert.success('Configuration successfully saved.');
+                this.form.markAsPristine();
+            },
+            err => this.alert.error(err.message),
+            ()  => this.isSaving = false
+        );
+    }
+
+    // To add a field to config,
+    // copy the current object from the console (it gets shown after you click on save) and update it manually
+    // add the field to html and to the form-builder, un-comment the html related to the updateConfigFromJson
+    // paste the jason into the textarea and press enter. Click on back and then open the config again.
+    updateConfigFromJson() {
+        this.isSaving = true;
+        this.configService.set(JSON.parse(this.jasonConfig)).subscribe(
             () => {
                 this.alert.success('Configuration successfully saved.');
                 this.form.markAsPristine();
@@ -110,6 +126,7 @@ export class ConfigComponent implements OnInit {
             multiform: new FormControl(''),
             frakture: new FormControl(''),
             showTitle: new FormControl(''),
+            checkRequests: new FormControl(''),
             useMarcField: new FormControl(''),
             removeTempLocation: new FormControl(''),
             params: this.createParams(paramNames)
