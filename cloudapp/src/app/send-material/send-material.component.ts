@@ -42,8 +42,7 @@ export class SendMaterialComponent {
     sendToDigitization() {
         let inputText = this.barcode.nativeElement.value;
         if (inputText) {
-            // TODO: Add this to desk config in configuration
-            let checkRequestBeforeSending: boolean = this.deskConfig.deskCode === 'DIGINAT';
+            let checkRequestBeforeSending: boolean = this.deskConfig.checkRequests;
 
             if (!this.isSending) {
                 this.isSending = true;
