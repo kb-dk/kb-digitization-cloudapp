@@ -1,11 +1,4 @@
 <div class="cloudapp-actions">
-    <mat-label>Update with json: </mat-label>
-    <textarea id="updateConfigWithJason" [(ngModel)]="jasonConfig"></textarea>
-    <button mat-flat-button type="button" color="primary" (click)="updateConfigFromJson()">Update
-    </button>
-</div>
-
-<div class="cloudapp-actions">
     <a [routerLink]="['']">
         <button mat-raised-button>
             <mat-icon>arrow_back</mat-icon>
@@ -20,8 +13,8 @@
 <div class="loading-shade" *ngIf="isSaving">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
 </div>
-<form [formGroup]="form">
     <mat-tab-group>
+        <form [formGroup]="form">
         <mat-tab label="Basics">
             <section class="config-section">
                 <mat-form-field>
@@ -113,8 +106,21 @@
                 </div>
             </div>
         </mat-tab>
+        </form>
+        <mat-tab label="Update with json">
+            <div class="updateWithJason">
+                <mat-label class="flex-items">Update config with json:</mat-label>
+                <textarea class="flex-items" rows="15" id="updateConfigWithJason" [(ngModel)]="jasonConfig"></textarea>
+                <div class="flex-items">
+                    <button mat-flat-button type="button" color="primary"
+                            (click)="updateConfigFromJson()">
+                        Update with json
+                    </button>
+                </div>
+            </div>
+        </mat-tab>
     </mat-tab-group>
-</form>
+
 
 <!--<pre>{{ form.value | json }}</pre>-->
 
@@ -123,3 +129,4 @@
     <span class="deleteAllConfigs">Delete configs</span>
 </button>
 -->
+

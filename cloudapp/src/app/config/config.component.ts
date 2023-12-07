@@ -7,7 +7,7 @@ import {
     CloudAppEventsService,
     CloudAppRestService
 } from '@exlibris/exl-cloudapp-angular-lib';
-import {CanActivate} from '@angular/router';
+import {CanActivate, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 
@@ -26,7 +26,8 @@ export class ConfigComponent implements OnInit {
         private appService: AppService,
         private fb: FormBuilder,
         private configService: CloudAppConfigService,
-        private alert: AlertService
+        private alert: AlertService,
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -62,20 +63,19 @@ export class ConfigComponent implements OnInit {
         );
     }
 
-    // To add a field to config,
-    // copy the current object from the console (it gets shown after you click on save) and update it manually
-    // add the field to html and to the form-builder, un-comment the html related to the updateConfigFromJson
-    // paste the jason into the textarea and press enter. Click on back and then open the config again.
-    updateConfigFromJson() {
-        this.isSaving = true;
-        this.configService.set(JSON.parse(this.jasonConfig)).subscribe(
-            () => {
-                this.alert.success('Configuration successfully saved.');
-                this.form.markAsPristine();
-            },
-            err => this.alert.error(err.message),
-            ()  => this.isSaving = false
-        );
+     updateConfigFromJson() {
+        if (this.jasonConfig) {
+            this.isSaving = true;
+            this.configService.set(JSON.parse(this.jasonConfig)).subscribe(
+                () => {
+                    this.alert.success('Configuration successfully saved.');
+                    this.form.markAsPristine();
+                    this.router.navigate(['']);
+                },
+                err => this.alert.error(err.message),
+                () => this.isSaving = false
+            );
+        }
     }
 
     //The call button is commented out in the html. Might come in handy during testing.
