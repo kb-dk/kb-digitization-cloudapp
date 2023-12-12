@@ -24,7 +24,7 @@ export class AlmaService {
   ) { }
 
 
-  sendToDigi = (itemLink:string, library: string, department:string, work_order_type:string=null, institution: string) => {
+  setParametersAndScanInItem = (itemLink:string, library: string, department:string, work_order_type:string=null, institution: string) => {
     let params = {'op': 'scan','department' : department};
     if (work_order_type) {
       params['work_order_type'] = work_order_type;
@@ -59,41 +59,42 @@ export class AlmaService {
 
   getItemFromAlma = (useField583x, barcodeOrField583x, institution, almaUrl) => {
     const encodedBarcodeOrField583x = encodeURIComponent(barcodeOrField583x).trim();
+    const itemFromBarcode = this.getItemsFromBarcode(encodedBarcodeOrField583x);
+
     if(useField583x){
-      this.inputIsBarcode = true;
-      return this.getItemsFromBarcode(encodedBarcodeOrField583x)
-          .pipe(
-              catchError(error => error.message === `No items found for barcode ${encodedBarcodeOrField583x.trim()}.` ? of('Barcode not found') : error)
-          )
-          .pipe(
-              tap(response => response === 'Barcode not found' ? this.inputIsBarcode = false : null),
-              concatMap(response => response === 'Barcode not found' ? this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl) : of(response))
-          )
-    }else{
-      return this.getItemsFromBarcode(encodedBarcodeOrField583x);
+      return this.getItemFromField583x(itemFromBarcode, encodedBarcodeOrField583x, institution, almaUrl);
     }
+
+    return itemFromBarcode;
+
+  }
+
+  private getItemFromField583x(itemFromBarcode: Observable<any>, encodedBarcodeOrField583x: string, institution, almaUrl) {
+    this.inputIsBarcode = true;
+    let response = this.convertErrorBarcodeNotFoundToOkResponse(itemFromBarcode, encodedBarcodeOrField583x);
+    return response
+        .pipe(concatMap(response => response === 'Barcode not found' ? this.getItemsFromField583x(encodedBarcodeOrField583x, institution, almaUrl) : of(response)))
+  }
+
+  convertErrorBarcodeNotFoundToOkResponse(itemFromBarcode: Observable<any>, encodedBarcodeOrField583x) {
+    return itemFromBarcode.pipe(
+        catchError(error => {
+          if(error.message === `No items found for barcode ${encodedBarcodeOrField583x.trim()}.`){
+            this.inputIsBarcode = false;
+            return  of('Barcode not found');
+          }
+          return error;
+        }
+    )
+    )
   }
 
   getItemsFromBarcode = (barcode:string) => this.restService.call(`/items?item_barcode=${barcode.trim()}`);
 
   getItemsFromField583x = (field583x:string, institution, almaUrl) => this.getMmsIdAndHoldingIdFromField583x(field583x, institution, almaUrl).pipe(
-      concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
+      concatMap(([mms_id, holding_id]) => holding_id === '' ? this.getMMSIDAndHoldingIdFromMMSID(mms_id) : of([mms_id, holding_id])),
       concatMap(([mms_id, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${mms_id}/holdings/${holding_id}/items`)),
-      concatMap(items => {
-        if (items.hasOwnProperty('item')) {
-          items = items.item;
-          switch (items.length) {
-            case 0:
-              throw new Error(`There is no item.`);
-            case 1:
-              return of(items[0]);
-            default:
-              return this.showItemListDialog(items);
-          }
-        } else {
-          throw new Error(`There is no item.`);
-        }
-      }),
+      concatMap(items => {return this.getItem(items)}),
       map(item => {
         if (!item) {
           throw new Error(`No item is selected.`);
@@ -103,6 +104,12 @@ export class AlmaService {
       }),
   );
 
+  getItemsFromMMSID = (MMSID:string) => {
+    return this.getMMSIDAndHoldingIdFromMMSID(MMSID).pipe(
+     concatMap( ([MMSID, holding_id]) => this.getItemFromHolding(`/almaws/v1/bibs/${MMSID.trim()}/holdings/${holding_id.trim()}/items`)),
+    )
+  }
+
   getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution, almaUrl) => this.getBibRecordFromField583x(fieldContent, institution, almaUrl).pipe(
         map(data => new DOMParser().parseFromString(data,"text/xml")),
         map((xmlDoc: Document): [Document, string] => this.getMMSIDFromMarc(xmlDoc)),
@@ -110,9 +117,9 @@ export class AlmaService {
         concatMap(([MMSID, holdings]) => this.hasMultipleField(holdings) ? this.getRelevantHolding(holdings, MMSID, fieldContent) : of([MMSID, this.getFieldContentFromArray(holdings)])),
     );
 
-  getHoldingIdFromMMSID = (mmsid: string): Observable<[string, string]> => this.restService.call(`/bibs/${mmsid.trim()}/holdings`).pipe(
+  getMMSIDAndHoldingIdFromMMSID = (mmsid: string): Observable<[string, string]> => this.getHoldingsFromMMSID(mmsid).pipe(
       map (holdings => holdings.hasOwnProperty('holding') && holdings['holding'][0] && holdings['holding'][0]['holding_id'] ? holdings['holding'][0]['holding_id'] : ''),
-      map (holdingId => [mmsid, holdingId])
+      map (holdingId => [mmsid, holdingId]),
     );
 
   getItemFromHolding = (link) => this.restService.call(`${link}`);
@@ -136,19 +143,19 @@ export class AlmaService {
 
   getHolding = (holdingLink) => this.restService.call(holdingLink);
 
-  getXmlDocFromHolding = (holding) => {
-    const XMLText = holding.hasOwnProperty('anies') && Array.isArray(holding.anies) ? holding.anies[0] : '';
+  getXmlDocFromResult = (result) => {
+    const XMLText = result.hasOwnProperty('anies') && Array.isArray(result.anies) ? result.anies[0] : '';
     return new DOMParser().parseFromString(XMLText, "application/xml");
   }
 
   getField583x(link, inputText) {
     return this.getHolding(link).pipe(
-        map(holding => this.getXmlDocFromHolding(holding)),
+        map(holding => this.getXmlDocFromResult(holding)),
         map(xmlDoc => this.getFieldContentArrayFromXML(xmlDoc, '583', 'x')),
         map(fieldContentArray => this.hasMultipleField(fieldContentArray) ? inputText : this.getFieldContentFromArray(fieldContentArray)),
         tap(field583x => {
           if (!field583x) {
-            console.error("field583x has no value");
+            console.info("field583x has no value");
           }
         }),
     )
@@ -251,7 +258,7 @@ export class AlmaService {
 
   getHoldingIfRelevant = (MMSID, holding, input) => {
     return this.getHolding(`/almaws/v1/bibs/${MMSID}/holdings/${holding}`).pipe(
-        map(holding => this.getXmlDocFromHolding(holding)),
+        map(holding => this.getXmlDocFromResult(holding)),
         map(xmlDoc => this.getFieldContentArrayFromXML(xmlDoc, '583', 'x')),
         map(fieldContentArray => Array.from(fieldContentArray, fieldContent => fieldContent.textContent).includes(input)),
         map(isRelevant => isRelevant ? holding : ''),
@@ -268,4 +275,35 @@ export class AlmaService {
           withCredentials: false,
         })
   }
+
+  getItem(items) {
+      if (items.hasOwnProperty('item')) {
+      items = items.item;
+      switch (items.length) {
+        case 0:
+          throw new Error(`There is no item.`);
+        case 1:
+          return of(items[0]);
+        default:
+          return this.showItemListDialog(items);
+      }
+    } else {
+      throw new Error(`There is no item.`);
+    }
+  }
+
+  getHoldingsFromMMSID = (mmsid: string) => this.restService.call(`/bibs/${mmsid.trim()}/holdings`);
+
+  getBibPostFromMMSID = (mmsid: string) => this.restService.call(`/bibs/${mmsid.trim()}`);
+
+  getField773wgFromBibPost = (xmlDoc) => {
+    const nodeList = this.getFieldContentArrayFromXML(xmlDoc, '773', 'g');
+    if (nodeList.length > 1){
+      throw new Error(`There are more than one barcode in Field 773g`);
+    }
+    if (nodeList.length < 1){
+      throw new Error(`There is no barcode in Field 773g`);
+    }
+    return this.getFieldContentFromArray(nodeList);
+  };
 }

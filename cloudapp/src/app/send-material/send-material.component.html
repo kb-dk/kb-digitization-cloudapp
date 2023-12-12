@@ -1,7 +1,7 @@
 <div>
   <mat-form-field>
     <mat-label>{{ inputLabel }}</mat-label>
-    <input matInput #barcode (keyup.enter)="sendToDigitization()">
+    <input matInput #barcode (keyup.enter)="send()">
     <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
   </mat-form-field>
 </div>
@@ -28,7 +28,7 @@
     </mat-form-field>
 </div>
 <div class="cloudapp-actions">
-    <button id="send" mat-raised-button color="primary" [disabled]="isSending" (click)="sendToDigitization()" >
+    <button id="send" mat-raised-button color="primary" [disabled]="isSending" (click)="send()" >
         Send to digitization
     </button>
     <button mat-raised-button color="basic" (click)="resetForm()" >
