@@ -57,7 +57,7 @@ export class ReceiveMaterialComponent{
         return this.digitizationService.receive(this.barcodeForMaestro, this.deskConfig)
             .pipe(
                 tap(() => this.successMessage = ['Maestro']),
-                concatMap (() => this.almaService.receiveFromDigi(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
+                concatMap (() => this.almaService.markItemAsAvailable(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
                 tap(() => this.successMessage.push('Alma')),
                 concatMap((): Observable<any> => {
                     if (this.deskConfig.removeTempLocation) {

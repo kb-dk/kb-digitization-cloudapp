@@ -58,7 +58,7 @@ export class SendMaterialComponent {
             .pipe(
                 concatMap(() => this.digitizationService.check(this.barcodeForMaestro, this.deskConfig)),
                 concatMap(documentFromMaestro => this.checkAndSetDocumentInNextStepInMaestro(documentFromMaestro)),
-                concatMap(() => this.almaService.setParametersAndScanInItem(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
+                concatMap(() => this.almaService.markItemAsUnavailable(this.itemFromAlma.link, this.libCode, this.deskConfig.deskCode.trim(), this.deskConfig.workOrderType.trim(), this.institution.trim())),
                 tap(() => this.successMessage.push(`Alma`))
             )
     }
@@ -172,22 +172,6 @@ export class SendMaterialComponent {
         )
     }
 
-    send() {
-        const inputBox = this.barcode.nativeElement.value;
-        if (inputBox && !this.isSending) {
-            this.isSending = true;
-            this.loading.emit(true);
-
-            let itemOrError = this.getItemFromMMSID(inputBox);
-            const result = itemOrError.pipe(
-                concatMap(item => item === 'Input is not MMSID' ? this.sendItem(inputBox) : this.sendRelatedItem(item))
-            )
-
-            this.subscribeAndHandleResult(result);
-
-        }
-    }
-
     private checkRequests(checkRequests: string, itemRequests: Observable<any>) {
         if (this.deskConfig.checkRequests){
             itemRequests = itemRequests.pipe(map((request) => this.throwErrorIfDoNotHaveRequest(request)))
@@ -278,4 +262,21 @@ export class SendMaterialComponent {
     }
 
     private isDocumentCreated = (document) => document.hasOwnProperty('barcode') && document.barcode === this.barcodeForMaestro;
+
+
+    send() {
+        const inputBox = this.barcode.nativeElement.value;
+        if (inputBox && !this.isSending) {
+            this.isSending = true;
+            this.loading.emit(true);
+
+            let itemOrError = this.getItemFromMMSID(inputBox);
+            const result = itemOrError.pipe(
+                concatMap(item => item === 'Input is not MMSID' ? this.sendItem(inputBox) : this.sendRelatedItem(item))
+            )
+
+            this.subscribeAndHandleResult(result);
+
+        }
+    }
 }
