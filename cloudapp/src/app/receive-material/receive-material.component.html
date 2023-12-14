@@ -1,14 +1,14 @@
 <div>
     <mat-form-field>
         <mat-label>{{ inputLabel }}</mat-label>
-        <input matInput #barcode (keyup.enter)="receiveFromDigitization()">
+        <input matInput #barcode (keyup.enter)="receive()">
         <mat-hint>Scan a barcode using a barcode-scanner or enter a barcode and then press Enter.</mat-hint>
     </mat-form-field>
 </div>
 <h3><b>Desk code: </b> {{deskConfig.deskCode}} </h3>
 
 <div class="eca-actions">
-    <button id="receive" mat-raised-button color="primary" [disabled]="isReceiving"  (click)="receiveFromDigitization()" >
+    <button id="receive" mat-raised-button color="primary" [disabled]="isReceiving"  (click)="receive()" >
         Receive from digitization
     </button>
     <button mat-raised-button (click)="resetForm('Action cancelled')" >
