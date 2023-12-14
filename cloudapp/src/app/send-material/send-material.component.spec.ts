@@ -28,7 +28,7 @@ import {
     TWOITEMSFROMONEHOLDING,
     HOLDING_222233636110005763, HOLDING_222233636140005763, BIBRECORDWITHMULTIPLEHOLDING,
 } from "../shared/test-data";
-import {Observable, of} from "rxjs";
+import {Observable, of, throwError} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
 import {MatDialog} from "@angular/material/dialog";
 import {DigitizationService} from "../shared/digitization.service";
@@ -112,7 +112,11 @@ describe('SendMaterialComponent:', () => {
             }
         };
         checkIfdeskCodeIsDestination = (request, deskCode): boolean => true;
-        sendToDigi = (itemLink: string, library: string, department: string, work_order_type: string = null, institution: string) => of('ok');
+        markItemAsUnavailable = (itemLink: string, library: string, department: string, work_order_type: string = null, institution: string) => of('ok');
+        getItemsFromBarcode = (barcode) => {throw new Error(`MMSID not found`)};
+        getBibPostFromMMSID = (mmsid) => of(``);
+        getXmlDocFromResult = () => '';
+        getField773wgFromBibPost = () => '';
     }
 
     class FakeDigitizationService {
@@ -342,6 +346,7 @@ describe('SendMaterialComponent:', () => {
             spyAlmaServiceScanInItem = spyOn<any>(mockAlmaService, 'scanInItem').and.returnValue (of('ok'));
             SpyAlmaServiceGetHolding = spyOn<any>(mockAlmaService, 'getHolding').and.returnValue (of(HOLDING));
             SpyAlmaServiceGetMmsIdAndHoldingIdFromField583x = spyOn<any>(mockAlmaService, 'getMmsIdAndHoldingIdFromField583x').and.returnValue(of(['1111', '1111']));
+            spyOn<any>(mockAlmaService, 'getBibPostFromMMSID').and.returnValue(throwError('MMSID not found'));
             spyOn<any>(mockAlmaService, 'isField583xUnique').and.returnValue(of(true));
             spyAlertServiceError = spyOn<any>(fakeAlertService, 'error').and.callThrough();
         });
@@ -473,13 +478,15 @@ describe('SendMaterialComponent:', () => {
             });
 
             it("should show a list of the items to choose from, if there are multiple items on one holding", () => {
+
+                let barcode = '400021689597';
                 hasRequestAndComment = true;
-                spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(of('Barcode not found'));
+                spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(throwError({message: `No items found for barcode ${barcode}.`}));
                 spyOn<any>(mockAlmaService, 'getItemFromHolding').and.returnValue(of(TWOITEMSFROMONEHOLDING));
 
                 let SpyAlmaServiceItemShowItemListDialog: jasmine.Spy = spyOn<any>(mockAlmaService, 'showItemListDialog');
 
-                startWith(WorkOrderBarcode);
+                startWith(barcode);
                 fixture.detectChanges();
 
                 expect(SpyAlmaServiceItemShowItemListDialog).toHaveBeenCalled();
@@ -489,9 +496,9 @@ describe('SendMaterialComponent:', () => {
                 // Call for SRU api with field583x gives you a marc record, which contains a list of holdings,
                 // but no indication of which holding have this field content.
                 // So after getting a list of the holdings, another call is needed to check which one is relevant.
-
+                let barcode = 'ark_59701';
                 hasRequestAndComment = true;
-                spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(of('Barcode not found'));
+                spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(throwError({message: `No items found for barcode ${barcode}.`}));
                 spyOn<any>(mockAlmaService, 'getItemsFromField583x').and.callThrough();
                 SpyAlmaServiceGetMmsIdAndHoldingIdFromField583x.and.callThrough();
                 spyOn<any>(mockAlmaService, 'getBibRecordFromField583x').and.returnValue(of(BIBRECORDWITHMULTIPLEHOLDING));
@@ -507,7 +514,7 @@ describe('SendMaterialComponent:', () => {
 
                 let SpyAlmaServiceItemShowItemListDialog: jasmine.Spy = spyOn<any>(mockAlmaService, 'showItemListDialog');
 
-                startWith('ark_59701');
+                startWith(barcode);
                 fixture.detectChanges();
 
                 expect(SpyAlmaServiceGetHolding).toHaveBeenCalledWith('/almaws/v1/bibs/99124397539805763/holdings/222233636110005763');

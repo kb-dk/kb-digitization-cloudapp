@@ -105,7 +105,6 @@ export class AlmaService {
   );
 
   getMmsIdAndHoldingIdFromField583x = (fieldContent: string, institution: string, almaUrl: string) => this.getBibRecordFromField583x(fieldContent, institution, almaUrl).pipe(
-        tap(data => console.log(data)),
         map(data => new DOMParser().parseFromString(data,"text/xml")),
         map((xmlDoc: Document): [Document, string] => this.getMMSIDFromMarc(xmlDoc)),
         map(([xmlDoc, MMSID]): [string, string[]]=> [MMSID, this.getHoldingNrFromMarc(xmlDoc)]),
