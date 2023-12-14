@@ -124,10 +124,6 @@ export class SendMaterialComponent {
         return dialogRef.afterClosed();
     }
 
-    sendRelatedItem(item) {
-        return this.checkAndSendItem(item);
-    }
-
     private getItemFromMMSID(mmsid) {
         const bibPost = this.getBibPostFromMMSID(mmsid).pipe(tap(() => this.barcodeForMaestro = mmsid));
         const barcode = bibPost.pipe(map(bibPost => this.getBarcodeFromBibPost(bibPost)));
@@ -135,7 +131,7 @@ export class SendMaterialComponent {
         return itemOrError.pipe(catchError(() => of('Input is not MMSID')));
     }
 
-    private checkAndSendItem(item) {
+    private sendRelatedItem(item) {
         this.itemFromAlma = item;
         return this.checkStatusInDigitization(this.barcodeForMaestro).pipe(
             concatMap(data => this.sendToDigi()),
