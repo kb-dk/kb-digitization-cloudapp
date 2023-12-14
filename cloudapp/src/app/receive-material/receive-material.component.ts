@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {AlertService} from '@exlibris/exl-cloudapp-angular-lib'
-import {concatMap, map, tap} from "rxjs/operators";
+import {catchError, concatMap, map, tap} from "rxjs/operators";
 import { DigitizationService } from "../shared/digitization.service";
 import {AlmaService} from "../shared/alma.service";
 import {Result} from "../models/Result";
@@ -30,23 +30,10 @@ export class ReceiveMaterialComponent{
       private alert: AlertService
     ) {}
 
-    receiveFromDigitization() {
-        if (!this.isReceiving) {
-            this.loading.emit(true);
-            this.isReceiving = true;
-            this.checkBarcodeStatusInAlmaAndMaestro().pipe(
+    receiveItem(inputBox) {
+        return this.checkBarcodeStatusInAlmaAndMaestro().pipe(
                 concatMap(() => this.receiveFromDigi())
             )
-                .subscribe(
-                    () => {
-                        this.resetForm(new Result(true, "Received from digitization"));
-                    },
-                    error => {
-                        let message = error.hasOwnProperty('message') ? error.message : error;
-                        this.resetForm(new Result(false, error.toString()));
-                    }
-                );
-        }
     }
 
     // Three things happen here:
@@ -127,5 +114,59 @@ export class ReceiveMaterialComponent{
         const title : string = this.itemFromAlma?.bib_data?.title;
         this.alert.success(`${this.barcodeForMaestro} ${title ? `with the title "${title}"` : ''} is successfully received in ${this.successMessage.join(' and ')}.`, { delay: 10000});
         this.successMessage = [];
+    }
+
+    receive() {
+        const inputBox = this.barcode.nativeElement.value;
+        if (inputBox && !this.isReceiving) {
+            this.isReceiving = true;
+            this.loading.emit(true);
+
+            let itemOrError = this.getItemFromMMSID(inputBox);
+            const result = itemOrError.pipe(
+                concatMap(item => item === 'Input is not MMSID' ? this.receiveItem(inputBox) : this.sendRelatedItem(item))
+            )
+
+            this.subscribeAndHandleResult(result);
+
+        }
+    }
+    private subscribeAndHandleResult(result: Observable<any>) {
+        result.subscribe(
+            () => {
+                this.resetForm(new Result(true, "Received from digitization"));
+            },
+            error => {
+                let message = error.hasOwnProperty('message') ? error.message : error;
+                this.resetForm(new Result(false, error.toString()));
+            }
+        );
+    }
+
+    private getItemFromMMSID(mmsid: string): Observable<any> {
+        const bibPost = this.getBibPostFromMMSID(mmsid).pipe(tap(() => this.barcodeForMaestro = mmsid));
+        const barcode = bibPost.pipe(map(bibPost => this.getBarcodeFromBibPost(bibPost)));
+        const itemOrError = barcode.pipe(concatMap(barcode => this.almaService.getItemsFromBarcode(barcode)));
+        return itemOrError.pipe(catchError(() => of('Input is not MMSID')));
+    }
+
+    private getBibPostFromMMSID(mmsid: string) {
+        return this.almaService.getBibPostFromMMSID(mmsid).pipe(
+            catchError(()=> {
+                throw new Error(`MMSID not found`);
+            })
+        )
+    }
+
+    private getBarcodeFromBibPost(bibPost: Observable<any>) {
+        const xmlDoc = this.almaService.getXmlDocFromResult(bibPost);
+        return this.almaService.getField773wgFromBibPost(xmlDoc);
+    }
+
+    private sendRelatedItem(item) {
+        this.itemFromAlma = item;
+        return this.checkStatusInDigitization(this.barcodeForMaestro).pipe(
+            concatMap(data => this.receiveFromDigi()),
+        );
     }
 }

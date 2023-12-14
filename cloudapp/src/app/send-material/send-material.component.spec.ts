@@ -113,7 +113,7 @@ describe('SendMaterialComponent:', () => {
         };
         checkIfdeskCodeIsDestination = (request, deskCode): boolean => true;
         markItemAsUnavailable = (itemLink: string, library: string, department: string, work_order_type: string = null, institution: string) => of('ok');
-        getItemsFromBarcode = (barcode) => {throw new Error(`MMSID not found`)};
+        getItemsFromBarcode = (barcode) => {throwError({message: `No items found for barcode ${barcode}.`})};
         getBibPostFromMMSID = (mmsid) => of(``);
         getXmlDocFromResult = () => '';
         getField773wgFromBibPost = () => '';

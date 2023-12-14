@@ -24,7 +24,7 @@ import {
     MAESTRO_CREATED_WORK_ORDER_BEFORE_NEXT_STEP,
     REQUEST_RESPONSE_WORK_ORDER_WITHOUT_REQUEST, HOLDING, HOLDINGWITHMULTI583X,
 } from "../shared/test-data";
-import {Observable, of} from "rxjs";
+import {Observable, of, throwError} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
 import {MatDialog} from "@angular/material/dialog";
 import {DigitizationService} from "../shared/digitization.service";
@@ -113,6 +113,10 @@ describe('ReceiveMaterialComponent:', () => {
                 }
             }
         };
+        getItemsFromBarcode = (barcode) => {throwError({message: `No items found for barcode ${barcode}.`})};
+        getBibPostFromMMSID = (mmsid) => of(``);
+        getXmlDocFromResult = () => '';
+        getField773wgFromBibPost = () => '';
 
     }
 
@@ -287,6 +291,7 @@ describe('ReceiveMaterialComponent:', () => {
             spyOn<any>(mockAlmaService, 'isField583xUnique').and.returnValue(of(true));
             SpyAlmaServiceGetHolding = spyOn<any>(mockAlmaService, 'getHolding').and.returnValue (of(HOLDING));
             spyAlmaServiceRemoveTemporaryLocation = spyOn<any>(mockAlmaService, 'removeTemporaryLocation').and.returnValue(of('ok'));
+            spyOn<any>(mockAlmaService, 'getBibPostFromMMSID').and.returnValue(throwError('MMSID not found'));
             spyDigitizationServiceReceive = spyOn<any>(mockDigitizationService, 'receive').and.returnValue(of('ok'));
             spyDigitizationServiceIsBarcodeNew = spyOn<any>(mockDigitizationService, 'isBarcodeNew').and.returnValue(false);
 
