@@ -75,7 +75,7 @@ describe('ReceiveMaterialComponent:', () => {
     }
 
     class FakeAlmaService {
-        receiveFromDigi = (itemLink:string, library: string, department:string,work_order_type:string=null, institution: string) => of('ok');
+        markItemAsAvailable = (itemLink:string, library: string, department:string,work_order_type:string=null, institution: string) => of('ok');
         removeTemporaryLocation = (itemFromApi) => of('ok');
         getField583x = (link) => {
             return of('');
