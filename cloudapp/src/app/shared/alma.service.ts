@@ -137,6 +137,12 @@ export class AlmaService {
 
   getHolding = (holdingLink: string) => this.restService.call(holdingLink);
 
+
+  getBarcodeFromBibPost(bibPost: Observable<any>) {
+    const xmlDoc = this.getXmlDocFromResult(bibPost);
+    return this.getField773wgFromBibPost(xmlDoc);
+  }
+
   getXmlDocFromResult = (result) => {
     const XMLText = result.hasOwnProperty('anies') && Array.isArray(result.anies) ? result.anies[0] : '';
     return new DOMParser().parseFromString(XMLText, "application/xml");

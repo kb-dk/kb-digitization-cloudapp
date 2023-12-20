@@ -26,7 +26,11 @@ import {
     HOLDING,
     HOLDINGWITHMULTI583X,
     TWOITEMSFROMONEHOLDING,
-    HOLDING_222233636110005763, HOLDING_222233636140005763, BIBRECORDWITHMULTIPLEHOLDING,
+    HOLDING_222233636110005763,
+    HOLDING_222233636140005763,
+    BIBRECORDWITHMULTIPLEHOLDING,
+    RELATEDITEM,
+    MARCRECORDFORRELATEDPOST,
 } from "../shared/test-data";
 import {Observable, of, throwError} from "rxjs";
 import {AlmaService} from "../shared/alma.service";
@@ -52,6 +56,7 @@ describe('SendMaterialComponent:', () => {
     let spyAlmaServiceGetRequestsFromItem: jasmine.Spy;
     let spyAlmaServiceScanInItem: jasmine.Spy;
     let SpyAlmaServiceGetHolding: jasmine.Spy;
+    let spyAlmaServiceGetBibPostFromMMSID: jasmine.Spy;
     let SpyAlmaServiceGetMmsIdAndHoldingIdFromField583x: jasmine.Spy;
     let spyDigitizationServiceCheck: jasmine.Spy;
     let spyAlertServiceError: jasmine.Spy;
@@ -346,7 +351,7 @@ describe('SendMaterialComponent:', () => {
             spyAlmaServiceScanInItem = spyOn<any>(mockAlmaService, 'scanInItem').and.returnValue (of('ok'));
             SpyAlmaServiceGetHolding = spyOn<any>(mockAlmaService, 'getHolding').and.returnValue (of(HOLDING));
             SpyAlmaServiceGetMmsIdAndHoldingIdFromField583x = spyOn<any>(mockAlmaService, 'getMmsIdAndHoldingIdFromField583x').and.returnValue(of(['1111', '1111']));
-            spyOn<any>(mockAlmaService, 'getBibPostFromMMSID').and.returnValue(throwError('MMSID not found'));
+            spyAlmaServiceGetBibPostFromMMSID = spyOn<any>(mockAlmaService, 'getBibPostFromMMSID').and.returnValue(throwError('MMSID not found'));
             spyOn<any>(mockAlmaService, 'isField583xUnique').and.returnValue(of(true));
             spyAlertServiceError = spyOn<any>(fakeAlertService, 'error').and.callThrough();
         });
@@ -512,8 +517,6 @@ describe('SendMaterialComponent:', () => {
                     }
                 });
 
-                let SpyAlmaServiceItemShowItemListDialog: jasmine.Spy = spyOn<any>(mockAlmaService, 'showItemListDialog');
-
                 startWith(barcode);
                 fixture.detectChanges();
 
@@ -522,6 +525,35 @@ describe('SendMaterialComponent:', () => {
                 expect(SpyAlmaServiceGetItemFromHolding).toHaveBeenCalledWith('/almaws/v1/bibs/99124397539805763/holdings/222233636140005763/items');
 
                 SpyAlmaServiceGetHolding.calls.reset();
+
+            });
+
+            it("should use MMSID as Maestro-barcode, and field 773w g as Alma item barcode, if MMSID entered in the input box.", () => {
+                let mmsid = '99122771459005763';
+                let relatedItemLink = RELATEDITEM.link;
+                spyAlmaServiceGetBibPostFromMMSID.and.returnValue(of(MARCRECORDFORRELATEDPOST));
+                spyOn<any>(mockAlmaService, 'getBarcodeFromBibPost').and.returnValue(of('KB24076'));
+                let spyAlmaServiceGetItemFromAlmaGetItemsFromBarcode = spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(of(RELATEDITEM));
+
+                let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
+
+                component.deskConfig.useMarcField = true;
+                startWith(mmsid);
+
+                fixture.detectChanges();
+
+                expect(spyDigitizationServiceCheck).toHaveBeenCalledWith(mmsid, component.deskConfig);
+                expect(spyAlmaServiceScanInItem).toHaveBeenCalledWith(relatedItemLink, Object({
+                    op: 'scan',
+                    department: 'Digiproj_10068',
+                    work_order_type: 'Digiproj',
+                    status: 'digitaliseret1',
+                    library: 'Digiproj_10068'
+                }));
+
+                spyAlmaServiceGetItemFromAlma.calls.reset();
+                spyAlmaServiceGetBibPostFromMMSID.calls.reset();
+                spyAlmaServiceGetItemFromAlmaGetItemsFromBarcode.calls.reset();
 
             });
 

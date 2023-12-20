@@ -126,7 +126,7 @@ export class SendMaterialComponent {
 
     private getItemFromMMSID(mmsid) {
         const bibPost = this.getBibPostFromMMSID(mmsid).pipe(tap(() => this.barcodeForMaestro = mmsid));
-        const barcode = bibPost.pipe(map(bibPost => this.getBarcodeFromBibPost(bibPost)));
+        const barcode = bibPost.pipe(map(bibPost => this.almaService.getBarcodeFromBibPost(bibPost)));
         const itemOrError = barcode.pipe(concatMap(barcode => this.almaService.getItemsFromBarcode(barcode)));
         return itemOrError.pipe(catchError(() => of('Input is not MMSID')));
     }
@@ -144,11 +144,6 @@ export class SendMaterialComponent {
                 throw new Error(`MMSID not found`);
             })
         )
-    }
-
-    private getBarcodeFromBibPost(bibPost: Observable<any>) {
-        const xmlDoc = this.almaService.getXmlDocFromResult(bibPost);
-        return this.almaService.getField773wgFromBibPost(xmlDoc);
     }
 
     private subscribeAndHandleResult(result: Observable<any>) {
@@ -259,7 +254,6 @@ export class SendMaterialComponent {
 
     private isDocumentCreated = (document) => document.hasOwnProperty('barcode') && document.barcode === this.barcodeForMaestro;
 
-
     send() {
         const inputBox = this.barcode.nativeElement.value;
         if (inputBox && !this.isSending) {
@@ -268,6 +262,7 @@ export class SendMaterialComponent {
 
             let itemOrError = this.getItemFromMMSID(inputBox);
             const result = itemOrError.pipe(
+                tap(data => console.log('mmsid:', data)),
                 concatMap(item => item === 'Input is not MMSID' ? this.sendItem(inputBox) : this.sendRelatedItem(item))
             )
 

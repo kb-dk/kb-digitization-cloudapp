@@ -769,6 +769,182 @@ export const CONFIG = {
     ]
 }
 
+export const RELATEDITEM = {
+    "bib_data": {
+        "title": "Miscellanea.",
+        "author": "Ricard, Olfert,",
+        "mms_id": "99122814756905763",
+        "bib_suppress_from_publishing": "false",
+        "complete_edition": "",
+        "network_number": [
+            "(EXLNZ-45KBDK_NETWORK)995703996505761",
+            "(DK-810010)000005781KBH01",
+            "x510023206"
+        ],
+        "date_of_publication": "[18??-1921].",
+        "link": "/almaws/v1/bibs/99122814756905763"
+    },
+    "holding_data": {
+        "holding_id": "222078128970005763",
+        "holding_suppress_from_publishing": "false",
+        "calculated_suppress_from_publishing": "false",
+        "permanent_call_number_type": {
+            "value": "8",
+            "desc": "Other scheme"
+        },
+        "permanent_call_number": "Marx-Nielsen 26 kvart",
+        "call_number_type": {
+            "value": "8",
+            "desc": "Other scheme"
+        },
+        "call_number": "Marx-Nielsen 26 kvart",
+        "accession_number": "Marx-Nielsen 26 kvart",
+        "copy_id": "",
+        "in_temp_location": false,
+        "temp_library": {},
+        "temp_location": {},
+        "temp_call_number_type": {
+            "value": ""
+        },
+        "temp_call_number": "",
+        "temp_call_number_source": "",
+        "temp_policy": {
+            "value": ""
+        },
+        "link": "/almaws/v1/bibs/99122814756905763/holdings/222078128970005763"
+    },
+    "item_data": {
+        "pid": "232078128850005763",
+        "barcode": "KB24076",
+        "policy": {
+            "value": "Læsesal ID",
+            "desc": "- Læsesal ID"
+        },
+        "provenance": {
+            "value": ""
+        },
+        "description": "",
+        "library": {
+            "value": "KBL",
+            "desc": "The Black Diamond, Copenhagen"
+        },
+        "location": {
+            "value": "LFHAFKBS",
+            "desc": "Manus. og Boghistorie, læsesal 27 (KBS)"
+        },
+        "pages": "",
+        "pieces": "",
+        "requested": false,
+        "creation_date": "2019-11-18Z",
+        "modification_date": "2019-11-18Z",
+        "base_status": {
+            "value": "1",
+            "desc": "Item in place"
+        },
+        "awaiting_reshelving": false,
+        "physical_material_type": {
+            "value": "MANUSCRIPT",
+            "desc": "Manuscript"
+        },
+        "po_line": "",
+        "year_of_issue": "",
+        "enumeration_a": "",
+        "enumeration_b": "",
+        "enumeration_c": "",
+        "enumeration_d": "",
+        "enumeration_e": "",
+        "enumeration_f": "",
+        "enumeration_g": "",
+        "enumeration_h": "",
+        "chronology_i": "",
+        "chronology_j": "",
+        "chronology_k": "",
+        "chronology_l": "",
+        "chronology_m": "",
+        "break_indicator": {
+            "value": ""
+        },
+        "pattern_type": {
+            "value": ""
+        },
+        "linking_number": "",
+        "type_of_unit": "",
+        "receiving_operator": "",
+        "process_type": {
+            "value": ""
+        },
+        "inventory_number": "",
+        "inventory_price": "",
+        "alternative_call_number": "",
+        "alternative_call_number_type": {
+            "value": ""
+        },
+        "storage_location_id": "",
+        "public_note": "",
+        "fulfillment_note": "",
+        "internal_note_1": "",
+        "internal_note_2": "",
+        "internal_note_3": "",
+        "statistics_note_1": "",
+        "statistics_note_2": "",
+        "statistics_note_3": "",
+        "physical_condition": {},
+        "committed_to_retain": {
+            "value": "true",
+            "desc": "Yes"
+        },
+        "retention_reason": {
+            "value": "Bevaringsværdig",
+            "desc": "Bevaringsværdig"
+        },
+        "retention_note": ""
+    },
+    "link": "/almaws/v1/bibs/99122814756905763/holdings/222078128970005763/items/232078128850005763"
+}
+
+export const MARCRECORDFORRELATEDPOST = {
+    "mms_id": "99122771459005763",
+    "record_format": "marc21",
+    "linked_record_id": {
+        "value": "995324417805761",
+        "type": "NZ"
+    },
+    "title": "2 digte :",
+    "author": "Oehlenschlæger, Adam Gottlob",
+    "network_number": [
+        "(DK-810010)000009124KBH01",
+        "x510056074",
+        "(EXLNZ-45KBDK_NETWORK)995324417805761"
+    ],
+    "date_of_publication": "[18??-1921].",
+    "holdings": {
+        "link": "/almaws/v1/bibs/99122771459005763/holdings"
+    },
+    "created_by": "import",
+    "created_date": "2019-10-24Z",
+    "last_modified_by": "sipm######45KBDK_KGL",
+    "last_modified_date": "2023-12-10Z",
+    "suppress_from_publishing": "false",
+    "suppress_from_external_search": "false",
+    "suppress_from_metadoor": "false",
+    "rank": "54",
+    "sync_with_oclc": "NONE",
+    "sync_with_libraries_australia": "NONE",
+    "originating_system": "OTHER",
+    "originating_system_id": "000009124-KBH01",
+    "cataloging_level": {
+        "value": "00",
+        "desc": "Default Level"
+    },
+    "brief_level": {
+        "value": "01",
+        "desc": "01"
+    },
+    "anies": [
+        "<?xml version=\"1.0\" encoding=\"UTF-16\"?><record><leader>01172ntm a22002412i 4500</leader><controlfield tag=\"001\">99122771459005763</controlfield><controlfield tag=\"005\">20231210170445.0</controlfield><controlfield tag=\"008\">191025q17901921dk ||||||     00||p dan||</controlfield><datafield ind1=\" \" ind2=\" \" tag=\"035\"><subfield code=\"a\">x510056074</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"035\"><subfield code=\"a\">(DK-810010)000009124KBH01</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"035\"><subfield code=\"a\">(EXLNZ-45KBDK_NETWORK)995324417805761</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"096\"><subfield code=\"a\">Marx-Nielsen 26 kvart, nr. 19</subfield><subfield code=\"f\">Magasin</subfield><subfield code=\"r\">a</subfield><subfield code=\"u\">Må kun benyttes på læsesal</subfield><subfield code=\"9\">local</subfield></datafield><datafield ind1=\"1\" ind2=\" \" tag=\"100\"><subfield code=\"a\">Oehlenschlæger, Adam Gottlob</subfield><subfield code=\"d\">1779-1850,</subfield><subfield code=\"c\">forfatter (DBL),</subfield><subfield code=\"4\">fmo</subfield></datafield><datafield ind1=\"1\" ind2=\"0\" tag=\"245\"><subfield code=\"a\">2 digte :</subfield><subfield code=\"k\">renskrifter med enkelte rettelser.</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"260\"><subfield code=\"c\">[18??-1921].</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"300\"><subfield code=\"a\">8 bl.</subfield></datafield><datafield ind1=\"0\" ind2=\" \" tag=\"490\"><subfield code=\"a\">Marx-Nielsen 26 kvart : Miscellanea ;</subfield><subfield code=\"v\">19</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"500\"><subfield code=\"a\">Se specifikation i Lauritz Nielsen: Katalog over danske og norske Digteres Originalmanuskripter i Det Kongelige Bibliotek (1943), s. 339.</subfield></datafield><datafield ind1=\"0\" ind2=\" \" tag=\"505\"><subfield code=\"t\">Sørge-Cantate. I Anledning af Hans høisalige Majestæt Kong Christian den Ottendes Bisættelse i Roeskilde Domkirke.</subfield></datafield><datafield ind1=\"0\" ind2=\" \" tag=\"505\"><subfield code=\"t\">Til Fru Johanna Heiberg. Den 22. Novbr. 1836.</subfield></datafield><datafield ind1=\"0\" ind2=\" \" tag=\"510\"><subfield code=\"a\">Se digital faksimile af Lauritz Nielsens katalog, s. 339</subfield><subfield code=\"u\">http://www.kb.dk/permalink/2006/manus/725/dan/339/</subfield></datafield><datafield ind1=\"1\" ind2=\" \" tag=\"561\"><subfield code=\"a\">Hugo Marx-Nielsen (1894-1941); Indlemmet i KB 1921.</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"595\"><subfield code=\"a\">B4 1498</subfield><subfield code=\"9\">local</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"599\"><subfield code=\"a\">HAR20060602</subfield><subfield code=\"9\">local</subfield></datafield><datafield ind1=\" \" ind2=\"4\" tag=\"650\"><subfield code=\"a\">s04-053a Litteratur. Norden. Dansk, norsk. Digte. Navngivne forfattere.</subfield></datafield><datafield ind1=\"1\" ind2=\" \" tag=\"700\"><subfield code=\"a\">Marx-Nielsen, Hugo</subfield><subfield code=\"4\">fmo</subfield></datafield><datafield ind1=\"0\" ind2=\" \" tag=\"773\"><subfield code=\"w\">99122814756905763</subfield><subfield code=\"g\">KB24076</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"997\"><subfield code=\"a\">KBH</subfield><subfield code=\"9\">local</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"997\"><subfield code=\"a\">EJD</subfield><subfield code=\"9\">local</subfield></datafield><datafield ind1=\" \" ind2=\" \" tag=\"998\"><subfield code=\"a\">kbh</subfield><subfield code=\"9\">local</subfield></datafield></record>"
+    ]
+}
+
 export const DOD_ITEM_WITH_REQUEST = {
     "bib_data": {
         "title": "Engelsk Begynderbog : med Billeder og fuldstændig Udtalebetegnelse /",
