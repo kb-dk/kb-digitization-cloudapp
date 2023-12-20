@@ -528,13 +528,12 @@ describe('SendMaterialComponent:', () => {
 
             });
 
-            it("should use MMSID as Maestro-barcode, and field 773w g as Alma item barcode, if MMSID entered in the input box.", () => {
+            it("should use MMSID as Maestro-barcode, and field '773w g' as Alma item barcode, if MMSID entered in the input box.", () => {
                 let mmsid = '99122771459005763';
                 let relatedItemLink = RELATEDITEM.link;
                 spyAlmaServiceGetBibPostFromMMSID.and.returnValue(of(MARCRECORDFORRELATEDPOST));
                 spyOn<any>(mockAlmaService, 'getBarcodeFromBibPost').and.returnValue(of('KB24076'));
                 let spyAlmaServiceGetItemFromAlmaGetItemsFromBarcode = spyOn<any>(mockAlmaService, 'getItemsFromBarcode').and.returnValue(of(RELATEDITEM));
-
                 let spyAlmaServiceGetItemFromAlma = spyOn<any>(mockAlmaService, 'getItemFromAlma').and.returnValue(of(WORK_ORDER_ITEM_WITH_REQUEST));
 
                 component.deskConfig.useMarcField = true;
