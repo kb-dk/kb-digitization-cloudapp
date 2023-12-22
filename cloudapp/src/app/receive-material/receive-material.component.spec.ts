@@ -462,6 +462,17 @@ describe('ReceiveMaterialComponent:', () => {
                 expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
 
                 component.deskConfig.removeTempLocation = true;
+                WORK_ORDER_ITEM_WITH_REQUEST.holding_data.temp_location.value = "XXX";
+
+                startWith(WorkOrderBarcode);
+
+                fixture.detectChanges();
+
+                expect(spyAlmaServiceRemoveTemporaryLocation).not.toHaveBeenCalled();
+
+                component.deskConfig.removeTempLocation = true;
+                WORK_ORDER_ITEM_WITH_REQUEST.holding_data.temp_location.value = "LFDODX";
+
                 startWith(WorkOrderBarcode);
 
                 fixture.detectChanges();
