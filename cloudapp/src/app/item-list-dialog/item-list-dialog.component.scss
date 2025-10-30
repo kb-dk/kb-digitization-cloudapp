@@ -4,6 +4,8 @@
 
 .dialog-content {
   padding: 5px;
+  max-height: 500px;
+  overflow-y: auto; /* Enables vertical scrolling */
 }
 
 .dialog-footer {

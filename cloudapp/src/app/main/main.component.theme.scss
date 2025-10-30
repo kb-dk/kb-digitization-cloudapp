@@ -5,4 +5,16 @@
     padding: 5px;
     font-weight: bolder;
   }
+
+  .mat-radio-label {
+    align-items: flex-start; /* align radio button to top of radio-button-content */
+  }
+
+  .mat-radio-container {
+    margin-right: 5px; /* add some space between radio-button-content and radio-button */
+  }
+
+  .mat-radio-button {
+    margin-bottom: 20px; /* add some space below each radio button item (dialog item) */
+  }
 }
