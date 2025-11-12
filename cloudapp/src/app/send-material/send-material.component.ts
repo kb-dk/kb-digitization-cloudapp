@@ -28,7 +28,7 @@ export class SendMaterialComponent {
     @Input() almaUrl: string = null;
     @Input() deskConfig: any = null;
     @Output() loading = new EventEmitter<boolean>();
-    @ViewChild('barcode', {static: false}) barcode: ElementRef;
+    @ViewChild('identifier', {static: false}) identifier: ElementRef;
 
     constructor(
         private eventService: CloudAppEventsService,
@@ -46,6 +46,7 @@ export class SendMaterialComponent {
     }
 
     private checkItem(barcodeStatus: Observable<any>) {
+        console.log(this.itemFromAlma)
         let itemRequests = barcodeStatus.pipe(concatMap(() => this.almaService.getRequestsFromItem(this.itemFromAlma.link)));
         itemRequests = this.checkRequests(this.deskConfig.checkRequests, itemRequests);
         itemRequests = this.checkDesk(itemRequests);
@@ -76,7 +77,7 @@ export class SendMaterialComponent {
         this.loading.emit(false);
         this.isSending = false;
         this.itemFromAlma = null;
-        this.barcode.nativeElement.value = "";
+        this.identifier.nativeElement.value = "";
         this.barcodeForMaestro = "";
     }
 
@@ -133,6 +134,7 @@ export class SendMaterialComponent {
 
     private sendRelatedItem(item) {
         this.itemFromAlma = item;
+        console.log(item)
         return this.checkStatusInDigitization(this.barcodeForMaestro).pipe(
             concatMap(data => this.sendToDigi()),
         );
@@ -255,7 +257,7 @@ export class SendMaterialComponent {
     private isDocumentCreated = (document) => document.hasOwnProperty('barcode') && document.barcode === this.barcodeForMaestro;
 
     send() {
-        const inputBox = this.barcode.nativeElement.value;
+        const inputBox = this.identifier.nativeElement.value;
         if (inputBox && !this.isSending) {
             this.isSending = true;
             this.loading.emit(true);

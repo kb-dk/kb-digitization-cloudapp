@@ -128,6 +128,9 @@ export class ConfigComponent implements OnInit {
             showTitle: new FormControl(''),
             checkRequests: new FormControl(''),
             useMarcField: new FormControl(''),
+            barcode: new FormControl(''),
+            MMSID: new FormControl(''),
+            marc583Field: new FormControl(''),
             removeTempLocation: new FormControl(''),
             params: this.createParams(paramNames)
         })
