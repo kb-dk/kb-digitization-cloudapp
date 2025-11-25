@@ -128,7 +128,7 @@ export class SendMaterialComponent {
         const bibPost = this.getBibPostFromMMSID(mmsid).pipe(tap(() => this.barcodeForMaestro = mmsid));
         const barcode = bibPost.pipe(map(bibPost => this.almaService.getBarcodeFromBibPost(bibPost)));
         const itemOrError = barcode.pipe(concatMap(barcode => this.almaService.getItemsFromBarcode(barcode)));
-        return itemOrError.pipe(catchError(() => of('Input is not MMSID')));
+        return itemOrError.pipe(catchError(() => of('Warning: The input is not a valid MMSID')));
     }
 
     private sendRelatedItem(item) {
@@ -141,7 +141,7 @@ export class SendMaterialComponent {
     private getBibPostFromMMSID(mmsid: string) {
         return this.almaService.getBibPostFromMMSID(mmsid).pipe(
             catchError(()=> {
-                throw new Error(`MMSID not found`);
+                throw new Error(`Warning: The input is not a valid MMSID`);
             })
         )
     }
@@ -263,7 +263,7 @@ export class SendMaterialComponent {
             let itemOrError = this.getItemFromMMSID(inputBox);
             const result = itemOrError.pipe(
                 tap(data => console.log('mmsid:', data)),
-                concatMap(item => item === 'Input is not MMSID' ? this.sendItem(inputBox) : this.sendRelatedItem(item))
+                concatMap(item => item === 'Warning: The input is not a valid MMSID' ? this.sendItem(inputBox) : this.sendRelatedItem(item))
             )
 
             this.subscribeAndHandleResult(result);
