@@ -82,6 +82,22 @@ describe('AlmaService:', () => {
         almaService = TestBed.inject(AlmaService);
     };
 
+    describe('isMmsId', () => {
+        beforeEach(() => setupService('item', []));
+
+        it('should accept a numeric MMS ID starting with 99', () => {
+            expect(almaService.isMmsId('99124813044205763')).toBeTrue();
+            expect(almaService.isMmsId(' 99124813044205763 ')).toBeTrue();
+        });
+
+        it('should reject field 583x values, barcodes and empty input', () => {
+            expect(almaService.isMmsId('NKS-4_2969_15_Fleischer-HL_Maltzan-H')).toBeFalse();
+            expect(almaService.isMmsId('130022786382')).toBeFalse();
+            expect(almaService.isMmsId('')).toBeFalse();
+            expect(almaService.isMmsId(null)).toBeFalse();
+        });
+    });
+
     describe('getItemFromHolding', () => {
         it('should request all pages when a holding has more items than one page', () => {
             setupService('item', buildItems(120));

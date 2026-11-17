@@ -326,6 +326,10 @@ export class AlmaService {
 
   getHoldingsFromMMSID = (mmsid: string) => this.getAllPages(`/bibs/${mmsid.trim()}/holdings`, 'holding');
 
+  // Alma MMS IDs are numeric and start with 99. Anything else (e.g. a field 583x value) must not be sent to /bibs/{id},
+  // since Alma rejects non-numeric ids with error 4022150 ("Direct access usage of the REST APIs is blocked").
+  isMmsId = (input: string): boolean => /^99\d+$/.test((input || '').trim());
+
   getBibPostFromMMSID = (mmsid: string) => this.restService.call(`/bibs/${mmsid.trim()}`);
 
   getField773wgFromBibPost = (xmlDoc) => {
