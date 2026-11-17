@@ -113,24 +113,24 @@ describe('MainComponent', () => {
         expect(spyAlertServiceError).toHaveBeenCalledWith("Please ask an Admin to configure this App.");
     });
 
-    it('should input label be "Barcode" if "useMarcField" is "false".', () => {
+    it('should input label be "Barcode or MMSID" if "useMarcField" is "false".', () => {
         let config = JSON.parse(JSON.stringify(CONFIG));
         config.desks[4].useMarcField = false;
         spyConfig.and.returnValue(of(config));
 
         fixture.detectChanges();
 
-        expect(component.inputLabel).toBe(`Barcode`);
+        expect(component.inputLabel).toBe(`Barcode or MMSID`);
     });
 
-    it('should input label be "Barcode or field583x" if "useMarcField" is "true".', () => {
+    it('should input label be "Barcode, MMSID or field583x" if "useMarcField" is "true".', () => {
         let config = JSON.parse(JSON.stringify(CONFIG));
         config.desks[4].useMarcField = true;
         spyConfig.and.returnValue(of(config));
 
         fixture.detectChanges();
 
-        expect(component.inputLabel).toBe(`Barcode or field583x`);
+        expect(component.inputLabel).toBe(`Barcode, MMSID or field583x`);
     });
 
     afterEach(() => {
