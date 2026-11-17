@@ -57,3 +57,5 @@ Open the configuration page from the app's settings menu in Alma.
 ## Development
 
 See [DEVELOPER.md](DEVELOPER.md) for how to run the app locally and run the tests.
+
+See [FLOW.md](FLOW.md) for how the app decides what to do with each scan.
