@@ -1821,3 +1821,7 @@ export const MAESTRO_CREATED_RECORD_AFTER_NEXT_STEP = {
         "74": {"title": "parts_of_physical_item", "value": ""}
     }
 }
+
+export const TEST_ITEM = TWOITEMSFROMONEHOLDING.item[0];
+
+export const TEST_HOLDING = HOLDING;
