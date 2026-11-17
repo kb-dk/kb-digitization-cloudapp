@@ -119,6 +119,7 @@ describe('SendMaterialComponent:', () => {
         checkIfdeskCodeIsDestination = (request, deskCode): boolean => true;
         markItemAsUnavailable = (itemLink: string, library: string, department: string, work_order_type: string = null, institution: string) => of('ok');
         getItemsFromBarcode = (barcode) => {throwError({message: `No items found for barcode ${barcode}.`})};
+        isMmsId = (input: string) => /^99\d+$/.test((input || '').trim());
         getBibPostFromMMSID = (mmsid) => of(``);
         getXmlDocFromResult = () => '';
         getField773wgFromBibPost = () => '';
