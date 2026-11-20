@@ -144,6 +144,9 @@ export class ReceiveMaterialComponent{
     }
 
     private getItemFromMMSID(mmsid: string): Observable<any> {
+        if (!this.almaService.isMmsId(mmsid)) {
+            return of('Input is not MMSID');
+        }
         const bibPost = this.getBibPostFromMMSID(mmsid).pipe(tap(() => this.barcodeForMaestro = mmsid));
         const barcode = bibPost.pipe(map(bibPost => this.getBarcodeFromBibPost(bibPost)));
         const itemOrError = barcode.pipe(concatMap(barcode => this.almaService.getItemsFromBarcode(barcode)));

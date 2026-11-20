@@ -125,6 +125,9 @@ export class SendMaterialComponent {
     }
 
     private getItemFromMMSID(mmsid) {
+        if (!this.almaService.isMmsId(mmsid)) {
+            return of('Warning: The input is not a valid MMSID');
+        }
         const bibPost = this.getBibPostFromMMSID(mmsid).pipe(tap(() => this.barcodeForMaestro = mmsid));
         const barcode = bibPost.pipe(map(bibPost => this.almaService.getBarcodeFromBibPost(bibPost)));
         const itemOrError = barcode.pipe(concatMap(barcode => this.almaService.getItemsFromBarcode(barcode)));

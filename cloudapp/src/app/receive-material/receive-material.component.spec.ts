@@ -115,6 +115,7 @@ describe('ReceiveMaterialComponent:', () => {
             }
         };
         getItemsFromBarcode = (barcode) => {throwError({message: `No items found for barcode ${barcode}.`})};
+        isMmsId = (input: string) => /^99\d+$/.test((input || '').trim());
         getBibPostFromMMSID = (mmsid) => of(``);
         getXmlDocFromResult = () => '';
         getField773wgFromBibPost = () => '';

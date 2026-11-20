@@ -4,11 +4,15 @@ import {
   HttpMethod,
   Request
 } from "@exlibris/exl-cloudapp-angular-lib";
-import {forkJoin, Observable, of} from "rxjs";
+import {forkJoin, from, Observable, of, throwError} from "rxjs";
 import {catchError, concatMap, map, mergeMap, tap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ItemListDialogComponent} from "../item-list-dialog/item-list-dialog.component";
+
+// Alma list APIs accept limit 0-100 and use a 0-based offset (offset 0 = first record).
+export const PAGE_SIZE = 100;
+export const MAX_PAGES = 10;
 
 @Injectable({
   providedIn: 'root'
@@ -83,7 +87,7 @@ export class AlmaService {
             this.inputIsBarcode = false;
             return  of('Barcode not found');
           }
-          return error;
+          return throwError(error);
         }
     )
     )
@@ -116,9 +120,37 @@ export class AlmaService {
       map (holdingId => [mmsid, holdingId]),
     );
 
-  getItemFromHolding = (link: string) => this.restService.call(`${link}`);
+  getItemFromHolding = (link: string) => this.getAllPages(link, 'item');
 
-  getRequestsFromItem = (link: string) => this.restService.call(`${link}/requests`);
+  getRequestsFromItem = (link: string) => this.getAllPages(`${link}/requests`, 'user_request');
+
+  getAllPages(link: string, entityKey: string, queryParams: any = {}): Observable<any> {
+    return this.fetchPage(link, entityKey, queryParams, 0, []).pipe(
+        map(({records, totalRecordCount}) => ({[entityKey]: records, total_record_count: totalRecordCount}))
+    );
+  }
+
+  private fetchPage(link: string, entityKey: string, queryParams: any, offset: number, accumulated: any[]): Observable<{ records: any[], totalRecordCount: number }> {
+    const request: Request = {
+      url: link,
+      queryParams: {...queryParams, limit: PAGE_SIZE, offset}
+    };
+    return this.restService.call(request).pipe(
+        concatMap(response => {
+          const page = this.toArrayOfRecords(response ? response[entityKey] : null);
+          const records = accumulated.concat(page);
+          const totalRecordCount = typeof response?.total_record_count === 'number' ? response.total_record_count : records.length;
+          const hasMoreRecords = page.length > 0
+              && records.length < totalRecordCount
+              && offset / PAGE_SIZE < MAX_PAGES - 1;
+          return hasMoreRecords ?
+              this.fetchPage(link, entityKey, queryParams, offset + PAGE_SIZE, records) :
+              of({records, totalRecordCount});
+        })
+    );
+  }
+
+  private toArrayOfRecords = (records): any[] => Array.isArray(records) ? records : (records ? [records] : []);
 
   isField583xUnique = (fieldContent: string, institution: string, almaUrl: string) : Observable<boolean> => {
     const url = `${almaUrl}view/sru/${institution}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.all_for_ui=${fieldContent}`;
@@ -278,21 +310,25 @@ export class AlmaService {
 
   getItem(items) {
       if (items.hasOwnProperty('item')) {
-      items = items.item;
+      items = this.toArrayOfRecords(items.item);
       switch (items.length) {
         case 0:
           throw new Error(`There is no item.`);
         case 1:
           return of(items[0]);
         default:
-          return this.showItemListDialog(items);
+          return from(this.showItemListDialog(items));
       }
     } else {
       throw new Error(`There is no item.`);
     }
   }
 
-  getHoldingsFromMMSID = (mmsid: string) => this.restService.call(`/bibs/${mmsid.trim()}/holdings`);
+  getHoldingsFromMMSID = (mmsid: string) => this.getAllPages(`/bibs/${mmsid.trim()}/holdings`, 'holding');
+
+  // Alma MMS IDs are numeric and start with 99. Anything else (e.g. a field 583x value) must not be sent to /bibs/{id},
+  // since Alma rejects non-numeric ids with error 4022150 ("Direct access usage of the REST APIs is blocked").
+  isMmsId = (input: string): boolean => /^99\d+$/.test((input || '').trim());
 
   getBibPostFromMMSID = (mmsid: string) => this.restService.call(`/bibs/${mmsid.trim()}`);
 
