@@ -131,16 +131,16 @@ export class AlmaService {
   }
 
   private fetchPage(link: string, entityKey: string, queryParams: any, offset: number, accumulated: any[]): Observable<{ records: any[], totalRecordCount: number }> {
-    let request: Request = {
+    const request: Request = {
       url: link,
       queryParams: {...queryParams, limit: PAGE_SIZE, offset}
     };
     return this.restService.call(request).pipe(
         concatMap(response => {
-          let page = this.toArrayOfRecords(response ? response[entityKey] : null);
-          let records = accumulated.concat(page);
-          let totalRecordCount = typeof response?.total_record_count === 'number' ? response.total_record_count : records.length;
-          let hasMoreRecords = page.length > 0
+          const page = this.toArrayOfRecords(response ? response[entityKey] : null);
+          const records = accumulated.concat(page);
+          const totalRecordCount = typeof response?.total_record_count === 'number' ? response.total_record_count : records.length;
+          const hasMoreRecords = page.length > 0
               && records.length < totalRecordCount
               && offset / PAGE_SIZE < MAX_PAGES - 1;
           return hasMoreRecords ?
